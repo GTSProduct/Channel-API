@@ -34,7 +34,7 @@ curl -X POST 'https://api.yourcpaas.com/api/sms/send-msg?campaign_id=XXXXX&phone
 ```
 
 ```json Success
-{ "status": "success", "ref_id": "e7e35b46-b281-4a6d-8a39-fd045eb4d9f5" }
+{ "status": "success", "ref_id": "26f5b436-7377-4574-9173-c07e81b164d5" }
 ```
 
 `ref_id` is the unique message ID of the request.
@@ -59,7 +59,7 @@ curl --location 'https://api.yourcpaas.com/api/sms/template/send' \
   --header 'Authorization: Bearer YOUR_TOKEN' \
   --data '{
     "alias": "TEMPLATE_ID",
-    "to": ["919876543210"],
+    "to": ["91XXXXXXXXXX"],
     "params": { "1": "Var1" }
   }'
 ```
@@ -69,7 +69,7 @@ curl --location 'https://api.yourcpaas.com/api/sms/template/send' \
   "status": "success",
   "message": "Messages are sent successfully.",
   "data": [
-    { "status": "submitted", "message_id": "b8ea48c1-30a7-40da-99e0-b5b0a2dcff7f", "number": "919876543210", "units": 1, "received_at": "2026-03-25 20:13:54" }
+    { "status": "submitted", "message_id": "d0056007-2e32-44fa-beb7-1dbdfb0d8bc2", "number": "91XXXXXXXXXX", "units": 1, "received_at": "2026-03-25 20:13:54" }
   ]
 }
 ```
@@ -109,7 +109,7 @@ curl --location 'https://api.yourcpaas.com/api/sms/send' \
   --header 'Authorization: Bearer YOUR_TOKEN' \
   --data '{
     "from": "SENDER",
-    "to": ["919876543210"],
+    "to": ["91XXXXXXXXXX"],
     "text": "Message Text",
     "type": "A",
     "product": "Transactional",
@@ -145,10 +145,10 @@ curl --location 'https://api.yourcpaas.com/api/sms/json' \
   --header 'Content-Type: application/json' \
   --header 'Authorization: Bearer YOUR_TOKEN' \
   --data '{
-    "root": { "from": "CPAAS", "text": "Hello, your order is confirmed.", "to": ["919876543210"] },
+    "root": { "from": "CPAAS", "text": "Hello, your order is confirmed.", "to": ["91XXXXXXXXXX"] },
     "data": [
-      { "from": "PROMO", "text": "Hi John, your OTP is 485923", "to": ["919876543210"] },
-      { "from": "PROMO", "text": "Hi Priya, your OTP is 736104", "to": ["919123456789"] }
+      { "from": "PROMO", "text": "Hi John, your OTP is 485923", "to": ["91XXXXXXXXXX"] },
+      { "from": "PROMO", "text": "Hi Priya, your OTP is 736104", "to": ["91XXXXXXXXXX"] }
     ]
   }'
 ```
@@ -181,7 +181,7 @@ Fetch delivery reports (DLR). All filters are optional and can be combined.
 | `per_page` | Records per page. Maximum 100, or limit to 50, 25 or 10. |
 
 ```bash
-curl --location --globoff 'https://api.yourcpaas.com/api/sms/status?number=919876543210&id=MESSAGE_ID&status=FAILED' \
+curl --location --globoff 'https://api.yourcpaas.com/api/sms/status?number=91XXXXXXXXXX&id=MESSAGE_ID&status=FAILED' \
   --header 'Accept: application/json' \
   --header 'Authorization: Bearer YOUR_TOKEN'
 ```
@@ -191,9 +191,9 @@ curl --location --globoff 'https://api.yourcpaas.com/api/sms/status?number=91987
   "status": "success",
   "data": [
     {
-      "message_id": "d540ef99-2afc-4356-b134-681bf0006434",
-      "from": "TESTAX-M",
-      "number": "918999614988",
+      "message_id": "5f3747eb-f92e-4b1a-97bf-72b8e00b75e9",
+      "from": "SENDER",
+      "number": "91XXXXXXXXXX",
       "status": "FAILED",
       "code": "105",
       "units": 1,

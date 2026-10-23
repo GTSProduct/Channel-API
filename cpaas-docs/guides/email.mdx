@@ -56,7 +56,7 @@ curl --location 'https://api.yourcpaas.com/api/email/template/send' \
 {
   "status": "success",
   "message": "Email sent successfully.",
-  "data": { "message_id": "email-abc123def456", "to": "customer@example.com", "status": "queued" }
+  "data": { "message_id": "email-jo3cp4m8gv8c", "to": "customer@example.com", "status": "queued" }
 }
 ```
 
@@ -118,12 +118,12 @@ curl --location --request GET 'https://api.yourcpaas.com/api/email/status' \
   --header 'Accept: application/json' \
   --header 'Content-Type: application/json' \
   --header 'Authorization: Bearer YOUR_TOKEN' \
-  --data '{ "id": "3f70a02c-305e-4a95-b389-9c4640741684" }'
+  --data '{ "id": "3d778746-c991-44bc-ae46-c15af500673d" }'
 ```
 
 ```json Response
 {
-  "message_id": "3f70a02c-305e-4a95-b389-9c4640741684",
+  "message_id": "3d778746-c991-44bc-ae46-c15af500673d",
   "status": "delivered",
   "timeline": {
     "queued_at": "2026-02-27T12:00:09.000000Z",
@@ -161,7 +161,7 @@ Timeline fields are `null` until the event happens. Errors: `The id field is req
     {
       "status": "success",
       "message": "OTP sent successfully.",
-      "data": { "unique_id": "otp-sess-a1b2c3d4e5f6", "expires_in": 300, "channel": "email" }
+      "data": { "unique_id": "otp-sess-hpzv07gryhdr", "expires_in": 300, "channel": "email" }
     }
     ```
 
@@ -170,7 +170,7 @@ Timeline fields are `null` until the event happens. Errors: `The id field is req
   <Step title="Validate the OTP">
     ```bash
     curl --location --request POST \
-      'https://api.yourcpaas.com/api/verify/validate-otp?unique_id=otp-sess-a1b2c3d4e5f6&otp=485923' \
+      'https://api.yourcpaas.com/api/verify/validate-otp?unique_id=otp-sess-hpzv07gryhdr&otp=485923' \
       --header 'Accept: application/json' \
       --header 'Authorization: Bearer YOUR_TOKEN'
     ```
@@ -178,7 +178,7 @@ Timeline fields are `null` until the event happens. Errors: `The id field is req
     <Tabs>
       <Tab title="Verified">
         ```json
-        { "status": "success", "message": "OTP verified successfully.", "data": { "verified": true, "unique_id": "otp-sess-a1b2c3d4e5f6" } }
+        { "status": "success", "message": "OTP verified successfully.", "data": { "verified": true, "unique_id": "otp-sess-hpzv07gryhdr" } }
         ```
       </Tab>
       <Tab title="Wrong OTP">

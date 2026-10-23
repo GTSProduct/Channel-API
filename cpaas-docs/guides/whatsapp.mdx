@@ -34,7 +34,7 @@ All templates must be approved in Meta Business Manager before sending. The temp
       --header 'Authorization: Bearer YOUR_TOKEN' \
       --data '{
         "source": "WHATSAPP_NUMBER",
-        "destination": "919876543210",
+        "destination": "91XXXXXXXXXX",
         "template": { "id": "TEMPLATE_ID" },
         "media_url": "https://example.com/file.pdf"
       }'
@@ -48,7 +48,7 @@ All templates must be approved in Meta Business Manager before sending. The temp
       --header 'Authorization: Bearer YOUR_TOKEN' \
       --data '{
         "source": "WHATSAPP_NUMBER",
-        "destination": "919876543210",
+        "destination": "91XXXXXXXXXX",
         "template": { "id": "TEMPLATE_ID", "params": ["Var1", "Var2"] }
       }'
     ```
@@ -64,8 +64,8 @@ All templates must be approved in Meta Business Manager before sending. The temp
   "status": "success",
   "message": "Message sent successfully.",
   "data": {
-    "message_id": "wamid.HBgLOTE5ODc2NTQzMjEWAgARGBI",
-    "receiver": "919876543210",
+    "message_id": "wamid.RpbCVV2HEWfRuwiXDz5EqRRLmTy0laGmDSIH",
+    "receiver": "91XXXXXXXXXX",
     "status": "submitted"
   }
 }
@@ -101,7 +101,7 @@ curl --location 'https://api.yourcpaas.com/api/whatsapp/WABA_NUMBER/order-status
     "status": "shipped",
     "tracking_url": "https://tracking.example.com/ORD-9876",
     "description": "Your order has been dispatched via Blue Dart.",
-    "receiver": "919876543210"
+    "receiver": "91XXXXXXXXXX"
   }'
 ```
 
@@ -141,7 +141,7 @@ curl --location 'https://api.yourcpaas.com/api/whatsapp/ACCOUNT/payment/refund' 
     "refund_amount": "1499.00",
     "currency": "INR",
     "reason": "customer_request",
-    "receiver": "919876543210"
+    "receiver": "91XXXXXXXXXX"
   }'
 ```
 
@@ -150,7 +150,7 @@ curl --location 'https://api.yourcpaas.com/api/whatsapp/ACCOUNT/payment/refund' 
   "status": "success",
   "message": "Refund initiated successfully.",
   "data": {
-    "refund_id": "REF-20260326-001",
+    "refund_id": "REF-20260326-890",
     "order_id": "ORD-9876",
     "refund_amount": "1499.00",
     "currency": "INR",

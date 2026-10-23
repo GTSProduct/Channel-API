@@ -59,7 +59,7 @@ paths:
         description: Destination mobile number the message will be delivered to.
         schema:
           type: string
-        example: '919876543210'
+        example: '91XXXXXXXXXX'
       - name: params
         in: query
         required: true
@@ -77,7 +77,7 @@ paths:
                 $ref: '#/components/schemas/SmsCampaignResponse'
               example:
                 status: success
-                ref_id: e7e35b46-b281-4a6d-8a39-fd045eb4d9f5
+                ref_id: 26f5b436-7377-4574-9173-c07e81b164d5
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -105,7 +105,7 @@ paths:
             example:
               alias: TPL_ORDER_CONFIRM
               to:
-              - '919876543210'
+              - '91XXXXXXXXXX'
               params:
                 '1': ORD-1001
       responses:
@@ -120,8 +120,8 @@ paths:
                 message: Messages are sent successfully.
                 data:
                 - status: submitted
-                  message_id: b8ea48c1-30a7-40da-99e0-b5b0a2dcff7f
-                  number: '919876543210'
+                  message_id: d0056007-2e32-44fa-beb7-1dbdfb0d8bc2
+                  number: '91XXXXXXXXXX'
                   units: 1
                   received_at: '2026-03-25 20:13:54'
         '400':
@@ -151,7 +151,7 @@ paths:
             example:
               from: CPAAS
               to:
-              - '919876543210'
+              - '91XXXXXXXXXX'
               text: Your order ORD-1001 has been shipped.
               type: N
               product: Transactional
@@ -169,8 +169,8 @@ paths:
                 message: Messages are sent successfully.
                 data:
                 - status: submitted
-                  message_id: 7a885484-e5fb-4234-ae63-cf16da72d0f1
-                  number: '919876543210'
+                  message_id: ce73930a-687b-49f5-a4c8-80e816b9b458
+                  number: '91XXXXXXXXXX'
                   units: 1
                   received_at: '2026-03-26 19:41:10'
         '400':
@@ -204,16 +204,16 @@ paths:
                 from: CPAAS
                 text: Hello, your order is confirmed.
                 to:
-                - '919876543210'
+                - '91XXXXXXXXXX'
               data:
               - from: PROMO
                 text: Hi John, your OTP is 485923
                 to:
-                - '919876543210'
+                - '91XXXXXXXXXX'
               - from: PROMO
                 text: Hi Priya, your OTP is 736104
                 to:
-                - '919123456789'
+                - '91XXXXXXXXXX'
       responses:
         '200':
           description: Request accepted.
@@ -226,8 +226,8 @@ paths:
                 message: Messages are sent successfully.
                 data:
                 - status: submitted
-                  message_id: 5fc76f1d-177b-4af2-9ab5-b214dbad3e81
-                  number: '919876543210'
+                  message_id: d01c11ce-755e-4d03-900f-e185bf87bbe9
+                  number: '91XXXXXXXXXX'
                   units: 1
                   received_at: '2026-03-26 10:15:32'
                 - status: failed
@@ -312,9 +312,9 @@ paths:
               example:
                 status: success
                 data:
-                - message_id: d540ef99-2afc-4356-b134-681bf0006434
-                  from: TESTAX-M
-                  number: '918999614988'
+                - message_id: 5f3747eb-f92e-4b1a-97bf-72b8e00b75e9
+                  from: SENDER
+                  number: '91XXXXXXXXXX'
                   status: FAILED
                   code: '105'
                   units: 1
@@ -357,8 +357,8 @@ paths:
               withoutMedia:
                 summary: Template with variables
                 value:
-                  source: '919000000000'
-                  destination: '919876543210'
+                  source: '91XXXXXXXXXX'
+                  destination: '91XXXXXXXXXX'
                   template:
                     id: order_update
                     params:
@@ -367,8 +367,8 @@ paths:
               withMedia:
                 summary: Template with a media header
                 value:
-                  source: '919000000000'
-                  destination: '919876543210'
+                  source: '91XXXXXXXXXX'
+                  destination: '91XXXXXXXXXX'
                   template:
                     id: invoice_share
                   media_url: https://example.com/files/invoice.pdf
@@ -383,8 +383,8 @@ paths:
                 status: success
                 message: Message sent successfully.
                 data:
-                  message_id: wamid.HBgLOTE5ODc2NTQzMjEWAgARGBI
-                  receiver: '919876543210'
+                  message_id: wamid.RpbCVV2HEWfRuwiXDz5EqRRLmTy0laGmDSIH
+                  receiver: '91XXXXXXXXXX'
                   status: submitted
         '400':
           $ref: '#/components/responses/BadRequest'
@@ -411,7 +411,7 @@ paths:
         description: WhatsApp sender ID (WABA number) the order belongs to.
         schema:
           type: string
-        example: '919000000000'
+        example: '91XXXXXXXXXX'
       requestBody:
         required: true
         content:
@@ -423,7 +423,7 @@ paths:
               status: shipped
               tracking_url: https://tracking.example.com/ORD-9876
               description: Your order has been dispatched via Blue Dart.
-              receiver: '919876543210'
+              receiver: '91XXXXXXXXXX'
       responses:
         '200':
           description: Request accepted.
@@ -474,7 +474,7 @@ paths:
               refund_amount: '1499.00'
               currency: INR
               reason: customer_request
-              receiver: '919876543210'
+              receiver: '91XXXXXXXXXX'
       responses:
         '200':
           description: Request accepted.
@@ -486,7 +486,7 @@ paths:
                 status: success
                 message: Refund initiated successfully.
                 data:
-                  refund_id: REF-20260326-001
+                  refund_id: REF-20260326-890
                   order_id: ORD-9876
                   refund_amount: '1499.00'
                   currency: INR
@@ -515,7 +515,7 @@ paths:
         description: WhatsApp Business (WABA) number.
         schema:
           type: string
-        example: '919000000000'
+        example: '91XXXXXXXXXX'
       - name: per_page
         in: query
         required: false
@@ -547,9 +547,9 @@ paths:
                   per_page: 10
                   current_page: 1
                   blocked_members:
-                  - phone: '919876543210'
+                  - phone: '91XXXXXXXXXX'
                     blocked_at: '2026-03-26 10:15:32'
-                  - phone: '919123456789'
+                  - phone: '91XXXXXXXXXX'
                     blocked_at: '2026-03-25 08:30:00'
         '400':
           $ref: '#/components/responses/BadRequest'
@@ -576,8 +576,8 @@ paths:
             schema:
               $ref: '#/components/schemas/BlockedMembersRequest'
             example:
-              sender_id: '919000000000'
-              phone: '919876543210'
+              sender_id: '91XXXXXXXXXX'
+              phone: '91XXXXXXXXXX'
       responses:
         '200':
           description: Request accepted.
@@ -589,7 +589,7 @@ paths:
                 status: success
                 message: User blocked successfully.
                 data:
-                  phone: '919876543210'
+                  phone: '91XXXXXXXXXX'
                   blocked_at: '2026-03-26 10:15:32'
         '400':
           $ref: '#/components/responses/BadRequest'
@@ -614,8 +614,8 @@ paths:
             schema:
               $ref: '#/components/schemas/BlockedMembersRequest'
             example:
-              sender_id: '919000000000'
-              phone: '919876543210'
+              sender_id: '91XXXXXXXXXX'
+              phone: '91XXXXXXXXXX'
       responses:
         '200':
           description: Request accepted.
@@ -704,7 +704,7 @@ paths:
                 sender_id:
                   type: string
                   description: WhatsApp Business (WABA) number.
-                  example: '919000000000'
+                  example: '91XXXXXXXXXX'
       responses:
         '200':
           description: Request accepted.
@@ -765,7 +765,7 @@ paths:
                 status: success
                 message: Email sent successfully.
                 data:
-                  message_id: email-abc123def456
+                  message_id: email-jo3cp4m8gv8c
                   to: customer@example.com
                   status: queued
         '400':
@@ -813,7 +813,7 @@ paths:
                 status: success
                 message: Email sent successfully.
                 data:
-                  message_id: email-xyz789uvw012
+                  message_id: email-aiieoq1xh6kr
                   to: customer@example.com
                   status: queued
         '400':
@@ -844,7 +844,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/EmailStatusResponse'
               example:
-                message_id: 3f70a02c-305e-4a95-b389-9c4640741684
+                message_id: 3d778746-c991-44bc-ae46-c15af500673d
                 status: delivered
                 timeline:
                   queued_at: '2026-02-27T12:00:09.000000Z'
@@ -884,7 +884,7 @@ paths:
               required:
               - id
             example:
-              id: 3f70a02c-305e-4a95-b389-9c4640741684
+              id: 3d778746-c991-44bc-ae46-c15af500673d
   /api/verify/send-otp:
     post:
       tags:
@@ -927,7 +927,7 @@ paths:
                 status: success
                 message: OTP sent successfully.
                 data:
-                  unique_id: otp-sess-a1b2c3d4e5f6
+                  unique_id: otp-sess-hpzv07gryhdr
                   expires_in: 300
                   channel: email
         '400':
@@ -976,7 +976,7 @@ paths:
                     message: OTP verified successfully.
                     data:
                       verified: true
-                      unique_id: otp-sess-a1b2c3d4e5f6
+                      unique_id: otp-sess-hpzv07gryhdr
                 wrongOtp:
                   summary: Wrong OTP
                   value:
@@ -1049,7 +1049,7 @@ paths:
                     postback: view_details
                   - suggestionType: dialer_action
                     displayText: Call Support
-                    phoneNumber: '+911234567890'
+                    phoneNumber: '+91XXXXXXXXXX'
                     postback: call_support
               richCard:
                 summary: Media + buttons
@@ -1138,7 +1138,7 @@ paths:
                 summary: 'Vi: text with buttons'
                 value:
                   botId: YOUR_VI_BOT_ID
-                  to: '919876543210'
+                  to: '91XXXXXXXXXX'
                   message_type: text_message
                   content:
                     textMessageContent: Hello John, your order ORD-9876 is ready for pickup!
@@ -1152,13 +1152,13 @@ paths:
                       postback: track_order
                     - suggestionType: dialer_action
                       displayText: Call Support
-                      phoneNumber: '+911234567890'
+                      phoneNumber: '+91XXXXXXXXXX'
                       postback: call_support
               viRichCard:
                 summary: 'Vi: rich card'
                 value:
                   botId: YOUR_VI_BOT_ID
-                  to: '919876543210'
+                  to: '91XXXXXXXXXX'
                   message_type: rich_card
                   content:
                     orientation: VERTICAL
@@ -1179,7 +1179,7 @@ paths:
                 summary: 'Jio: text with extended buttons'
                 value:
                   botId: YOUR_JIO_BOT_ID
-                  to: '919876543210'
+                  to: '91XXXXXXXXXX'
                   message_type: text_message
                   content:
                     textMessageContent: Your appointment is confirmed for March 30, 2026 at 10:00 AM.
@@ -1200,7 +1200,7 @@ paths:
                 summary: 'Jio: carousel'
                 value:
                   botId: YOUR_JIO_BOT_ID
-                  to: '919876543210'
+                  to: '91XXXXXXXXXX'
                   message_type: carousel
                   content:
                     width: MEDIUM_WIDTH
@@ -1233,8 +1233,8 @@ paths:
                 status: success
                 message: RCS message sent successfully.
                 data:
-                  message_id: rcs-vi-msg-abc123xyz
-                  to: '919876543210'
+                  message_id: rcs-vi-msg-lnbg0tyrvn
+                  to: '91XXXXXXXXXX'
                   status: submitted
                   received_at: '2026-03-26 10:15:32'
         '400':
@@ -1271,13 +1271,13 @@ paths:
               example:
                 success: true
                 data:
-                  message_id: 7870e824-693d-4e25-b424-099f273c89a8
+                  message_id: 11c0a853-95ad-4deb-993a-4992dc85c608
                   status: read
                   status_description: Unknown status
                   message_type: text
                   priority: null
                   direction: outbound
-                  number: '919202511257'
+                  number: '91XXXXXXXXXX'
                   created_at: '2026-03-13 15:44:31'
                   scheduled_at: '2026-03-13 15:44:31'
                   sent_at: '2026-03-13 15:44:32'
@@ -1315,7 +1315,7 @@ paths:
                 phone:
                   type: string
                   description: Contact mobile number.
-                  example: '919876543210'
+                  example: '91XXXXXXXXXX'
                 email:
                   type: string
                   format: email
@@ -1325,7 +1325,7 @@ paths:
                 type: string
                 description: Flow variables (for example `var1`, `var2`) as configured in your flow.
             example:
-              phone: '919876543210'
+              phone: '91XXXXXXXXXX'
               email: asha@example.com
               var1: Asha
               var2: ORD-1001

@@ -25,14 +25,14 @@ curl --location 'https://api.yourcpaas.com/api/whatsapp/blocked-members' \
   --header 'Accept: application/json' \
   --header 'Content-Type: application/json' \
   --header 'Authorization: Bearer YOUR_TOKEN' \
-  --data '{ "sender_id": "WABA_NUMBER", "phone": "919876543210" }'
+  --data '{ "sender_id": "WABA_NUMBER", "phone": "91XXXXXXXXXX" }'
 ```
 
 ```json Success
 {
   "status": "success",
   "message": "User blocked successfully.",
-  "data": { "phone": "919876543210", "blocked_at": "2026-03-26 10:15:32" }
+  "data": { "phone": "91XXXXXXXXXX", "blocked_at": "2026-03-26 10:15:32" }
 }
 ```
 
@@ -51,7 +51,7 @@ curl --location --request DELETE 'https://api.yourcpaas.com/api/whatsapp/blocked
   --header 'Accept: application/json' \
   --header 'Content-Type: application/json' \
   --header 'Authorization: Bearer YOUR_TOKEN' \
-  --data '{ "sender_id": "WABA_NUMBER", "phone": "919876543210" }'
+  --data '{ "sender_id": "WABA_NUMBER", "phone": "91XXXXXXXXXX" }'
 ```
 
 ```json Success
@@ -107,8 +107,8 @@ curl --location --request GET 'https://api.yourcpaas.com/api/whatsapp/blocked-me
     "per_page": 10,
     "current_page": 1,
     "blocked_members": [
-      { "phone": "919876543210", "blocked_at": "2026-03-26 10:15:32" },
-      { "phone": "919123456789", "blocked_at": "2026-03-25 08:30:00" }
+      { "phone": "91XXXXXXXXXX", "blocked_at": "2026-03-26 10:15:32" },
+      { "phone": "91XXXXXXXXXX", "blocked_at": "2026-03-25 08:30:00" }
     ]
   }
 }
