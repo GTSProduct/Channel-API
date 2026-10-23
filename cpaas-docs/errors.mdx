@@ -1,0 +1,68 @@
+---
+title: "Status codes and errors"
+description: "HTTP status codes, error formats and how to read responses."
+---
+
+## HTTP status codes
+
+| Code | Meaning | Possible cause |
+| --- | --- | --- |
+| `200` | OK | Request accepted. |
+| `400` | Bad Request | Invalid JSON or missing fields. |
+| `401` | Unauthorized | Invalid or missing token. |
+| `403` | Forbidden | Request came from a restricted IP address. |
+| `422` | Unprocessable Entity | Invalid numbers or fields, or invalid message content. |
+| `500` | Internal Server Error | Server-side issue. |
+
+<Note>
+  These are standard HTTP status codes. Other codes in the 1xx to 5xx ranges can also occur.
+</Note>
+
+## Accepted does not mean delivered
+
+A `success` or `submitted` status means CPaaS+ accepted the message. Delivery results arrive later and are read from the channel's status endpoint.
+
+## Partial success on SMS
+
+The SMS template, open-text and bulk endpoints return `200` even when some recipients fail. Always check each entry in `data`:
+
+```json
+{
+  "status": "success",
+  "message": "Messages are sent successfully.",
+  "data": [
+    { "status": "submitted", "message_id": "b8ea48c1-30a7-40da-99e0-b5b0a2dcff7f", "number": "919876543210", "units": 1, "received_at": "2026-03-25 20:13:54" },
+    { "status": "failed", "message_id": null, "number": "9199", "units": 0, "error": "Invalid phone number", "received_at": "2026-03-25 20:13:54" }
+  ]
+}
+```
+
+## Error formats
+
+Errors come in two shapes, depending on where the failure is detected.
+
+<Tabs>
+  <Tab title="Validation errors">
+    Returned when a field is missing or invalid. `errors` lists the failing fields.
+
+    ```json
+    {
+      "message": "The text field is required.",
+      "errors": { "text": ["The text field is required."] }
+    }
+    ```
+  </Tab>
+  <Tab title="Platform errors">
+    Returned when a resource is missing or inactive, such as a template.
+
+    ```json
+    {
+      "status": "error",
+      "error_code": 422,
+      "error_message": "Template not found or inactive"
+    }
+    ```
+  </Tab>
+</Tabs>
+
+Each channel guide lists the specific error messages and how to resolve them.

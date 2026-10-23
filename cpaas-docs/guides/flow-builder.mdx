@@ -1,0 +1,66 @@
+---
+title: "Flow Builder API"
+description: "Trigger a published omnichannel flow from your own systems."
+---
+
+Flow Builder lets you design automated customer journeys in the CPaaS+ visual editor. One API call can start a multi-step flow across SMS, WhatsApp, Email and RCS, with dynamic variables injected at runtime. The flow then runs all configured steps, including messages, conditions and delays.
+
+## Get your flow's webhook URL
+
+The Base URL for this API is the unique webhook URL of the specific flow. It is generated when you publish the flow: in the portal, go to **Flow Builder, then your flow, then Webhook URL**.
+
+```text
+https://api.yourcpaas.com/flow-api/webhook/trigger/{flow_id}
+```
+
+<Warning>
+  The flow must be **published and active** before you call this API.
+</Warning>
+
+## Trigger a flow
+
+| Parameter | Required | Description |
+| --- | --- | --- |
+| `phone` | Conditional | Recipient mobile number. Required if the flow uses SMS or WhatsApp. |
+| `email` | Conditional | Recipient email address. Required if the flow uses Email. |
+| `var1`, `var2`, ... | No | Dynamic values for the flow, for example customer name or order ID. How many you pass depends on how variables are configured in your flow. |
+
+Provide `phone` and/or `email`, depending on the channels in the flow.
+
+```bash
+curl --location --request POST 'https://api.yourcpaas.com/flow-api/webhook/trigger/FLOW_ID' \
+  --header 'Content-Type: application/json' \
+  --header 'Authorization: Bearer YOUR_TOKEN' \
+  --data '{
+    "phone": "919876543210",
+    "email": "customer@example.com",
+    "var1": "Variable1",
+    "var2": "Variable2"
+  }'
+```
+
+## Responses
+
+<Tabs>
+  <Tab title="Success">
+    ```json
+    { "status": "success", "message": "Flow jobs dispatched successfully" }
+    ```
+  </Tab>
+  <Tab title="Flow not found">
+    ```json
+    { "status": "error", "message": "Flow not found." }
+    ```
+  </Tab>
+  <Tab title="Invalid body">
+    ```json
+    { "status": "error", "message": "Invalid JSON format. Please check your request body." }
+    ```
+  </Tab>
+</Tabs>
+
+| Error | Resolution |
+| --- | --- |
+| Invalid JSON format. Please check your request body. | Check that `phone`, `email` and variables are passed correctly as valid JSON. |
+| Flow not found | Check the flow ID, and that the flow exists in the portal under Flow Builder. |
+| Flow is not published or inactive | Publish and activate the flow in the portal before calling the API. |

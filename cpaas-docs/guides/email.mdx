@@ -1,0 +1,200 @@
+---
+title: "Email and OTP verification"
+description: "Send template or open-text email, track status, and verify users with an email OTP."
+---
+
+Send transactional, promotional and OTP emails with dynamic variables, HTML content and attachments.
+
+| API | Endpoint | Best for |
+| --- | --- | --- |
+| Template send | `POST /api/email/template/send` | Pre-built templates with dynamic variables. |
+| Open text | `POST /api/email/send` | Custom HTML or text without a template. |
+| Status | `GET /api/email/status` | Delivery status and event timeline. |
+| OTP send | `POST /api/verify/send-otp` | Generating and emailing an OTP. |
+| OTP verification | `POST /api/verify/validate-otp` | Validating the code the user enters. |
+
+<Note>
+  `service_name` and `account` must exactly match the active configuration under **Email Settings** in the portal. Attachments must be Base64 encoded with the correct MIME type.
+</Note>
+
+## Send using a template
+
+| Parameter | Required | Description |
+| --- | --- | --- |
+| `service_name` | Yes | Email service configuration name from Email Settings. |
+| `template_name` | Yes | Exact name of the template in the portal. |
+| `from` | Yes | Sender address or domain registered in the email configuration. |
+| `from_name` | Yes | Display name shown to the recipient. |
+| `to` | Yes | Destination email address. |
+| `subject` | Yes | Subject line. |
+| `cc`, `bcc` | No | Arrays of addresses. BCC is hidden from other recipients. |
+| `params` | No | Values for the template placeholders, in order of definition. |
+| `attachments` | No | Array of `{ filename, type, content }`, with `type` as the MIME type and `content` Base64 encoded. |
+
+```bash
+curl --location 'https://api.yourcpaas.com/api/email/template/send' \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --header 'Authorization: Bearer YOUR_TOKEN' \
+  --data '{
+    "service_name": "smtp_main",
+    "template_name": "welcome_email_v1",
+    "from": "no-reply@yourcompany.com",
+    "from_name": "Your Company",
+    "to": "customer@example.com",
+    "cc": ["manager@yourcompany.com"],
+    "bcc": ["archive@yourcompany.com"],
+    "subject": "Welcome to CPaaS+!",
+    "params": ["John Doe", "30"],
+    "attachments": [
+      { "filename": "invoice.pdf", "type": "application/pdf", "content": "BASE64_DATA" }
+    ]
+  }'
+```
+
+```json Success
+{
+  "status": "success",
+  "message": "Email sent successfully.",
+  "data": { "message_id": "email-abc123def456", "to": "customer@example.com", "status": "queued" }
+}
+```
+
+`status` is `queued`, `sent` or `failed`. Use `message_id` with the status API.
+
+```json Error
+{
+  "status": false,
+  "errors": { "template_name": ["The selected template name is invalid."] }
+}
+```
+
+| Field | Error | Resolution |
+| --- | --- | --- |
+| `service_name` | The service_name field is required. | Add the service name from Email Settings. |
+| `template_name` | Template not found or inactive | Verify the template name and that it is active. |
+| `to` | Invalid email address format | Use a valid email address. |
+| `params` | Params count not matching template | Pass the same number of values, in the same order. |
+
+## Send using open text
+
+Send a fully custom email with an HTML or plain-text `body`. The parameters are the same as the template send API, except `account` replaces `service_name` and `template_name`, and `body` is required.
+
+```bash
+curl --location 'https://api.yourcpaas.com/api/email/send' \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --header 'Authorization: Bearer YOUR_TOKEN' \
+  --data '{
+    "account": "smtp_main",
+    "from": "alerts@yourcompany.com",
+    "from_name": "Company Alerts",
+    "to": "customer@example.com",
+    "cc": ["support@yourcompany.com"],
+    "bcc": [],
+    "subject": "Your Invoice #INV-2026-001 is Ready",
+    "body": "<h2>Dear John,</h2><p>Your invoice is attached.</p>",
+    "attachments": [
+      { "filename": "invoice_2026_001.pdf", "type": "application/pdf", "content": "BASE64_DATA" }
+    ]
+  }'
+```
+
+The success response matches the template send API.
+
+| Field | Error | Resolution |
+| --- | --- | --- |
+| `account` | The account field is required. | Add the account name from Email Settings. |
+| `to` | Invalid email address format | Use a valid email address. |
+| `body` | The body field is required. | Add the HTML or plain-text body. |
+| `from` | Sender domain not configured | Register the sender domain in Email Settings. |
+
+## Check email status
+
+Pass the message ID in the request body of this `GET` call.
+
+```bash
+curl --location --request GET 'https://api.yourcpaas.com/api/email/status' \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --header 'Authorization: Bearer YOUR_TOKEN' \
+  --data '{ "id": "3f70a02c-305e-4a95-b389-9c4640741684" }'
+```
+
+```json Response
+{
+  "message_id": "3f70a02c-305e-4a95-b389-9c4640741684",
+  "status": "delivered",
+  "timeline": {
+    "queued_at": "2026-02-27T12:00:09.000000Z",
+    "sent_at": "2026-02-27T12:00:09.000000Z",
+    "delivered_at": "2026-02-27T12:00:11.000000Z",
+    "opened_at": null,
+    "clicked_at": null,
+    "bounced_at": null,
+    "failed_at": null,
+    "unsubscribed_at": null,
+    "complained_at": null
+  },
+  "recipient": "customer@example.com",
+  "subject": "Welcome",
+  "details": { "open_count": 0, "click_count": 0 }
+}
+```
+
+Timeline fields are `null` until the event happens. Errors: `The id field is required.` and `Message ID not found`.
+
+## Verify users with an email OTP
+
+<Steps>
+  <Step title="Send the OTP">
+    Get the Verification ID from the portal under **Templates, then OTP Templates**.
+
+    ```bash
+    curl --location --request POST \
+      'https://api.yourcpaas.com/api/verify/send-otp?verification_id=VT-001&type=email&email=user@example.com' \
+      --header 'Accept: application/json' \
+      --header 'Authorization: Bearer YOUR_TOKEN'
+    ```
+
+    ```json Success
+    {
+      "status": "success",
+      "message": "OTP sent successfully.",
+      "data": { "unique_id": "otp-sess-a1b2c3d4e5f6", "expires_in": 300, "channel": "email" }
+    }
+    ```
+
+    Store `unique_id` immediately. The OTP is valid for `expires_in` seconds (default 300, or 5 minutes).
+  </Step>
+  <Step title="Validate the OTP">
+    ```bash
+    curl --location --request POST \
+      'https://api.yourcpaas.com/api/verify/validate-otp?unique_id=otp-sess-a1b2c3d4e5f6&otp=485923' \
+      --header 'Accept: application/json' \
+      --header 'Authorization: Bearer YOUR_TOKEN'
+    ```
+
+    <Tabs>
+      <Tab title="Verified">
+        ```json
+        { "status": "success", "message": "OTP verified successfully.", "data": { "verified": true, "unique_id": "otp-sess-a1b2c3d4e5f6" } }
+        ```
+      </Tab>
+      <Tab title="Wrong OTP">
+        ```json
+        { "status": "error", "message": "Invalid OTP.", "data": { "verified": false } }
+        ```
+      </Tab>
+      <Tab title="Expired OTP">
+        ```json
+        { "status": "error", "message": "OTP has expired. Please request a new OTP.", "data": { "verified": false } }
+        ```
+      </Tab>
+    </Tabs>
+
+    If the OTP expired, call the send API again to generate a new one.
+  </Step>
+</Steps>
+
+OTP send errors: `Verification template not found or inactive` (check the template ID), `The type field is required.` (add `type=email`), and `Invalid email address format`. Validation errors: `The unique_id field is required.` and `The otp field is required.`

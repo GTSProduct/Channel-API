@@ -1,0 +1,168 @@
+---
+title: "WhatsApp messaging"
+description: "Send template messages, update order status and issue refunds."
+---
+
+Send approved templates, with or without media, through your WhatsApp Business Account (WABA).
+
+| API | Endpoint | Best for |
+| --- | --- | --- |
+| Template send | `POST /api/whatsapp/msg` | Approved templates, text-only or with an image, video or document. |
+| Order status update | `POST /api/whatsapp/{source}/order-status/update` | Updating order status in WhatsApp Commerce flows. |
+| Order refund | `POST /api/whatsapp/{account}/payment/refund` | Triggering a payment refund in WhatsApp Commerce. |
+
+User blocking is covered in [WhatsApp user management](/guides/whatsapp-user-management).
+
+## Send a template message
+
+All templates must be approved in Meta Business Manager before sending. The template ID, language and media URL must match the approved template exactly.
+
+| Parameter | Required | Description |
+| --- | --- | --- |
+| `source` | Yes | Your WhatsApp Business Account number. |
+| `destination` | Yes | Destination mobile number. |
+| `template.id` | Yes | Your approved WhatsApp template ID. |
+| `template.params` | No | Values for the template variables, in order. |
+| `media_url` | No | Publicly hosted media URL. |
+
+<Tabs>
+  <Tab title="With media">
+    ```bash
+    curl --location 'https://api.yourcpaas.com/api/whatsapp/msg' \
+      --header 'Content-Type: application/json' \
+      --header 'Accept: application/json' \
+      --header 'Authorization: Bearer YOUR_TOKEN' \
+      --data '{
+        "source": "WHATSAPP_NUMBER",
+        "destination": "919876543210",
+        "template": { "id": "TEMPLATE_ID" },
+        "media_url": "https://example.com/file.pdf"
+      }'
+    ```
+  </Tab>
+  <Tab title="Without media">
+    ```bash
+    curl --location 'https://api.yourcpaas.com/api/whatsapp/msg' \
+      --header 'Content-Type: application/json' \
+      --header 'Accept: application/json' \
+      --header 'Authorization: Bearer YOUR_TOKEN' \
+      --data '{
+        "source": "WHATSAPP_NUMBER",
+        "destination": "919876543210",
+        "template": { "id": "TEMPLATE_ID", "params": ["Var1", "Var2"] }
+      }'
+    ```
+  </Tab>
+</Tabs>
+
+<Note>
+  If the template has variables, pass the required `params` even when you also send media.
+</Note>
+
+```json Success
+{
+  "status": "success",
+  "message": "Message sent successfully.",
+  "data": {
+    "message_id": "wamid.HBgLOTE5ODc2NTQzMjEWAgARGBI",
+    "receiver": "919876543210",
+    "status": "submitted"
+  }
+}
+```
+
+`message_id` is the WhatsApp message ID returned by Meta. `status` is `submitted` or `failed`.
+
+```json Error
+{ "status": "error", "error_code": 422, "error_message": "Template not found or inactive" }
+```
+
+Typical errors: template not found or inactive (check approval status in Meta Business Manager), invalid phone number format, invalid language code (use a valid BCP-47 code such as `en_US`, `hi` or `en`), and a media URL that is not accessible (use a direct, public HTTPS link).
+
+## Update order status
+
+Notify customers of fulfilment events in a WhatsApp Commerce flow. The `{source}` path segment is your WABA number.
+
+| Parameter | Required | Description |
+| --- | --- | --- |
+| `order_id` | Yes | Unique order identifier from your system. |
+| `status` | Yes | `confirmed`, `shipped`, `delivered` or `cancelled`. |
+| `receiver` | Yes | Customer WhatsApp number. |
+| `tracking_url` | No | Public shipment tracking URL to share. |
+| `description` | No | Extra status notes for the customer. |
+
+```bash
+curl --location 'https://api.yourcpaas.com/api/whatsapp/WABA_NUMBER/order-status/update' \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --header 'Authorization: Bearer YOUR_TOKEN' \
+  --data '{
+    "order_id": "ORD-9876",
+    "status": "shipped",
+    "tracking_url": "https://tracking.example.com/ORD-9876",
+    "description": "Your order has been dispatched via Blue Dart.",
+    "receiver": "919876543210"
+  }'
+```
+
+```json Success
+{
+  "status": "success",
+  "message": "Order status updated successfully.",
+  "data": { "order_id": "ORD-9876", "updated_status": "shipped", "notified_at": "2026-03-26 10:15:32" }
+}
+```
+
+| Field | Error | Resolution |
+| --- | --- | --- |
+| `order_id` | The order_id field is required. | Add the order ID to the request body. |
+| `status` | Invalid order status value | Use `confirmed`, `shipped`, `delivered` or `cancelled`. |
+| `receiver` | Invalid phone number format | Ensure the mobile number is correct. |
+
+## Refund an order
+
+Starts the refund and notifies the customer on WhatsApp with the refund details. The `{account}` path segment is the account identifier supplied to you at onboarding.
+
+| Parameter | Required | Description |
+| --- | --- | --- |
+| `order_id` | Yes | Order to refund. |
+| `refund_amount` | Yes | Amount in the order currency. |
+| `currency` | Yes | ISO 4217 code, for example `INR` or `USD`. |
+| `receiver` | Yes | Customer WhatsApp number to notify. |
+| `reason` | No | For example `customer_request` or `defective_product`. |
+
+```bash
+curl --location 'https://api.yourcpaas.com/api/whatsapp/ACCOUNT/payment/refund' \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --header 'Authorization: Bearer YOUR_TOKEN' \
+  --data '{
+    "order_id": "ORD-9876",
+    "refund_amount": "1499.00",
+    "currency": "INR",
+    "reason": "customer_request",
+    "receiver": "919876543210"
+  }'
+```
+
+```json Success
+{
+  "status": "success",
+  "message": "Refund initiated successfully.",
+  "data": {
+    "refund_id": "REF-20260326-001",
+    "order_id": "ORD-9876",
+    "refund_amount": "1499.00",
+    "currency": "INR",
+    "refund_status": "processing"
+  }
+}
+```
+
+`refund_status` is `processing`, `completed` or `failed`.
+
+| Field | Error | Resolution |
+| --- | --- | --- |
+| `order_id` | The order_id field is required. | Add the order ID. |
+| `refund_amount` | The refund_amount field is required. | Specify the amount to refund. |
+| `currency` | Invalid currency code | Use a valid ISO 4217 code such as `INR` or `USD`. |

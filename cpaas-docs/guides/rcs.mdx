@@ -1,0 +1,316 @@
+---
+title: "RCS"
+description: "Create RCS templates and send text, rich cards and carousels on Vi and Jio."
+---
+
+RCS (Rich Communication Services) delivers rich, interactive messages with images, videos, carousels and action buttons in the recipient's default messaging app. CPaaS+ delivers RCS over the **Vi (Vodafone Idea)** and **Jio** networks in India.
+
+| API | Endpoint | Best for |
+| --- | --- | --- |
+| Template create | `POST /api/rcs/template/create` | Creating templates for approval. |
+| Service send | `POST /api/rcs/send` | Sending RCS messages on Vi or Jio. |
+| Status check | `GET /api/rcs/status` | Checking delivery status. |
+
+<Note>
+  Templates must be approved before use in the send API. Media URLs must be direct, publicly accessible HTTPS links. Find your Bot or Agent ID in the portal under **RCS, then Agents**.
+</Note>
+
+## Create templates
+
+`POST /api/rcs/template/create`. Set `type` to choose the format. Variables use the `{{variable}}` format.
+
+| Parameter | Required | Description |
+| --- | --- | --- |
+| `name` | Yes | Unique template name, lowercase with underscores, for example `order_ready_v1`. |
+| `agent_id` | Yes | RCS Agent ID from the portal. |
+| `type` | Yes | `text_message`, `rich_card` or `carousel`. |
+
+<Tabs>
+  <Tab title="Text + buttons">
+    Up to 11 buttons. Button types are `reply`, `url_action` and `dialer_action`.
+
+    ```bash
+    curl --location 'https://api.yourcpaas.com/api/rcs/template/create' \
+      --header 'Accept: application/json' \
+      --header 'Content-Type: application/json' \
+      --header 'Authorization: Bearer YOUR_TOKEN' \
+      --data '{
+        "name": "order_ready_v1",
+        "agent_id": "YOUR_AGENT_ID",
+        "type": "text_message",
+        "textMessageContent": "Hello {{name}}, your order {{order_id}} is ready for pickup!",
+        "suggestions": [
+          { "suggestionType": "reply", "displayText": "Button Name", "postback": "Custom Value" },
+          { "suggestionType": "url_action", "displayText": "Button Name", "url": "https://example.com/{{order_id}}", "postback": "Custom Value" },
+          { "suggestionType": "dialer_action", "displayText": "Call Support", "phoneNumber": "+911234567890", "postback": "call_support" }
+        ]
+      }'
+    ```
+  </Tab>
+  <Tab title="Rich card">
+    Media with a title, description and up to 4 buttons. `orientation` is `HORIZONTAL` or `VERTICAL`. For vertical cards, `height` is `SHORT_HEIGHT`, `MEDIUM_HEIGHT` or `TALL_HEIGHT`.
+
+    ```bash
+    curl --location 'https://api.yourcpaas.com/api/rcs/template/create' \
+      --header 'Accept: application/json' \
+      --header 'Content-Type: application/json' \
+      --header 'Authorization: Bearer YOUR_TOKEN' \
+      --data '{
+        "name": "special_offer_card_v1",
+        "agent_id": "YOUR_AGENT_ID",
+        "type": "rich_card",
+        "orientation": "VERTICAL",
+        "height": "MEDIUM_HEIGHT",
+        "standAlone": {
+          "cardTitle": "The title of your card",
+          "cardDescription": "Card Description",
+          "mediaUrl": "https://cdn.example.com/sale_banner.jpg",
+          "suggestions": [
+            { "suggestionType": "url_action", "displayText": "Button Name", "url": "https://example.com/shop", "postback": "shop_now" },
+            { "suggestionType": "reply", "displayText": "Button Name", "postback": "opt_out" }
+          ]
+        }
+      }'
+    ```
+  </Tab>
+  <Tab title="Carousel">
+    2 to 10 cards, each with up to 4 buttons. `width` is `SMALL_WIDTH` or `MEDIUM_WIDTH`; `height` is `SHORT_HEIGHT` or `MEDIUM_HEIGHT`.
+
+    ```bash
+    curl --location 'https://api.yourcpaas.com/api/rcs/template/create' \
+      --header 'Accept: application/json' \
+      --header 'Content-Type: application/json' \
+      --header 'Authorization: Bearer YOUR_TOKEN' \
+      --data '{
+        "name": "product_carousel_v1",
+        "agent_id": "YOUR_AGENT_ID",
+        "type": "carousel",
+        "width": "MEDIUM_WIDTH",
+        "height": "MEDIUM_HEIGHT",
+        "carouselList": [
+          { "cardTitle": "Card 1", "cardDescription": "Description", "mediaUrl": "https://cdn.example.com/headphones.jpg",
+            "suggestions": [ { "suggestionType": "url_action", "displayText": "Buy", "url": "https://example.com/product/1", "postback": "buy_1" } ] },
+          { "cardTitle": "Card 2", "cardDescription": "Description", "mediaUrl": "https://cdn.example.com/watch.jpg",
+            "suggestions": [ { "suggestionType": "url_action", "displayText": "Buy", "url": "https://example.com/product/2", "postback": "buy_2" } ] }
+        ]
+      }'
+    ```
+  </Tab>
+</Tabs>
+
+### Limits
+
+| Item | Limit |
+| --- | --- |
+| Button label (`displayText`) | 25 characters |
+| Buttons on a text template | 11 |
+| Buttons on a card | 4 |
+| Card title (`cardTitle`) | 200 characters |
+| Card description (`cardDescription`) | 2000 characters |
+| Carousel cards | 2 to 10 |
+
+`url` is required for `url_action` buttons and `phoneNumber` for `dialer_action` buttons.
+
+### Template response
+
+```json Success
+{
+  "status": "success",
+  "message": "Template created successfully.",
+  "data": { "template_id": "rcs-tpl-20260326-001", "name": "order_ready_v1", "approval_status": "pending" }
+}
+```
+
+`approval_status` is `pending`, `approved` or `rejected`. Send only after the template is approved.
+
+| Field | Error | Resolution |
+| --- | --- | --- |
+| `name` | The name field is required. | Add a unique template name. |
+| `agent_id` | Invalid or inactive agent_id | Verify the Agent ID in the portal. |
+| `displayText` | Exceeds 25-character limit | Shorten the button label. |
+| `orientation` | The orientation field is required. | Use `HORIZONTAL` or `VERTICAL`. |
+| `cardTitle` | The cardTitle field is required. | Add a title of up to 200 characters. |
+| `mediaUrl` | Media URL is not publicly accessible | Use a direct HTTPS link with no authentication. |
+| `suggestions` | Exceeds maximum of 4 buttons | Reduce to 4 or fewer on rich cards and carousel cards. |
+| `carouselList` | Minimum 2 cards required | Add at least 2 cards. |
+| `carouselList` | Exceeds maximum of 10 cards | Reduce to 10 or fewer. |
+
+## Send a message
+
+`POST /api/rcs/send` works for both Vi and Jio. The `content` structure must match `message_type`.
+
+| Parameter | Required | Description |
+| --- | --- | --- |
+| `botId` | Yes | RCS Bot or Agent ID registered on the operator network. |
+| `to` | Yes | Destination mobile number. |
+| `message_type` | Yes | `text_message`, `rich_card` or `carousel`. |
+| `content` | Yes | Message content object. |
+
+| `message_type` | Content |
+| --- | --- |
+| `text_message` | `textMessageContent` (required) and `suggestions` (optional, max 11 buttons). |
+| `rich_card` | `orientation`, `height`, and `standAlone` with `cardTitle`, `mediaUrl`, `cardDescription`, `suggestions` (max 4 buttons). |
+| `carousel` | `width`, `height`, and `carouselList` with the same card fields (2 to 10 cards, max 4 buttons each). |
+
+<Tabs>
+  <Tab title="Vi: text">
+    ```bash
+    curl --location 'https://api.yourcpaas.com/api/rcs/send' \
+      --header 'Accept: application/json' \
+      --header 'Content-Type: application/json' \
+      --header 'Authorization: Bearer YOUR_TOKEN' \
+      --data '{
+        "botId": "YOUR_VI_AGENT_ID",
+        "to": "919876543210",
+        "message_type": "text_message",
+        "content": {
+          "textMessageContent": "Hello John, your order ORD-9876 is ready for pickup!",
+          "suggestions": [
+            { "suggestionType": "reply", "displayText": "Confirm Pickup", "postback": "confirm_pickup" },
+            { "suggestionType": "url_action", "displayText": "Track Order", "url": "https://tracking.example.com/ORD-9876", "postback": "track_order" },
+            { "suggestionType": "dialer_action", "displayText": "Call Support", "phoneNumber": "+911234567890", "postback": "call_support" }
+          ]
+        }
+      }'
+    ```
+  </Tab>
+  <Tab title="Vi: rich card">
+    ```bash
+    curl --location 'https://api.yourcpaas.com/api/rcs/send' \
+      --header 'Accept: application/json' \
+      --header 'Content-Type: application/json' \
+      --header 'Authorization: Bearer YOUR_TOKEN' \
+      --data '{
+        "botId": "YOUR_VI_AGENT_ID",
+        "to": "919876543210",
+        "message_type": "rich_card",
+        "content": {
+          "orientation": "VERTICAL",
+          "height": "MEDIUM_HEIGHT",
+          "standAlone": {
+            "cardTitle": "The Title of your card",
+            "cardDescription": "The Description of your card",
+            "mediaUrl": "https://cdn.example.com/sale_banner.jpg",
+            "suggestions": [
+              { "suggestionType": "url_action", "displayText": "Shop Now", "url": "https://example.com/shop", "postback": "shop_now" },
+              { "suggestionType": "reply", "displayText": "Opt Out", "postback": "opt_out" }
+            ]
+          }
+        }
+      }'
+    ```
+  </Tab>
+  <Tab title="Jio: extended buttons">
+    ```bash
+    curl --location 'https://api.yourcpaas.com/api/rcs/send' \
+      --header 'Accept: application/json' \
+      --header 'Content-Type: application/json' \
+      --header 'Authorization: Bearer YOUR_TOKEN' \
+      --data '{
+        "botId": "YOUR_JIO_AGENT_ID",
+        "to": "919876543210",
+        "message_type": "text_message",
+        "content": {
+          "textMessageContent": "Your appointment is confirmed for March 30, 2026 at 10:00 AM.",
+          "suggestions": [
+            { "suggestionType": "calendar_event", "displayText": "Add to Calendar", "postback": "add_calendar" },
+            { "suggestionType": "view_location_latlong", "displayText": "View Location", "postback": "view_location" },
+            { "suggestionType": "reply", "displayText": "Confirm", "postback": "confirm_appt" },
+            { "suggestionType": "reply", "displayText": "Cancel", "postback": "cancel_appt" }
+          ]
+        }
+      }'
+    ```
+  </Tab>
+  <Tab title="Jio: carousel">
+    ```bash
+    curl --location 'https://api.yourcpaas.com/api/rcs/send' \
+      --header 'Accept: application/json' \
+      --header 'Content-Type: application/json' \
+      --header 'Authorization: Bearer YOUR_TOKEN' \
+      --data '{
+        "botId": "YOUR_JIO_AGENT_ID",
+        "to": "919876543210",
+        "message_type": "carousel",
+        "content": {
+          "width": "MEDIUM_WIDTH",
+          "height": "MEDIUM_HEIGHT",
+          "carouselList": [
+            { "cardTitle": "Wireless Headphones", "cardDescription": "40hr battery, noise cancellation.", "mediaUrl": "https://cdn.example.com/headphones.jpg",
+              "suggestions": [ { "suggestionType": "url_action", "displayText": "Buy Now", "url": "https://example.com/product/1", "postback": "buy_1" } ] },
+            { "cardTitle": "Smart Watch", "cardDescription": "Track fitness and stay connected.", "mediaUrl": "https://cdn.example.com/watch.jpg",
+              "suggestions": [ { "suggestionType": "url_action", "displayText": "Buy Now", "url": "https://example.com/product/2", "postback": "buy_2" } ] }
+          ]
+        }
+      }'
+    ```
+  </Tab>
+</Tabs>
+
+### Button types
+
+| `suggestionType` | Behaviour | Network |
+| --- | --- | --- |
+| `reply` | Quick reply. Returns the `postback` value to your webhook. | Vi, Jio |
+| `url_action` | Opens a URL in the browser. | Vi, Jio |
+| `dialer_action` | Starts a call to `phoneNumber`. | Vi, Jio |
+| `calendar_event` | Creates a calendar event on the device. | Jio only |
+| `share_location` | Asks the recipient to share their location. | Jio only |
+| `view_location_query` | Opens a map with a search query. | Jio only |
+| `view_location_latlong` | Opens a map at given coordinates. | Jio only |
+
+<Warning>
+  Jio-only button types cannot be used on Vi. Using one returns `Unsupported button type for this operator`.
+</Warning>
+
+### Send response
+
+```json Success
+{
+  "status": "success",
+  "message": "RCS message sent successfully.",
+  "data": { "message_id": "rcs-vi-msg-abc123xyz", "to": "919876543210", "status": "submitted", "received_at": "2026-03-26 10:15:32" }
+}
+```
+
+`status` is `submitted` or `failed`. Use `message_id` with the status API.
+
+| Field | Error | Resolution |
+| --- | --- | --- |
+| `botId` | The botId field is required. | Add your Vi or Jio Agent ID. |
+| `to` | Invalid phone number format | Ensure the mobile number is correct. |
+| `message_type` | Invalid message_type value | Use `text_message`, `rich_card` or `carousel`. |
+| `to` | Recipient is not RCS-enabled on the network | The device or number does not support RCS on that operator. |
+| `suggestionType` | Unsupported button type for this operator | Use a button type supported by the operator. |
+
+## Check status
+
+```bash
+curl --location --request GET 'https://api.yourcpaas.com/api/rcs/status?id=MESSAGE_ID' \
+  --header 'Accept: application/json' \
+  --header 'Authorization: Bearer YOUR_TOKEN'
+```
+
+```json Response
+{
+  "success": true,
+  "data": {
+    "message_id": "7870e824-693d-4e25-b424-099f273c89a8",
+    "status": "read",
+    "status_description": "Unknown status",
+    "message_type": "text",
+    "priority": null,
+    "direction": "outbound",
+    "number": "919202511257",
+    "created_at": "2026-03-13 15:44:31",
+    "scheduled_at": "2026-03-13 15:44:31",
+    "sent_at": "2026-03-13 15:44:32",
+    "delivered_at": "2026-03-13 15:44:41",
+    "failed_at": null,
+    "cancelled_at": null,
+    "updated_at": "2026-03-13 15:44:53"
+  }
+}
+```
+
+`status` is `submitted`, `delivered`, `read` or `failed`. Timestamps are `null` until the event happens. Errors: `The id parameter is required.` and `Message ID not found`.

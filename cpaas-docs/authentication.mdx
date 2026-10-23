@@ -1,0 +1,58 @@
+---
+title: "Authentication"
+description: "Generate a token and authenticate every request."
+---
+
+All secured endpoints use a **bearer token** in the `Authorization` header:
+
+```http
+Authorization: Bearer YOUR_API_TOKEN
+```
+
+## Generate a token
+
+<Steps>
+  <Step title="Open the API tab">
+    In the CPaaS+ portal, go to the **API** tab in the left toolbar.
+  </Step>
+  <Step title="Add a token">
+    Click **Add new Token** (top right), enter a token name and click **Save**.
+  </Step>
+  <Step title="Copy and store it">
+    Your new token is shown once. Copy it and store it securely, because it will not be shown again.
+  </Step>
+</Steps>
+
+## Optional extra security
+
+The portal offers additional configuration for an added layer of security:
+
+| Setting | Options |
+| --- | --- |
+| Encryption algorithm | `AES-256-CBC` or `AES-128-CBC` |
+| Encryption key | Your own key, minimum 16 characters |
+| Initialization vector (IV) | Optional value of your choice |
+
+## Building a request
+
+Every API call needs these components:
+
+| Component | Detail |
+| --- | --- |
+| Base URL | The host of your web portal account, for example `https://api.yourcpaas.com`. |
+| Path | Defined per channel, for example `/api/sms/send-msg`. |
+| Method | `POST` for sends. `GET` for status checks, and `DELETE` for WhatsApp unblock. |
+| Headers | `Content-Type`, `Authorization`, and `Accept`. |
+| Body | JSON, or query parameters where an endpoint says so. |
+
+Example endpoint: `https://api.yourcpaas.com/api/sms/send-msg`
+
+| Header | Value |
+| --- | --- |
+| `Authorization` | `Bearer YOUR_API_TOKEN` (required) |
+| `Accept` | `application/json` |
+| `Content-Type` | `application/json` (use `text/plain` for the SMS Campaign API, `multipart/form-data` for CSV upload) |
+
+<Warning>
+  Treat the token like a password. Never embed it in mobile apps, browser code or public repositories. A `401` means the token is missing or invalid, and a `403` means the request came from a restricted IP address.
+</Warning>

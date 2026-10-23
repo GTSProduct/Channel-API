@@ -1,0 +1,207 @@
+---
+title: "SMS"
+description: "Send SMS by campaign, template, open text or bulk, and track delivery."
+---
+
+Send a single message, a templated message, free text, or thousands of personalised messages in one call.
+
+| API | Endpoint | Best for |
+| --- | --- | --- |
+| Campaign | `POST /api/sms/send-msg` | Sending a pre-built portal campaign to a mobile number. |
+| Template send | `POST /api/sms/template/send` | DLT-registered templates with dynamic variables. |
+| Open text | `POST /api/sms/send` | Free-form text sent programmatically. |
+| Bulk send | `POST /api/sms/json` | Different messages to different numbers in one call. |
+| Status | `GET /api/sms/status` | Checking delivery status. |
+
+<Note>
+  A `success` response means the message was submitted, not delivered. Use the status API for delivery results.
+</Note>
+
+## Campaign API
+
+Run a campaign in the portal, then copy its Campaign ID from the **Campaigns** section. Send `Content-Type: text/plain`.
+
+| Parameter | Required | Description |
+| --- | --- | --- |
+| `campaign_id` | Yes | Campaign ID from the portal. |
+| `phone` | Yes | Destination mobile number. |
+| `params` | Yes | JSON array of the dynamic values defined in the template. |
+
+```bash
+curl -X POST 'https://api.yourcpaas.com/api/sms/send-msg?campaign_id=XXXXX&phone=XXXXX&params=["XXX","XXX"]' \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+```json Success
+{ "status": "success", "ref_id": "e7e35b46-b281-4a6d-8a39-fd045eb4d9f5" }
+```
+
+`ref_id` is the unique message ID of the request.
+
+| Field | Error | Resolution |
+| --- | --- | --- |
+| `campaign_id` | The campaign id field is required. | Add the field to your request. |
+| `campaign_id` | Invalid Campaign Id | Verify the ID under SMS Campaigns in the portal. |
+| `phone` | The phone field is required. | Add the field to your request. |
+| `phone` | The phone number must be between 6 and 15 digits | Correct the mobile number. |
+| `params` | The params field is required. | Add the field to your request. |
+| `params` | Params count not matching, expecting X param | Pass the same number of values as defined in the template. |
+
+## Template send API
+
+Get the Template ID (`alias`) from the portal under **SMS Channel, then Template tab**. Pass variables in the order the template defines them.
+
+```bash
+curl --location 'https://api.yourcpaas.com/api/sms/template/send' \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --header 'Authorization: Bearer YOUR_TOKEN' \
+  --data '{
+    "alias": "TEMPLATE_ID",
+    "to": ["919876543210"],
+    "params": { "1": "Var1" }
+  }'
+```
+
+```json Success
+{
+  "status": "success",
+  "message": "Messages are sent successfully.",
+  "data": [
+    { "status": "submitted", "message_id": "b8ea48c1-30a7-40da-99e0-b5b0a2dcff7f", "number": "919876543210", "units": 1, "received_at": "2026-03-25 20:13:54" }
+  ]
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `status` | `submitted` once passed to the provider for delivery. |
+| `message_id` | Unique message ID. Use it for the status API. |
+| `number` | The mobile number from the request. |
+| `units` | SMS units used: 160 characters for plain text, 70 for Unicode. Longer messages use more units. |
+| `received_at` | Time the request was received (`YYYY-MM-DD HH:MM:SS`). |
+
+An invalid number returns `200` with that entry marked `failed` and an `error` such as `Invalid phone number`. A missing or inactive template returns:
+
+```json Template error
+{ "status": "error", "error_code": 422, "error_message": "Template not found or inactive" }
+```
+
+## Open text API
+
+Send free text to up to 100 numbers.
+
+| Parameter | Required | Description |
+| --- | --- | --- |
+| `from` | Yes | Sender ID, source address or header configured on the platform. |
+| `to` | Yes | Destination numbers (up to 100). |
+| `text` | Yes | Message content. |
+| `type` | No | `N` plain text (default), `U` Unicode, `A` auto-detect. |
+| `product` | No | `Transactional`, `Promotional`, `OTP` or `Other`. |
+| `template_id` | India | DLT-registered Template ID. Mandatory in India. |
+| `entity_id` | India | DLT-registered Entity ID. Mandatory in India. |
+
+```bash
+curl --location 'https://api.yourcpaas.com/api/sms/send' \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --header 'Authorization: Bearer YOUR_TOKEN' \
+  --data '{
+    "from": "SENDER",
+    "to": ["919876543210"],
+    "text": "Message Text",
+    "type": "A",
+    "product": "Transactional",
+    "template_id": "TEMPLATE_ID",
+    "entity_id": "ENTITY_ID"
+  }'
+```
+
+The success response has the same format as the template send API. A missing field returns a validation error:
+
+```json Validation error
+{
+  "message": "The text field is required.",
+  "errors": { "text": ["The text field is required."] }
+}
+```
+
+## Bulk send API
+
+Send the same message to many numbers, or personalised messages to different numbers, in one call with the `data` array (maximum 500 entries). An entry that omits `from`, `text` or `to` uses the `root` values.
+
+| Parameter | Required | Description |
+| --- | --- | --- |
+| `root` | Yes | Fallback object. Must include `from`, `text` and `to`. |
+| `data` | Yes | Array of message objects. Maximum 500 per request. |
+| `data[].from` | No | Sender for this message. Overrides `root.from`. |
+| `data[].text` | No | Text for this message. Overrides `root.text`. |
+| `data[].to` | No | Number(s) for this entry. Overrides `root.to`. |
+
+```bash
+curl --location 'https://api.yourcpaas.com/api/sms/json' \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --header 'Authorization: Bearer YOUR_TOKEN' \
+  --data '{
+    "root": { "from": "CPAAS", "text": "Hello, your order is confirmed.", "to": ["919876543210"] },
+    "data": [
+      { "from": "PROMO", "text": "Hi John, your OTP is 485923", "to": ["919876543210"] },
+      { "from": "PROMO", "text": "Hi Priya, your OTP is 736104", "to": ["919123456789"] }
+    ]
+  }'
+```
+
+The response lists one result per entry, in the same format as the template send API.
+
+<Warning>
+  Bulk send supports partial success. Some entries can succeed while others fail in the same call, so check every entry in `data`.
+</Warning>
+
+| Field | Error | Resolution |
+| --- | --- | --- |
+| `root` | The root field is required. | Add the root object with `from`, `text` and `to`. |
+| `data` | The data field is required. | Add the data array with at least one message object. |
+| `data[].to` | Invalid phone number | Ensure the mobile number is correct. |
+| `data` | Exceeds maximum of 500 objects | Split your request into batches of 500 or fewer. |
+
+## Status API
+
+Fetch delivery reports (DLR). All filters are optional and can be combined.
+
+| Parameter | Description |
+| --- | --- |
+| `number` | Destination mobile number. |
+| `id` | Message ID. |
+| `from` | Sender or header. |
+| `code` | Delivery code captured from the operator. |
+| `status` | `DELIVRD` or `FAILED`. |
+| `page` | Page number. Default 100 records per page. |
+| `per_page` | Records per page. Maximum 100, or limit to 50, 25 or 10. |
+
+```bash
+curl --location --globoff 'https://api.yourcpaas.com/api/sms/status?number=919876543210&id=MESSAGE_ID&status=FAILED' \
+  --header 'Accept: application/json' \
+  --header 'Authorization: Bearer YOUR_TOKEN'
+```
+
+```json Response
+{
+  "status": "success",
+  "data": [
+    {
+      "message_id": "d540ef99-2afc-4356-b134-681bf0006434",
+      "from": "TESTAX-M",
+      "number": "918999614988",
+      "status": "FAILED",
+      "code": "105",
+      "units": 1,
+      "received_at": "2025-09-30 04:34:14",
+      "submitted_at": "2025-09-30 04:34:14",
+      "dlr_received_at": null
+    }
+  ],
+  "pagination": { "total": 1, "count": 1, "per_page": 100, "current_page": 1, "total_pages": 1 }
+}
+```

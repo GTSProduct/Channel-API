@@ -1,0 +1,135 @@
+---
+title: "WhatsApp user management"
+description: "Block, unblock, bulk-import, list and sync blocked users."
+---
+
+Control which users can receive messages from your WhatsApp Business Account. Every call identifies your number with `sender_id` (your WABA number).
+
+| API | Method and endpoint | Best for |
+| --- | --- | --- |
+| Block user | `POST /api/whatsapp/blocked-members` | Blocking a single user. |
+| Unblock user | `DELETE /api/whatsapp/blocked-members` | Removing a block. |
+| File upload block | `POST /api/whatsapp/blocked-members/import-csv` | Bulk block from a CSV file. |
+| Request blocked users | `GET /api/whatsapp/blocked-members` | Listing blocked users. |
+| Sync blocked users | `POST /api/whatsapp/blocked-members/sync` | Syncing the list with the WhatsApp platform. |
+
+## Block a user
+
+| Parameter | Required | Description |
+| --- | --- | --- |
+| `sender_id` | Yes | Your WABA number. |
+| `phone` | Yes | Mobile number to block. |
+
+```bash
+curl --location 'https://api.yourcpaas.com/api/whatsapp/blocked-members' \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --header 'Authorization: Bearer YOUR_TOKEN' \
+  --data '{ "sender_id": "WABA_NUMBER", "phone": "919876543210" }'
+```
+
+```json Success
+{
+  "status": "success",
+  "message": "User blocked successfully.",
+  "data": { "phone": "919876543210", "blocked_at": "2026-03-26 10:15:32" }
+}
+```
+
+<Warning>
+  To block a user, that user must have interacted with your system within the last 24 hours, for example through a campaign, API message or chatbot. Otherwise the request fails with `Re-engagement check failed: Failed to block due to re-engagement check failed`.
+</Warning>
+
+Other errors: `The sender_id field is required.` and `The phone field is required.` Add the missing field.
+
+## Unblock a user
+
+Same parameters as block, using the `DELETE` method.
+
+```bash
+curl --location --request DELETE 'https://api.yourcpaas.com/api/whatsapp/blocked-members' \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --header 'Authorization: Bearer YOUR_TOKEN' \
+  --data '{ "sender_id": "WABA_NUMBER", "phone": "919876543210" }'
+```
+
+```json Success
+{ "status": "success", "message": "User unblocked successfully." }
+```
+
+## Block in bulk from a CSV
+
+Upload a CSV with one mobile number per row, as `multipart/form-data`.
+
+| Parameter | Required | Description |
+| --- | --- | --- |
+| `sender_id` | Yes | Your WABA number. |
+| `file` | Yes | CSV file of numbers to block, one per row. |
+
+```bash
+curl --location 'https://api.yourcpaas.com/api/whatsapp/blocked-members/import-csv' \
+  --header 'Accept: application/json' \
+  --header 'Authorization: Bearer YOUR_TOKEN' \
+  --form 'sender_id="WABA_NUMBER"' \
+  --form 'file=@"/path/to/blocked_numbers.csv"'
+```
+
+```json Success
+{
+  "status": "success",
+  "message": "CSV imported successfully.",
+  "data": { "total": 250, "blocked": 248, "failed": 2 }
+}
+```
+
+`total` is the records in the file, `blocked` the users blocked, and `failed` the entries that failed because of invalid format or duplicates.
+
+## List blocked users
+
+| Parameter | Required | Description |
+| --- | --- | --- |
+| `sender_id` | Yes | Your WABA number, as a query parameter. |
+| `per_page` | No | Records per page. Maximum 100. Default 10. |
+| `page` | No | Page number. Default 1. |
+
+```bash
+curl --location --request GET 'https://api.yourcpaas.com/api/whatsapp/blocked-members?sender_id=WABA_NUMBER&per_page=10&page=1' \
+  --header 'Accept: application/json' \
+  --header 'Authorization: Bearer YOUR_TOKEN'
+```
+
+```json Success
+{
+  "status": "success",
+  "data": {
+    "total": 250,
+    "per_page": 10,
+    "current_page": 1,
+    "blocked_members": [
+      { "phone": "919876543210", "blocked_at": "2026-03-26 10:15:32" },
+      { "phone": "919123456789", "blocked_at": "2026-03-25 08:30:00" }
+    ]
+  }
+}
+```
+
+## Sync blocked users
+
+Synchronises the list stored in CPaaS+ with the WhatsApp Business Platform. Use it after bulk imports or manual changes.
+
+```bash
+curl --location 'https://api.yourcpaas.com/api/whatsapp/blocked-members/sync' \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --header 'Authorization: Bearer YOUR_TOKEN' \
+  --data '{ "sender_id": "WABA_NUMBER" }'
+```
+
+```json Success
+{
+  "status": "success",
+  "message": "Blocked users synced successfully.",
+  "data": { "synced": 250, "synced_at": "2026-03-26 10:15:32" }
+}
+```

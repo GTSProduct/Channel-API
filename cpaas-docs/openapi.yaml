@@ -1,0 +1,2454 @@
+openapi: 3.1.0
+info:
+  title: CPaaS+ Messaging API
+  version: 1.0.0
+  description: |-
+    Unified REST API for sending and managing customer communications across **SMS**, **WhatsApp**, **Email (including OTP verification)**, **RCS** and **Flow Builder**.
+
+    All APIs are HTTP-based, use JSON and are secured with bearer-token authentication. Generate a token in the CPaaS+ portal (API tab, then **Add new Token**) and send it as `Authorization: Bearer <token>` on every request.
+
+    A `200` response means the request was **accepted**, not that the message was delivered. Use the status endpoints for delivery results.
+servers:
+- url: '{baseUrl}'
+  description: Your CPaaS+ API host (provided at onboarding)
+  variables:
+    baseUrl:
+      default: https://api.yourcpaas.com
+      description: Host of your CPaaS+ web portal account, without a trailing slash.
+security:
+- bearerAuth: []
+tags:
+- name: SMS
+  description: Send SMS using portal campaigns, approved templates, or open text, and check delivery status.
+- name: WhatsApp Messaging
+  description: Send WhatsApp template messages and manage order status and refunds.
+- name: WhatsApp User Management
+  description: Block, unblock, bulk-import and sync blocked WhatsApp users for a WABA number.
+- name: Email
+  description: Send template-based or open-text email and check delivery status.
+- name: Email Verification
+  description: Generate and validate one-time passwords (OTP) delivered by email.
+- name: RCS Templates
+  description: Create RCS templates (text with buttons, rich card, carousel).
+- name: RCS Messaging
+  description: Send RCS messages and check message status.
+- name: Flow Builder
+  description: Trigger a Flow Builder journey with contact data.
+paths:
+  /api/sms/send-msg:
+    post:
+      tags:
+      - SMS
+      operationId: sendSmsCampaign
+      summary: Send SMS using a campaign
+      description: |-
+        Sends a single SMS using a campaign created in the web portal. Provide the destination number and the dynamic values. No request body is needed. Send `Content-Type: text/plain`.
+
+        A `success` status means the message was submitted, not delivered.
+      parameters:
+      - name: campaign_id
+        in: query
+        required: true
+        description: Campaign ID generated in the web portal under **Campaigns**.
+        schema:
+          type: string
+        example: '1234'
+      - name: phone
+        in: query
+        required: true
+        description: Destination mobile number the message will be delivered to.
+        schema:
+          type: string
+        example: '919876543210'
+      - name: params
+        in: query
+        required: true
+        description: JSON array (URL-encoded) of the dynamic values defined in the campaign template, in order.
+          A count mismatch returns an error.
+        schema:
+          type: string
+        example: '["Asha","ORD-1001","25 Dec"]'
+      responses:
+        '200':
+          description: Request accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmsCampaignResponse'
+              example:
+                status: success
+                ref_id: e7e35b46-b281-4a6d-8a39-fd045eb4d9f5
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /api/sms/template/send:
+    post:
+      tags:
+      - SMS
+      operationId: sendSmsTemplate
+      summary: Send SMS using a template
+      description: Sends an SMS based on a template (alias) created in the CPaaS+ web portal. Up to 50 recipients
+        per request.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SmsTemplateSendRequest'
+            example:
+              alias: TPL_ORDER_CONFIRM
+              to:
+              - '919876543210'
+              params:
+                '1': ORD-1001
+      responses:
+        '200':
+          description: Request accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmsSendResponse'
+              example:
+                status: success
+                message: Messages are sent successfully.
+                data:
+                - status: submitted
+                  message_id: b8ea48c1-30a7-40da-99e0-b5b0a2dcff7f
+                  number: '919876543210'
+                  units: 1
+                  received_at: '2026-03-25 20:13:54'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /api/sms/send:
+    post:
+      tags:
+      - SMS
+      operationId: sendSmsOpenText
+      summary: Send SMS with open text
+      description: Sends an SMS with free-form text to up to 100 numbers. In India, `template_id` and `entity_id`
+        (DLT) are mandatory.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SmsOpenTextRequest'
+            example:
+              from: CPAAS
+              to:
+              - '919876543210'
+              text: Your order ORD-1001 has been shipped.
+              type: N
+              product: Transactional
+              template_id: '1107160000000000000'
+              entity_id: '1101160000000000000'
+      responses:
+        '200':
+          description: Request accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmsSendResponse'
+              example:
+                status: success
+                message: Messages are sent successfully.
+                data:
+                - status: submitted
+                  message_id: 7a885484-e5fb-4234-ae63-cf16da72d0f1
+                  number: '919876543210'
+                  units: 1
+                  received_at: '2026-03-26 19:41:10'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /api/sms/json:
+    post:
+      tags:
+      - SMS
+      operationId: sendSmsBulk
+      summary: Send bulk SMS
+      description: |-
+        Sends the same message to many numbers, or personalised messages to different numbers, in one call using the `data` array (maximum 500 entries). Entries that omit `from`, `text` or `to` use the `root` values.
+
+        The API supports **partial success**: some entries may succeed while others fail in the same call. Check each entry in `data`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SmsBulkRequest'
+            example:
+              root:
+                from: CPAAS
+                text: Hello, your order is confirmed.
+                to:
+                - '919876543210'
+              data:
+              - from: PROMO
+                text: Hi John, your OTP is 485923
+                to:
+                - '919876543210'
+              - from: PROMO
+                text: Hi Priya, your OTP is 736104
+                to:
+                - '919123456789'
+      responses:
+        '200':
+          description: Request accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmsSendResponse'
+              example:
+                status: success
+                message: Messages are sent successfully.
+                data:
+                - status: submitted
+                  message_id: 5fc76f1d-177b-4af2-9ab5-b214dbad3e81
+                  number: '919876543210'
+                  units: 1
+                  received_at: '2026-03-26 10:15:32'
+                - status: failed
+                  message_id: null
+                  number: '9199'
+                  units: 0
+                  error: Invalid phone number
+                  received_at: '2026-03-26 10:15:32'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /api/sms/status:
+    get:
+      tags:
+      - SMS
+      operationId: getSmsStatus
+      summary: Get SMS status
+      description: Retrieves delivery reports (DLR). All filters are optional and can be combined. Results are paginated
+        (default and maximum 100 per page).
+      parameters:
+      - name: number
+        in: query
+        required: false
+        description: Filter by destination mobile number.
+        schema:
+          type: string
+      - name: id
+        in: query
+        required: false
+        description: Filter by message ID.
+        schema:
+          type: string
+      - name: from
+        in: query
+        required: false
+        description: Filter by sender / header.
+        schema:
+          type: string
+      - name: code
+        in: query
+        required: false
+        description: Filter by the delivery code captured from the operator.
+        schema:
+          type: string
+      - name: status
+        in: query
+        required: false
+        description: Filter by message status.
+        schema:
+          type: string
+          enum:
+          - DELIVRD
+          - FAILED
+      - name: page
+        in: query
+        required: false
+        description: Page number.
+        schema:
+          type: integer
+          minimum: 1
+      - name: per_page
+        in: query
+        required: false
+        description: Records per page. Maximum 100; can be limited to 50, 25 or 10.
+        schema:
+          type: integer
+          maximum: 100
+      responses:
+        '200':
+          description: Request accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmsStatusResponse'
+              example:
+                status: success
+                data:
+                - message_id: d540ef99-2afc-4356-b134-681bf0006434
+                  from: TESTAX-M
+                  number: '918999614988'
+                  status: FAILED
+                  code: '105'
+                  units: 1
+                  received_at: '2025-09-30 04:34:14'
+                  submitted_at: '2025-09-30 04:34:14'
+                  dlr_received_at: null
+                pagination:
+                  total: 1
+                  count: 1
+                  per_page: 100
+                  current_page: 1
+                  total_pages: 1
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /api/whatsapp/msg:
+    post:
+      tags:
+      - WhatsApp Messaging
+      operationId: sendWhatsAppMessage
+      summary: Send a WhatsApp template message
+      description: |-
+        Sends an approved WhatsApp template message. Templates must be approved in Meta Business Manager before sending. Include `media_url` for templates with an image, video or document header.
+
+        If the template has dynamic variables, pass the required `template.params` even when sending with media.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WhatsAppMessageRequest'
+            examples:
+              withoutMedia:
+                summary: Template with variables
+                value:
+                  source: '919000000000'
+                  destination: '919876543210'
+                  template:
+                    id: order_update
+                    params:
+                    - Asha
+                    - ORD-1001
+              withMedia:
+                summary: Template with a media header
+                value:
+                  source: '919000000000'
+                  destination: '919876543210'
+                  template:
+                    id: invoice_share
+                  media_url: https://example.com/files/invoice.pdf
+      responses:
+        '200':
+          description: Request accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WhatsAppMessageResponse'
+              example:
+                status: success
+                message: Message sent successfully.
+                data:
+                  message_id: wamid.HBgLOTE5ODc2NTQzMjEWAgARGBI
+                  receiver: '919876543210'
+                  status: submitted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /api/whatsapp/{source}/order-status/update:
+    post:
+      tags:
+      - WhatsApp Messaging
+      operationId: updateWhatsAppOrderStatus
+      summary: Update order status
+      description: Updates the order status in a WhatsApp Commerce conversation and notifies the customer of fulfilment
+        events (confirmed, shipped, delivered, cancelled).
+      parameters:
+      - name: source
+        in: path
+        required: true
+        description: WhatsApp sender ID (WABA number) the order belongs to.
+        schema:
+          type: string
+        example: '919000000000'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderStatusRequest'
+            example:
+              order_id: ORD-9876
+              status: shipped
+              tracking_url: https://tracking.example.com/ORD-9876
+              description: Your order has been dispatched via Blue Dart.
+              receiver: '919876543210'
+      responses:
+        '200':
+          description: Request accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderStatusResponse'
+              example:
+                status: success
+                message: Order status updated successfully.
+                data:
+                  order_id: ORD-9876
+                  updated_status: shipped
+                  notified_at: '2026-03-26 10:15:32'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /api/whatsapp/{account}/payment/refund:
+    post:
+      tags:
+      - WhatsApp Messaging
+      operationId: refundWhatsAppOrder
+      summary: Refund an order payment
+      description: Triggers a payment refund for a WhatsApp Commerce order and notifies the customer on WhatsApp
+        with the refund details.
+      parameters:
+      - name: account
+        in: path
+        required: true
+        description: Account identifier segment for the payment endpoint, as provided by CPaaS+ at onboarding.
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefundRequest'
+            example:
+              order_id: ORD-9876
+              refund_amount: '1499.00'
+              currency: INR
+              reason: customer_request
+              receiver: '919876543210'
+      responses:
+        '200':
+          description: Request accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefundResponse'
+              example:
+                status: success
+                message: Refund initiated successfully.
+                data:
+                  refund_id: REF-20260326-001
+                  order_id: ORD-9876
+                  refund_amount: '1499.00'
+                  currency: INR
+                  refund_status: processing
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /api/whatsapp/blocked-members:
+    get:
+      tags:
+      - WhatsApp User Management
+      operationId: listBlockedUsers
+      summary: List blocked users
+      description: Returns a paginated list of users blocked for a WhatsApp sender.
+      parameters:
+      - name: sender_id
+        in: query
+        required: true
+        description: WhatsApp Business (WABA) number.
+        schema:
+          type: string
+        example: '919000000000'
+      - name: per_page
+        in: query
+        required: false
+        description: Records per page (maximum 100). Default 10.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+        example: 50
+      - name: page
+        in: query
+        required: false
+        description: Page number. Default 1.
+        schema:
+          type: integer
+          minimum: 1
+        example: 1
+      responses:
+        '200':
+          description: Request accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlockedUsersResponse'
+              example:
+                status: success
+                data:
+                  total: 250
+                  per_page: 10
+                  current_page: 1
+                  blocked_members:
+                  - phone: '919876543210'
+                    blocked_at: '2026-03-26 10:15:32'
+                  - phone: '919123456789'
+                    blocked_at: '2026-03-25 08:30:00'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    post:
+      tags:
+      - WhatsApp User Management
+      operationId: blockUsers
+      summary: Block users
+      description: Blocks a user from receiving messages from your WABA number. The user must have interacted with
+        your system within the last 24 hours (for example via a campaign, API message or chatbot), otherwise the
+        request fails with a re-engagement check error.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BlockedMembersRequest'
+            example:
+              sender_id: '919000000000'
+              phone: '919876543210'
+      responses:
+        '200':
+          description: Request accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlockUserResponse'
+              example:
+                status: success
+                message: User blocked successfully.
+                data:
+                  phone: '919876543210'
+                  blocked_at: '2026-03-26 10:15:32'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    delete:
+      tags:
+      - WhatsApp User Management
+      operationId: unblockUsers
+      summary: Unblock users
+      description: Removes the block on a user so they can receive messages again.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BlockedMembersRequest'
+            example:
+              sender_id: '919000000000'
+              phone: '919876543210'
+      responses:
+        '200':
+          description: Request accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnblockUserResponse'
+              example:
+                status: success
+                message: User unblocked successfully.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /api/whatsapp/blocked-members/import-csv:
+    post:
+      tags:
+      - WhatsApp User Management
+      operationId: importBlockedUsersCsv
+      summary: Bulk block or unblock users from CSV
+      description: Blocks multiple users at once by uploading a CSV file with one mobile number per row.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                sender_id:
+                  type: string
+                  description: Your WhatsApp Business (WABA) number.
+                file:
+                  type: string
+                  format: binary
+                  description: CSV file containing the mobile numbers to block, one per row.
+              required:
+              - sender_id
+              - file
+      responses:
+        '200':
+          description: Request accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CsvImportResponse'
+              example:
+                status: success
+                message: CSV imported successfully.
+                data:
+                  total: 250
+                  blocked: 248
+                  failed: 2
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /api/whatsapp/blocked-members/sync:
+    post:
+      tags:
+      - WhatsApp User Management
+      operationId: syncBlockedUsers
+      summary: Sync blocked users
+      description: Synchronises the blocked-users list stored in CPaaS+ with the WhatsApp Business Platform. Use
+        it after bulk imports or manual changes to keep both consistent.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - sender_id
+              properties:
+                sender_id:
+                  type: string
+                  description: WhatsApp Business (WABA) number.
+                  example: '919000000000'
+      responses:
+        '200':
+          description: Request accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncBlockedResponse'
+              example:
+                status: success
+                message: Blocked users synced successfully.
+                data:
+                  synced: 250
+                  synced_at: '2026-03-26 10:15:32'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /api/email/template/send:
+    post:
+      tags:
+      - Email
+      operationId: sendEmailTemplate
+      summary: Send email using a template
+      description: Sends an email based on a template configured in the CPaaS+ portal. Variables in `params` map
+        to the template in order.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailTemplateRequest'
+            example:
+              service_name: primary-email-service
+              template_name: order_confirmation
+              from: orders@example.com
+              from_name: Example Store
+              to: asha@example.com
+              cc:
+              - manager@example.com
+              subject: Your order ORD-1001
+              params:
+              - Asha
+              - ORD-1001
+      responses:
+        '200':
+          description: Request accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailSendResponse'
+              example:
+                status: success
+                message: Email sent successfully.
+                data:
+                  message_id: email-abc123def456
+                  to: customer@example.com
+                  status: queued
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /api/email/send:
+    post:
+      tags:
+      - Email
+      operationId: sendEmailOpenText
+      summary: Send email with open text
+      description: Sends an email with a free-form body, optional cc/bcc and base64-encoded attachments.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailOpenTextRequest'
+            example:
+              account: primary-email-service
+              from: orders@example.com
+              from_name: Example Store
+              to: asha@example.com
+              subject: Your invoice
+              body: Hi Asha, please find your invoice attached.
+              attachments:
+              - filename: invoice.pdf
+                type: application/pdf
+                content: JVBERi0xLjQK...
+      responses:
+        '200':
+          description: Request accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailSendResponse'
+              example:
+                status: success
+                message: Email sent successfully.
+                data:
+                  message_id: email-xyz789uvw012
+                  to: customer@example.com
+                  status: queued
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /api/email/status:
+    get:
+      tags:
+      - Email
+      operationId: getEmailStatus
+      summary: Get email status
+      description: |-
+        Retrieves the delivery status and event timeline of an email using the message ID returned by the send API.
+
+        This endpoint is a `GET` that takes its `id` in a JSON request body.
+      responses:
+        '200':
+          description: Request accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailStatusResponse'
+              example:
+                message_id: 3f70a02c-305e-4a95-b389-9c4640741684
+                status: delivered
+                timeline:
+                  queued_at: '2026-02-27T12:00:09.000000Z'
+                  sent_at: '2026-02-27T12:00:09.000000Z'
+                  delivered_at: '2026-02-27T12:00:11.000000Z'
+                  opened_at: null
+                  clicked_at: null
+                  bounced_at: null
+                  failed_at: null
+                  unsubscribed_at: null
+                  complained_at: null
+                recipient: customer@example.com
+                subject: Welcome
+                details:
+                  open_count: 0
+                  click_count: 0
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/ServerError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Message ID returned by the email send API.
+              required:
+              - id
+            example:
+              id: 3f70a02c-305e-4a95-b389-9c4640741684
+  /api/verify/send-otp:
+    post:
+      tags:
+      - Email Verification
+      operationId: sendEmailOtp
+      summary: Generate and send an OTP
+      description: 'Generates a time-limited OTP and delivers it using the verification template configured in the
+        portal (Templates, then OTP Templates). Store the `unique_id` from the response: it is required to validate
+        the OTP.'
+      parameters:
+      - name: verification_id
+        in: query
+        required: true
+        description: Verification ID fetched from the verification template in the CPaaS+ portal.
+        schema:
+          type: string
+      - name: type
+        in: query
+        required: true
+        description: Delivery channel for the OTP.
+        schema:
+          type: string
+          enum:
+          - email
+      - name: email
+        in: query
+        required: true
+        description: Destination email address.
+        schema:
+          type: string
+          format: email
+      responses:
+        '200':
+          description: Request accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtpSendResponse'
+              example:
+                status: success
+                message: OTP sent successfully.
+                data:
+                  unique_id: otp-sess-a1b2c3d4e5f6
+                  expires_in: 300
+                  channel: email
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /api/verify/validate-otp:
+    post:
+      tags:
+      - Email Verification
+      operationId: validateEmailOtp
+      summary: Validate an OTP
+      description: 'Validates the OTP entered by the user against the `unique_id` returned by the send call. Returns
+        `verified: true` on success. A wrong or expired OTP returns `status: error` with `verified: false`.'
+      parameters:
+      - name: unique_id
+        in: query
+        required: true
+        description: Unique ID returned in the response of the send-OTP request.
+        schema:
+          type: string
+      - name: otp
+        in: query
+        required: true
+        description: OTP value entered by the user.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Request accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtpValidateResponse'
+              examples:
+                verified:
+                  summary: OTP verified
+                  value:
+                    status: success
+                    message: OTP verified successfully.
+                    data:
+                      verified: true
+                      unique_id: otp-sess-a1b2c3d4e5f6
+                wrongOtp:
+                  summary: Wrong OTP
+                  value:
+                    status: error
+                    message: Invalid OTP.
+                    data:
+                      verified: false
+                expired:
+                  summary: Expired OTP
+                  value:
+                    status: error
+                    message: OTP has expired. Please request a new OTP.
+                    data:
+                      verified: false
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /api/rcs/template/create:
+    post:
+      tags:
+      - RCS Templates
+      operationId: createRcsTemplate
+      summary: Create an RCS template
+      description: |-
+        Creates an RCS template. Set `type` to choose the format:
+
+        - `text_message`: text with up to 11 suggestion buttons
+        - `rich_card`: a single card with media, title, description and up to 4 buttons
+        - `carousel`: 2 to 10 cards, each with up to 4 buttons
+
+
+        Templates are reviewed before use. The response returns `approval_status` (`pending`, `approved` or `rejected`); send only after approval.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - $ref: '#/components/schemas/RcsTemplateText'
+              - $ref: '#/components/schemas/RcsTemplateRichCard'
+              - $ref: '#/components/schemas/RcsTemplateCarousel'
+              discriminator:
+                propertyName: type
+                mapping:
+                  text_message: '#/components/schemas/RcsTemplateText'
+                  rich_card: '#/components/schemas/RcsTemplateRichCard'
+                  carousel: '#/components/schemas/RcsTemplateCarousel'
+            examples:
+              textWithButtons:
+                summary: Plain text + buttons
+                value:
+                  name: order_ready
+                  agent_id: your-agent-id
+                  type: text_message
+                  textMessageContent: Hello {{name}}, your order {{order_id}} is ready for pickup!
+                  suggestions:
+                  - suggestionType: reply
+                    displayText: Opt out
+                    postback: opt_out
+                  - suggestionType: url_action
+                    displayText: View Details
+                    url: https://example.com/order/{{order_id}}
+                    postback: view_details
+                  - suggestionType: dialer_action
+                    displayText: Call Support
+                    phoneNumber: '+911234567890'
+                    postback: call_support
+              richCard:
+                summary: Media + buttons
+                value:
+                  name: promo_card
+                  agent_id: your-agent-id
+                  type: rich_card
+                  orientation: VERTICAL
+                  height: SHORT_HEIGHT
+                  standAlone:
+                    cardTitle: Festive Offer
+                    cardDescription: Flat 20% off on all orders this week.
+                    mediaUrl: https://example.com/media/offer.jpg
+                    suggestions:
+                    - suggestionType: url_action
+                      displayText: Shop Now
+                      url: https://example.com/shop
+                      postback: shop_now
+              carousel:
+                summary: Carousel
+                value:
+                  name: catalogue_carousel
+                  agent_id: your-agent-id
+                  type: carousel
+                  width: MEDIUM_WIDTH
+                  height: MEDIUM_HEIGHT
+                  carouselList:
+                  - cardTitle: Product A
+                    cardDescription: Lightweight and durable.
+                    mediaUrl: https://example.com/media/a.jpg
+                    suggestions:
+                    - suggestionType: url_action
+                      displayText: View
+                      url: https://example.com/a
+                      postback: view_a
+                  - cardTitle: Product B
+                    cardDescription: Our best seller.
+                    mediaUrl: https://example.com/media/b.jpg
+                    suggestions:
+                    - suggestionType: url_action
+                      displayText: View
+                      url: https://example.com/b
+                      postback: view_b
+      responses:
+        '200':
+          description: Request accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RcsTemplateCreateResponse'
+              example:
+                status: success
+                message: Template created successfully.
+                data:
+                  template_id: rcs-tpl-20260326-001
+                  name: order_ready_v1
+                  approval_status: pending
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /api/rcs/send:
+    post:
+      tags:
+      - RCS Messaging
+      operationId: sendRcsMessage
+      summary: Send an RCS message
+      description: |-
+        Sends an approved RCS message over the **Vi** (Vodafone Idea) or **Jio** network in India. Choose the format with `message_type` (`text_message`, `rich_card` or `carousel`); the `content` structure must match.
+
+        Jio supports extra button types (`calendar_event`, `share_location`, `view_location_query`, `view_location_latlong`). Jio-only button types cannot be used on Vi. Templates must be approved, and media URLs must be direct, publicly accessible HTTPS links.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RcsSendRequest'
+            examples:
+              viText:
+                summary: 'Vi: text with buttons'
+                value:
+                  botId: YOUR_VI_BOT_ID
+                  to: '919876543210'
+                  message_type: text_message
+                  content:
+                    textMessageContent: Hello John, your order ORD-9876 is ready for pickup!
+                    suggestions:
+                    - suggestionType: reply
+                      displayText: Confirm Pickup
+                      postback: confirm_pickup
+                    - suggestionType: url_action
+                      displayText: Track Order
+                      url: https://tracking.example.com/ORD-9876
+                      postback: track_order
+                    - suggestionType: dialer_action
+                      displayText: Call Support
+                      phoneNumber: '+911234567890'
+                      postback: call_support
+              viRichCard:
+                summary: 'Vi: rich card'
+                value:
+                  botId: YOUR_VI_BOT_ID
+                  to: '919876543210'
+                  message_type: rich_card
+                  content:
+                    orientation: VERTICAL
+                    height: MEDIUM_HEIGHT
+                    standAlone:
+                      cardTitle: Festive Offer
+                      cardDescription: Flat 20% off this week.
+                      mediaUrl: https://cdn.example.com/sale_banner.jpg
+                      suggestions:
+                      - suggestionType: url_action
+                        displayText: Shop Now
+                        url: https://example.com/shop
+                        postback: shop_now
+                      - suggestionType: reply
+                        displayText: Opt Out
+                        postback: opt_out
+              jioText:
+                summary: 'Jio: text with extended buttons'
+                value:
+                  botId: YOUR_JIO_BOT_ID
+                  to: '919876543210'
+                  message_type: text_message
+                  content:
+                    textMessageContent: Your appointment is confirmed for March 30, 2026 at 10:00 AM.
+                    suggestions:
+                    - suggestionType: calendar_event
+                      displayText: Add to Calendar
+                      postback: add_calendar
+                    - suggestionType: view_location_latlong
+                      displayText: View Location
+                      postback: view_location
+                    - suggestionType: reply
+                      displayText: Confirm
+                      postback: confirm_appt
+                    - suggestionType: reply
+                      displayText: Cancel
+                      postback: cancel_appt
+              jioCarousel:
+                summary: 'Jio: carousel'
+                value:
+                  botId: YOUR_JIO_BOT_ID
+                  to: '919876543210'
+                  message_type: carousel
+                  content:
+                    width: MEDIUM_WIDTH
+                    height: MEDIUM_HEIGHT
+                    carouselList:
+                    - cardTitle: Wireless Headphones
+                      cardDescription: 40hr battery, noise cancellation.
+                      mediaUrl: https://cdn.example.com/headphones.jpg
+                      suggestions:
+                      - suggestionType: url_action
+                        displayText: Buy Now
+                        url: https://example.com/product/1
+                        postback: buy_1
+                    - cardTitle: Smart Watch
+                      cardDescription: Track fitness and stay connected.
+                      mediaUrl: https://cdn.example.com/watch.jpg
+                      suggestions:
+                      - suggestionType: url_action
+                        displayText: Buy Now
+                        url: https://example.com/product/2
+                        postback: buy_2
+      responses:
+        '200':
+          description: Request accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RcsSendResponse'
+              example:
+                status: success
+                message: RCS message sent successfully.
+                data:
+                  message_id: rcs-vi-msg-abc123xyz
+                  to: '919876543210'
+                  status: submitted
+                  received_at: '2026-03-26 10:15:32'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /api/rcs/status:
+    get:
+      tags:
+      - RCS Messaging
+      operationId: getRcsStatus
+      summary: Get RCS message status
+      description: Retrieves the delivery status of an RCS message by ID.
+      parameters:
+      - name: id
+        in: query
+        required: true
+        description: Message ID returned when the RCS message was submitted.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Request accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RcsStatusResponse'
+              example:
+                success: true
+                data:
+                  message_id: 7870e824-693d-4e25-b424-099f273c89a8
+                  status: read
+                  status_description: Unknown status
+                  message_type: text
+                  priority: null
+                  direction: outbound
+                  number: '919202511257'
+                  created_at: '2026-03-13 15:44:31'
+                  scheduled_at: '2026-03-13 15:44:31'
+                  sent_at: '2026-03-13 15:44:32'
+                  delivered_at: '2026-03-13 15:44:41'
+                  failed_at: null
+                  cancelled_at: null
+                  updated_at: '2026-03-13 15:44:53'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /flow-api/webhook/trigger/{flow_id}:
+    post:
+      tags:
+      - Flow Builder
+      operationId: triggerFlow
+      summary: Trigger a Flow Builder journey
+      description: |-
+        Triggers a published and active Flow Builder journey for a recipient. The flow then runs all configured steps (messages, conditions, delays).
+
+        The endpoint is the flow's webhook URL, shown in the portal under Flow Builder, then your flow, then Webhook URL. Send `phone` if the flow uses SMS or WhatsApp, `email` if it uses Email, plus the variables (`var1`, `var2`, ...) your flow expects.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone:
+                  type: string
+                  description: Contact mobile number.
+                  example: '919876543210'
+                email:
+                  type: string
+                  format: email
+                  description: Contact email address.
+                  example: asha@example.com
+              additionalProperties:
+                type: string
+                description: Flow variables (for example `var1`, `var2`) as configured in your flow.
+            example:
+              phone: '919876543210'
+              email: asha@example.com
+              var1: Asha
+              var2: ORD-1001
+      responses:
+        '200':
+          description: Request accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlowTriggerResponse'
+              examples:
+                ok:
+                  summary: Triggered
+                  value:
+                    status: success
+                    message: Flow jobs dispatched successfully
+                notFound:
+                  summary: Flow not found
+                  value:
+                    status: error
+                    message: Flow not found.
+                badJson:
+                  summary: Invalid body
+                  value:
+                    status: error
+                    message: Invalid JSON format. Please check your request body.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/ServerError'
+      parameters:
+      - name: flow_id
+        in: path
+        required: true
+        description: ID of the published flow, from its webhook URL.
+        schema:
+          type: string
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: 'API token issued for your account. Send as `Authorization: Bearer <token>`.'
+  responses:
+    BadRequest:
+      description: 'Bad request: invalid JSON or missing fields.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Missing, invalid or expired bearer token.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: 'Forbidden: the request came from a restricted (non-allow-listed) IP address.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    UnprocessableEntity:
+      description: 'Unprocessable entity: invalid numbers or fields, or invalid message content.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ServerError:
+      description: 'Internal server error: a server-side issue. Retry later or contact support.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  schemas:
+    SmsTemplateSendRequest:
+      type: object
+      required:
+      - alias
+      - to
+      properties:
+        alias:
+          type: string
+          description: Template ID (alias) from the CPaaS+ web portal.
+        to:
+          type: array
+          maxItems: 50
+          items:
+            type: string
+          description: Destination mobile numbers (up to 50).
+        params:
+          type: object
+          additionalProperties:
+            type: string
+          description: 'Dynamic values keyed by variable position, as defined in the template (for example `{"1":
+            "value"}`).'
+    SmsOpenTextRequest:
+      type: object
+      required:
+      - from
+      - to
+      - text
+      properties:
+        from:
+          type: string
+          description: Sender ID / source address / header as configured on the platform.
+        to:
+          type: array
+          items:
+            type: string
+          description: Destination mobile numbers. Up to 100 per request.
+          maxItems: 100
+        text:
+          type: string
+          description: Message text.
+        type:
+          type: string
+          enum:
+          - N
+          - U
+          - A
+          default: N
+          description: '`N` plain text (default), `U` Unicode, `A` auto-detect.'
+        product:
+          type: string
+          enum:
+          - Transactional
+          - Promotional
+          - OTP
+          - Other
+          description: Traffic category.
+        template_id:
+          type: string
+          description: Registered template ID. Mandatory in India.
+        entity_id:
+          type: string
+          description: Registered entity ID. Mandatory in India.
+    WhatsAppMessageRequest:
+      type: object
+      required:
+      - source
+      - destination
+      - template
+      properties:
+        source:
+          type: string
+          description: WhatsApp sender ID (WABA number).
+        destination:
+          type: string
+          description: Recipient phone number.
+        template:
+          type: object
+          required:
+          - id
+          properties:
+            id:
+              type: string
+              description: Approved WhatsApp template ID.
+            params:
+              type: array
+              items:
+                type: string
+              description: Values for the template body variables, in order.
+        media_url:
+          type: string
+          format: uri
+          description: Public URL of a document, PDF or image for templates with a media header.
+    OrderStatusRequest:
+      type: object
+      properties:
+        order_id:
+          type: string
+          description: Unique order identifier from your system.
+        status:
+          type: string
+          description: New order status.
+          enum:
+          - confirmed
+          - shipped
+          - delivered
+          - cancelled
+        tracking_url:
+          type: string
+          description: Publicly accessible shipment tracking URL to share with the customer.
+          format: uri
+        description:
+          type: string
+          description: Additional status notes for the customer.
+        receiver:
+          type: string
+          description: Customer WhatsApp number.
+      required:
+      - order_id
+      - status
+      - receiver
+    RefundRequest:
+      type: object
+      properties:
+        order_id:
+          type: string
+          description: Unique order identifier to refund.
+        refund_amount:
+          type: string
+          description: Amount to refund, in the order currency.
+        currency:
+          type: string
+          description: ISO 4217 currency code, for example `INR` or `USD`.
+        reason:
+          type: string
+          description: Reason for the refund, for example `customer_request` or `defective_product`.
+        receiver:
+          type: string
+          description: Customer WhatsApp number to notify about the refund.
+      required:
+      - order_id
+      - refund_amount
+      - currency
+      - receiver
+    BlockedMembersRequest:
+      type: object
+      properties:
+        sender_id:
+          type: string
+          description: Your WhatsApp Business (WABA) number.
+        phone:
+          type: string
+          description: Mobile number of the user.
+      required:
+      - sender_id
+      - phone
+    EmailAttachment:
+      type: object
+      required:
+      - filename
+      - type
+      - content
+      properties:
+        filename:
+          type: string
+          description: File name including extension.
+        type:
+          type: string
+          description: MIME type, for example `application/pdf`.
+        content:
+          type: string
+          format: byte
+          description: Base64-encoded file content.
+    EmailTemplateRequest:
+      type: object
+      required:
+      - service_name
+      - template_name
+      - from
+      - from_name
+      - to
+      - subject
+      properties:
+        service_name:
+          type: string
+          description: Service name of the email configuration.
+        template_name:
+          type: string
+          description: Name of the email template.
+        from:
+          type: string
+          description: Sender address on your configured domain.
+        from_name:
+          type: string
+          description: Display name for the sender.
+        to:
+          type: string
+          format: email
+          description: Destination email address.
+        cc:
+          type: array
+          items:
+            type: string
+            format: email
+        bcc:
+          type: array
+          items:
+            type: string
+            format: email
+        subject:
+          type: string
+          description: Subject line.
+        params:
+          type: array
+          items:
+            type: string
+          description: Template variable values, in the order defined in the template.
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmailAttachment'
+    EmailOpenTextRequest:
+      type: object
+      required:
+      - account
+      - from
+      - from_name
+      - to
+      - subject
+      - body
+      properties:
+        account:
+          type: string
+          description: Service name of the email configuration.
+        from:
+          type: string
+          description: Sender address on your configured domain.
+        from_name:
+          type: string
+          description: Display name for the sender.
+        to:
+          type: string
+          format: email
+          description: Destination email address.
+        cc:
+          type: array
+          items:
+            type: string
+            format: email
+        bcc:
+          type: array
+          items:
+            type: string
+            format: email
+        subject:
+          type: string
+        body:
+          type: string
+          description: Full HTML or plain-text content of the email body.
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmailAttachment'
+    RcsTemplateSuggestion:
+      type: object
+      required:
+      - suggestionType
+      - displayText
+      properties:
+        suggestionType:
+          type: string
+          enum:
+          - reply
+          - url_action
+          - dialer_action
+          description: '`reply` quick reply, `url_action` opens a URL, `dialer_action` opens the dialer.'
+        displayText:
+          type: string
+          maxLength: 25
+          description: Button label (max 25 characters).
+        postback:
+          type: string
+          description: Optional callback value returned when the button is tapped.
+        url:
+          type: string
+          description: Target URL for `url_action`. Variables are allowed.
+        phoneNumber:
+          type: string
+          description: Phone number for `dialer_action`.
+    RcsTemplateCard:
+      type: object
+      properties:
+        cardTitle:
+          type: string
+          maxLength: 200
+        cardDescription:
+          type: string
+          maxLength: 2000
+        mediaUrl:
+          type: string
+          format: uri
+        suggestions:
+          type: array
+          maxItems: 4
+          items:
+            $ref: '#/components/schemas/RcsTemplateSuggestion'
+    RcsTemplateText:
+      type: object
+      required:
+      - name
+      - agent_id
+      - type
+      - textMessageContent
+      properties:
+        name:
+          type: string
+          description: Template name.
+        agent_id:
+          type: string
+          description: Your RCS agent ID.
+        type:
+          type: string
+          const: text_message
+        textMessageContent:
+          type: string
+          description: Message text. Define variables with double braces, for example `{{name}}`.
+        suggestions:
+          type: array
+          maxItems: 11
+          items:
+            $ref: '#/components/schemas/RcsTemplateSuggestion'
+    RcsTemplateRichCard:
+      type: object
+      required:
+      - name
+      - agent_id
+      - type
+      - orientation
+      - standAlone
+      properties:
+        name:
+          type: string
+        agent_id:
+          type: string
+        type:
+          type: string
+          const: rich_card
+        orientation:
+          type: string
+          enum:
+          - HORIZONTAL
+          - VERTICAL
+        height:
+          type: string
+          enum:
+          - SHORT_HEIGHT
+          - MEDIUM_HEIGHT
+          - TALL_HEIGHT
+          description: Card height. Applies when orientation is Vertical.
+        standAlone:
+          $ref: '#/components/schemas/RcsTemplateCard'
+    RcsTemplateCarousel:
+      type: object
+      required:
+      - name
+      - agent_id
+      - type
+      - carouselList
+      properties:
+        name:
+          type: string
+        agent_id:
+          type: string
+        type:
+          type: string
+          const: carousel
+        width:
+          type: string
+          enum:
+          - SMALL_WIDTH
+          - MEDIUM_WIDTH
+        height:
+          type: string
+          enum:
+          - SHORT_HEIGHT
+          - MEDIUM_HEIGHT
+        carouselList:
+          type: array
+          minItems: 2
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RcsTemplateCard'
+    RcsSuggestion:
+      type: object
+      required:
+      - suggestionType
+      - displayText
+      description: |
+        A button attached to a message. Which extra fields apply depends on `suggestionType`:
+        `url_action` (url, application), `dialer_action` (phoneNumber), `calendar_event`
+        (title, startTime, endTime, timeZone, description), `view_location_query` (query),
+        `view_location_latlong` (label, latitude, longitude). `reply` and `share_location` need only
+        `displayText` and `postback`.
+      properties:
+        suggestionType:
+          type: string
+          enum:
+          - reply
+          - url_action
+          - dialer_action
+          - share_location
+          - calendar_event
+          - view_location_query
+          - view_location_latlong
+        displayText:
+          type: string
+        postback:
+          type: string
+          description: Custom value returned when the button is tapped.
+        url:
+          type: string
+        application:
+          type: string
+          description: Application used to open the URL, for example `BROWSER`.
+        phoneNumber:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        startTime:
+          type: string
+          description: Format `YYYY-MM-DD HH:MM:SS`.
+        endTime:
+          type: string
+          description: Format `YYYY-MM-DD HH:MM:SS`.
+        timeZone:
+          type: string
+          description: ISO 8601 with zone, for example `2025-11-05T10:30:00[Asia/Kolkata]`.
+        query:
+          type: string
+        label:
+          type: string
+        latitude:
+          type: string
+        longitude:
+          type: string
+    RcsCard:
+      type: object
+      properties:
+        mediaUrl:
+          type: string
+          format: uri
+        cardTitle:
+          type: string
+        cardDescription:
+          type: string
+        suggestions:
+          type: array
+          items:
+            $ref: '#/components/schemas/RcsSuggestion'
+    RcsContent:
+      type: object
+      description: 'Message content. The structure must match `message_type`: `text_message` uses `textMessageContent`
+        and optional `suggestions` (max 11); `rich_card` uses `orientation`, `height` and `standAlone` (max 4 buttons);
+        `carousel` uses `width`, `height` and `carouselList` (2 to 10 cards, max 4 buttons each).'
+      properties:
+        textMessageContent:
+          type: string
+        height:
+          type: string
+          description: '`SHORT_HEIGHT`, `MEDIUM_HEIGHT` or `TALL_HEIGHT` (rich card); `SHORT_HEIGHT` or `MEDIUM_HEIGHT`
+            (carousel).'
+        width:
+          type: string
+          description: '`SMALL_WIDTH` or `MEDIUM_WIDTH` (carousel).'
+        alignment:
+          type: string
+          enum:
+          - LEFT
+          - RIGHT
+        orientation:
+          type: string
+          enum:
+          - HORIZONTAL
+          - VERTICAL
+        standAlone:
+          $ref: '#/components/schemas/RcsCard'
+        carouselList:
+          type: array
+          minItems: 2
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/RcsCard'
+        suggestions:
+          type: array
+          items:
+            $ref: '#/components/schemas/RcsSuggestion'
+    RcsSendRequest:
+      type: object
+      properties:
+        botId:
+          type: string
+          description: RCS bot / agent ID registered on the operator network (from the portal under RCS, then Agents).
+        to:
+          type: string
+          description: Destination mobile number.
+        message_type:
+          type: string
+          description: Type of message.
+          enum:
+          - text_message
+          - rich_card
+          - carousel
+        content:
+          $ref: '#/components/schemas/RcsContent'
+      required:
+      - botId
+      - to
+      - message_type
+      - content
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: '`error` on platform errors.'
+        error_code:
+          type: integer
+          description: HTTP-style error code.
+        error_message:
+          type: string
+          description: Human-readable error.
+        message:
+          type: string
+          description: Human-readable error (validation style).
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          description: Field-level validation errors keyed by field name.
+      description: 'Error body. The exact fields present depend on the failure: validation failures return `message`
+        and `errors`; platform failures return `status`, `error_code` and `error_message`.'
+    Pagination:
+      type: object
+      properties:
+        total:
+          type: integer
+        count:
+          type: integer
+        per_page:
+          type: integer
+        current_page:
+          type: integer
+        total_pages:
+          type: integer
+    SmsSubmitResult:
+      type: object
+      properties:
+        status:
+          type: string
+          description: '`submitted` or `failed` for this recipient.'
+          enum:
+          - submitted
+          - failed
+        message_id:
+          type:
+          - string
+          - 'null'
+          description: Unique message ID. `null` when the entry failed. Use it with the status endpoint.
+        number:
+          type: string
+          description: Destination number for this entry.
+        units:
+          type: integer
+          description: SMS units consumed. One unit is 160 characters of plain text or 70 characters of Unicode.
+        error:
+          type: string
+          description: Reason, present when `status` is `failed` (for example `Invalid phone number`).
+        received_at:
+          type: string
+          description: Timestamp the platform received the request (`YYYY-MM-DD HH:MM:SS`).
+    SmsSendResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Overall submission status.
+        message:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SmsSubmitResult'
+      description: 'Per-recipient results. The API supports partial success: an HTTP 200 can contain both submitted
+        and failed entries, so always inspect each entry in `data`.'
+    SmsCampaignResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: '`success` means the message was submitted, not delivered.'
+        ref_id:
+          type: string
+          description: Unique identifier (message ID) of the request.
+    SmsStatusResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              message_id:
+                type: string
+              from:
+                type: string
+              number:
+                type: string
+              status:
+                type: string
+                description: Delivery status, for example `DELIVRD` or `FAILED`.
+              code:
+                type: string
+                description: Delivery code captured from the operator.
+              units:
+                type: integer
+              received_at:
+                type: string
+              submitted_at:
+                type: string
+              dlr_received_at:
+                type:
+                - string
+                - 'null'
+                description: Delivery-report timestamp, or null if not yet received.
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+    WhatsAppMessageResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            message_id:
+              type: string
+              description: WhatsApp message ID returned by Meta (`wamid...`).
+            receiver:
+              type: string
+              description: Destination WhatsApp number.
+            status:
+              type: string
+              description: Delivery pipeline status.
+              enum:
+              - submitted
+              - failed
+    OrderStatusResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            order_id:
+              type: string
+            updated_status:
+              type: string
+            notified_at:
+              type: string
+              description: Time the customer was notified (`YYYY-MM-DD HH:MM:SS`).
+    RefundResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            refund_id:
+              type: string
+              description: Unique refund transaction ID.
+            order_id:
+              type: string
+            refund_amount:
+              type: string
+            currency:
+              type: string
+            refund_status:
+              type: string
+              description: Refund transaction status.
+              enum:
+              - processing
+              - completed
+              - failed
+    BlockUserResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            phone:
+              type: string
+            blocked_at:
+              type: string
+    UnblockUserResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+    CsvImportResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            total:
+              type: integer
+              description: Records found in the CSV.
+            blocked:
+              type: integer
+              description: Users blocked successfully.
+            failed:
+              type: integer
+              description: Entries that failed (invalid format or duplicates).
+    BlockedUsersResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        data:
+          type: object
+          properties:
+            total:
+              type: integer
+            per_page:
+              type: integer
+            current_page:
+              type: integer
+            blocked_members:
+              type: array
+              items:
+                type: object
+                properties:
+                  phone:
+                    type: string
+                  blocked_at:
+                    type: string
+    SyncBlockedResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            synced:
+              type: integer
+            synced_at:
+              type: string
+    EmailSendResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            message_id:
+              type: string
+              description: Unique email message ID. Use it with the status endpoint.
+            to:
+              type: string
+            status:
+              type: string
+              description: Delivery pipeline status.
+              enum:
+              - queued
+              - sent
+              - failed
+    EmailStatusResponse:
+      type: object
+      properties:
+        message_id:
+          type: string
+        status:
+          type: string
+          description: Current status, for example `queued`, `sent`, `delivered`, `opened` or `failed`.
+        timeline:
+          type: object
+          properties:
+            queued_at:
+              type:
+              - string
+              - 'null'
+            sent_at:
+              type:
+              - string
+              - 'null'
+            delivered_at:
+              type:
+              - string
+              - 'null'
+            opened_at:
+              type:
+              - string
+              - 'null'
+            clicked_at:
+              type:
+              - string
+              - 'null'
+            bounced_at:
+              type:
+              - string
+              - 'null'
+            failed_at:
+              type:
+              - string
+              - 'null'
+            unsubscribed_at:
+              type:
+              - string
+              - 'null'
+            complained_at:
+              type:
+              - string
+              - 'null'
+          description: ISO 8601 timestamps; `null` for events that have not happened.
+        recipient:
+          type: string
+        subject:
+          type: string
+        details:
+          type: object
+          properties:
+            open_count:
+              type: integer
+            click_count:
+              type: integer
+    OtpSendResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            unique_id:
+              type: string
+              description: 'OTP session ID. Store it: it is required to validate the OTP.'
+            expires_in:
+              type: integer
+              description: OTP validity in seconds (default 300).
+            channel:
+              type: string
+    OtpValidateResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            verified:
+              type: boolean
+              description: '`true` if the OTP matched and is valid; `false` if incorrect or expired.'
+            unique_id:
+              type: string
+    RcsTemplateCreateResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            template_id:
+              type: string
+              description: Internal template ID.
+            name:
+              type: string
+            approval_status:
+              type: string
+              description: Review status. Send only after the template is approved.
+              enum:
+              - pending
+              - approved
+              - rejected
+    RcsSendResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            message_id:
+              type: string
+              description: Unique RCS message ID. Use it with the status endpoint.
+            to:
+              type: string
+            status:
+              type: string
+              description: Delivery pipeline status.
+              enum:
+              - submitted
+              - failed
+            received_at:
+              type: string
+    RcsStatusResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            message_id:
+              type: string
+            status:
+              type: string
+              description: Current delivery status, for example `submitted`, `delivered`, `read` or `failed`.
+            status_description:
+              type: string
+            message_type:
+              type: string
+            priority:
+              type:
+              - string
+              - 'null'
+            direction:
+              type: string
+            number:
+              type: string
+            created_at:
+              type:
+              - string
+              - 'null'
+            scheduled_at:
+              type:
+              - string
+              - 'null'
+            sent_at:
+              type:
+              - string
+              - 'null'
+            delivered_at:
+              type:
+              - string
+              - 'null'
+            failed_at:
+              type:
+              - string
+              - 'null'
+            cancelled_at:
+              type:
+              - string
+              - 'null'
+            updated_at:
+              type:
+              - string
+              - 'null'
+    FlowTriggerResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        message:
+          type: string
+    SmsBulkRequest:
+      type: object
+      properties:
+        root:
+          type: object
+          properties:
+            from:
+              type: string
+              description: Default sender ID / header, used when an entry omits `from`.
+            text:
+              type: string
+              description: Default message text, used when an entry omits `text`.
+            to:
+              type: array
+              items:
+                type: string
+              description: Default destination number(s), used when an entry omits `to`.
+          required:
+          - from
+          - text
+          - to
+          description: Fallback values applied to any `data[]` entry that omits `from`, `text` or `to`.
+        data:
+          type: array
+          maxItems: 500
+          description: Individual messages. Maximum 500 per request.
+          items:
+            type: object
+            properties:
+              from:
+                type: string
+                description: Sender for this message. Overrides `root.from`.
+              text:
+                type: string
+                description: Text for this message. Overrides `root.text`.
+              to:
+                type: array
+                items:
+                  type: string
+                description: Destination number(s) for this entry. Overrides `root.to`.
+      required:
+      - root
+      - data
