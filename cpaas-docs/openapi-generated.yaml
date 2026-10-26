@@ -1,0 +1,2143 @@
+openapi: 3.0.0
+info:
+  title: CPAAS Copy 2
+  version: 1.0.0
+  description: ''
+servers:
+  - url: '{{BaseURL}}'
+  - url: '{{baseurl}}api'
+  - url: '{{baseurl}}'
+  - url: '{{Base URL}}'
+paths:
+  /api/sms/send-msg:
+    post:
+      summary: Campaign
+      parameters:
+        - name: campaign_id
+          in: query
+          description: >-
+            The Campaign ID is generated through the Web Portal under
+            'Campaigns'
+          schema:
+            type: string
+          example: '{{Campaign ID}}'
+        - name: phone
+          in: query
+          description: >-
+            The Destination Mobile Number to which the message will be
+            terminated
+          schema:
+            type: string
+          example: '{{Mobile Number}}'
+        - name: params
+          in: query
+          description: The Number of Dynamic values to be passed as defined in the template
+          schema:
+            type: string
+          example: '["{{Var1}}","{{Var2}}","{{Var3}}"]'
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: Bearer {{Token}}
+      responses: {}
+      tags:
+        - SMS
+      security:
+        - BearerAuth: []
+      description: >-
+        | Detail | Description |
+
+        | --- | --- |
+
+        | API Purpose | Sends a pre-built portal campaign to a mobile number. |
+
+        | Endpoint | `{{BaseURL}}/api/sms/send-msg` |
+
+        | Campaign ID (`campaign_id`) | The Campaign ID is generated in the Web
+        Portal under the Campaigns section once a campaign has been successfully
+        run. |
+
+        | Destination Number (`phone`) | The destination mobile number to which
+        the message will be sent. |
+
+        | Dynamic Values (`params`) | The number of dynamic values to be passed,
+        as defined in the template. |
+
+        | Successful Response | Returns `status: success` and a unique `ref_id`
+        identifying the request. |
+  /api/sms/template/send:
+    post:
+      summary: Template Send
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: Bearer 154|U2o3kT3Sl0It6aZxrPqDgZjXx1jr3SGzD5FXjVFM83fd0ba1
+      responses: {}
+      tags:
+        - SMS
+      security:
+        - BearerAuth: []
+      description: >-
+        | Field | Description |
+
+        | --- | --- |
+
+        | API Name | Template Send |
+
+        | Purpose | Sends SMS using a CPaaS+ template with dynamic variables. |
+
+        | Method | `POST` |
+
+        | Endpoint | `{{BaseURL}}/api/sms/template/send` |
+
+        | Template ID | Obtain the CPaaS+ Template ID from Web Portal → SMS
+        Channel → Template tab → select the specific template. |
+
+        | Variable sequence | Pass dynamic variable values in the same sequence
+        as defined in the template. |
+
+        | Request format | JSON body |
+
+        | Successful response | Returns `status`, `message`, and a `data` array
+        containing message submission details. |
+
+        | Response interpretation | `submitted` means the message has been
+        submitted to the provider for delivery; it does not confirm final
+        delivery. |
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            example: |-
+              {
+                  "alias": "{{Template ID}}",   //CPaas+ Template ID from Webportal
+                  "to": [
+                      "{{Mobile Number}}"      //Multiple Mobile Numbers upto 50 can be passed
+                  ],
+                  "params": {
+                      "1": "{{Var}}"          //Dynamic values can be passed in variables as defined in template
+                  }
+              }
+  /api/sms/send:
+    post:
+      summary: Open Text
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: Bearer {{Bearer Token}}
+      responses: {}
+      tags:
+        - SMS
+      security:
+        - BearerAuth: []
+      description: >-
+        StartFragment
+
+
+        | Field | Description |
+
+        | --- | --- |
+
+        | API Name | Open Text |
+
+        | Purpose | Sends freeform SMS text programmatically without relying on
+        a pre-built portal campaign or template. |
+
+        | Method | `POST` |
+
+        | Endpoint | `{{BaseURL}}/api/sms/send` |
+
+        | Request format | JSON body |
+
+        | Sender ID (`from`) | Sender ID, source address, or header configured
+        on the platform. |
+
+        | Recipients (`to`) | Destination mobile number(s); the guide says up to
+        100 numbers can be passed. |
+
+        | Message (`text`) | The SMS content to be delivered. |
+
+        | Encoding (`type`) | Optional: `N` = plain text (default), `U` =
+        Unicode, `A` = auto-detect. |
+
+        | Message category (`product`) | Optional: `Transactional`,
+        `Promotional`, `OTP`, or `Other`. |
+
+        | India-specific fields | `template_id` (DLT-registered Template ID) and
+        `entity_id` (DLT-registered Entity ID) are mandatory for messages sent
+        in India. |
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                from:
+                  type: string
+                to:
+                  type: array
+                  items:
+                    type: string
+                text:
+                  type: string
+                type:
+                  type: string
+                product:
+                  type: string
+                template_id:
+                  type: string
+                entity_id:
+                  type: string
+            example:
+              from: '{{Source/Sender/Header}}'
+              to:
+                - '{{Mobile Number}}'
+              text: '{{Message Text}}'
+              type: '{{''N'' for plain text (default), ''U'' for Unicode, ''A'' for auto}}'
+              product: '{{Transactional,Promotional,OTP,Other}}'
+              template_id: '{{Template ID,Mandatory in India}}'
+              entity_id: '{{Entity ID, Mandatory in India}}'
+  /api/sms/status:
+    get:
+      summary: Status
+      parameters:
+        - name: number
+          in: query
+          schema:
+            type: string
+          example: '{{Mobile Number}}'
+        - name: id
+          in: query
+          schema:
+            type: string
+          example: '{{Message ID}}'
+        - name: from
+          in: query
+          schema:
+            type: string
+          example: '{{Sender}}'
+        - name: code
+          in: query
+          schema:
+            type: string
+          example: '{{Error Code}}'
+        - name: status
+          in: query
+          schema:
+            type: string
+          example: '{{Status}}'
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: Bearer {{Bearer Token}}
+      responses: {}
+      tags:
+        - SMS
+      security:
+        - BearerAuth: []
+      description: >-
+        | Field | Description |
+
+        | --- | --- |
+
+        | API Name | Status |
+
+        | Purpose | Retrieves the Delivery Report (DLR) status of submitted SMS
+        messages. |
+
+        | Method | `GET` |
+
+        | Endpoint | `{{BaseURL}}/api/sms/status` |
+
+        | Query Parameters | Optional filters are available to retrieve message
+        status information. |
+
+        | Response | Returns matching message records and pagination
+        information. |
+
+        | Status values | `DELIVRD` and `FAILED` are status filter values. |
+  /whatsapp/blocked-members:
+    post:
+      summary: Block User
+      responses: {}
+      tags:
+        - WhatsApp
+        - User Management
+      security:
+        - BearerAuth: []
+      description: >-
+        **Block User API**
+
+
+        ## 1\. API Overview
+
+
+        | Field | Description |
+
+        | --- | --- |
+
+        | API Name | Block User |
+
+        | Purpose | Blocks mobile numbers from receiving WhatsApp messages
+        through the specified WhatsApp Business Account (WABA). |
+
+        | HTTP Method | `POST` |
+
+        | Endpoint | `/api/whatsapp/blocked-members` |
+
+        | Full URL | `{{baseurl}}/api/whatsapp/blocked-members` |
+
+        | Authentication | Bearer Token |
+
+        | Content-Type | `application/json` |
+
+        | Accept | `application/json` |
+
+
+        ## 2\. Request Headers
+
+
+        | Key | Value | Description |
+
+        | --- | --- | --- |
+
+        | `Authorization` | `Bearer {{Bearer Token}}` | Authenticates the API
+        request. |
+
+        | `Content-Type` | `application/json` | Specifies that the request body
+        is JSON. |
+
+        | `Accept` | `application/json` | Specifies that the client accepts a
+        JSON response. |
+
+
+        ## 3\. Request Body Parameters
+
+
+        | Parameter | Type | Required | Description | Example |
+
+        | --- | --- | --- | --- | --- |
+
+        | `sender_id` | String | Yes | WhatsApp Business Account (WABA) number.
+        | `{{WABA Number}}` |
+
+        | `phone_numbers` | Array | Yes | Mobile number or numbers to block. |
+        `["{{Mobile Number}}"]` |
+
+
+        ## 4\. Success Response
+
+
+        | Field | Example Value | Description |
+
+        | --- | --- | --- |
+
+        | `status` | `success` | Indicates that the request succeeded. |
+
+        | `message` | `User blocked successfully.` | Confirmation message. |
+
+        | `data.phone` | `91XXXXXXXX` | Mobile number shown in the response. |
+
+        | `data.blocked_at` | `2026-03-26 10:15:32` | Date and time shown for
+        the block action. |
+
+
+        ### Sample Success Response
+
+
+        ``` json
+
+        {
+          "status": "success",
+          "message": "User blocked successfully.",
+          "data": {
+            "phone": "91XXXXXXXX",
+            "blocked_at": "2026-03-26 10:15:32"
+          }
+        }
+
+         ```
+
+        ## 5\. Error Handling
+
+
+        | Error Condition | Error Message in Guide | Recommended Action |
+
+        | --- | --- | --- |
+
+        | Missing `sender_id` | `The sender_id field is required.` | Provide the
+        WABA number in the request body. |
+
+        | Missing `phone` | `The phone field is required.` | Provide the mobile
+        number in the request body. |
+
+        | Re-engagement check failure | `Re-engagement check failed: Failed to
+        block due to re-engagement check failed` | Check that the user has
+        interacted with the system within the previous 24 hours, for example
+        through a Campaign, API, or Chatbot. |
+
+
+        ## 6\. Troubleshooting
+
+
+        | Issue | What to Check |
+
+        | --- | --- |
+
+        | Authentication failure | Verify that the Bearer Token is present and
+        valid. |
+
+        | Required field error | Check that the required request fields are
+        provided. |
+
+        | Re-engagement check failure | Verify the user's interaction with the
+        system within the previous 24 hours. |
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            example: |-
+              {
+                  "sender_id": "{{WABA Number}}",
+                  "phone_numbers": [
+                      "{{Mobile Number}}" //Multiple Mobile numbers can be added in array
+                  ]
+              }
+  /api/whatsapp/blocked-members:
+    delete:
+      summary: Unblock User
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: Bearer {{token}}
+      responses: {}
+      tags:
+        - WhatsApp
+        - User Management
+      security:
+        - BearerAuth: []
+      description: >-
+        # Unblock User API
+
+
+        ## 1\. API Overview
+
+
+        | Field | Description |
+
+        | --- | --- |
+
+        | API Name | Unblock User |
+
+        | Purpose | Removes the block on a mobile number so that it is no longer
+        blocked through the specified WhatsApp Business Account (WABA). |
+
+        | HTTP Method | `DELETE` |
+
+        | Endpoint | `/api/whatsapp/blocked-members` |
+
+        | Full URL | `{{baseurl}}/api/whatsapp/blocked-members` |
+
+        | Authentication | Bearer Token |
+
+        | Content-Type | `application/json` |
+
+        | Accept | `application/json` |
+
+
+        ## 2\. Request Headers
+
+
+        | Key | Value | Description |
+
+        | --- | --- | --- |
+
+        | `Authorization` | `Bearer {{Bearer Token}}` | Authenticates the API
+        request. |
+
+        | `Content-Type` | `application/json` | Specifies that the request body
+        is JSON. |
+
+        | `Accept` | `application/json` | Specifies that the client accepts a
+        JSON response. |
+
+
+        ## 3\. Request Body Parameters
+
+
+        | Parameter | Type | Required | Description | Example |
+
+        | --- | --- | --- | --- | --- |
+
+        | `sender_id` | String | Yes | WhatsApp Business Account (WABA) number.
+        | `{{WABA Number}}` |
+
+        | `phone` | String | Yes | Mobile number to unblock. | `{{Mobile
+        Number}}` |
+
+
+        ## 4\. Sample Request Body
+
+
+        | Example | JSON |
+
+        | --- | --- |
+
+        | Request | See the JSON request body configured below in the Postman
+        Body tab. |
+
+
+        ## 5\. Success Response
+
+
+        | Field | Example Value | Description |
+
+        | --- | --- | --- |
+
+        | `status` | `success` | Indicates that the request succeeded. |
+
+        | `message` | `User unblocked successfully.` | Confirmation that the
+        user was unblocked. |
+
+
+        ### Sample Success Response
+
+
+        ```
+
+        {
+          "status": "success",
+          "message": "User unblocked successfully."
+        }
+
+         ```
+
+        ## 6\. Troubleshooting
+
+
+        | Issue | What to Check |
+
+        | --- | --- |
+
+        | Authentication failure | Verify the Bearer Token and confirm that it
+        is valid. |
+
+        | Required field error | Check that both `sender_id` and `phone` are
+        included in the request body. |
+
+        | User remains blocked | Verify the WABA number and mobile number, then
+        check the API response. |
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            example: |-
+              {
+                  "sender_id": "{{WABA Number}}",
+                  "phone_numbers": [
+                      "{{Mobile Number}}", //Multiple Numbers can be added in array
+                      "{{Mobile Number}}"
+                  ]
+              }
+    get:
+      summary: Request Blocked Users
+      parameters:
+        - name: sender_id
+          in: query
+          schema:
+            type: string
+          example: '{{WABA Number}}'
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+          example: 1
+        - name: page
+          in: query
+          schema:
+            type: integer
+          example: 1
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: Bearer {{token}}
+      responses: {}
+      tags:
+        - WhatsApp
+        - User Management
+      security:
+        - BearerAuth: []
+      description: >-
+        | Field | Details |
+
+        | --- | --- |
+
+        | API Name | Request Blocked Users |
+
+        | Method | `GET` |
+
+        | Endpoint | `{{Base URL}}/api/whatsapp/blocked-members?sender_id={{WABA
+        Number}}&per_page={{Max 100}}&page={{Page number}}` |
+
+        | Description | Retrieve the paginated list of all users blocked for a
+        specific WABA number. |
+
+        | `sender_id` | Required: Yes |
+
+        | `sender_id` Description | Your WABA number passed as a query parameter
+        |
+
+        | `per_page` | Required: Optional |
+
+        | `per_page` Description | Number of records to return per page.
+        Default: 10 |
+
+        | `page` | Required: Optional |
+
+        | `page` Description | Page number for pagination. Default: 1 |
+
+        | `Accept` | `application/json` |
+
+        | `Authorization` | `Bearer {{Bearer Token}}` |
+
+
+        ### **Request**
+
+
+        ``` bash
+
+        curl --location --request GET \
+
+        'https://api.yourcpaas.com/api/whatsapp/blocked-members?sender_id=WABANumber&per_page=10&page=1'
+        \
+
+        --header 'Accept: application/json' \
+
+        --header 'Authorization: Bearer {{Bearer Token}}'
+
+         ```
+
+        ### Success Response
+
+
+        ``` json
+
+        {
+          "status": "success",
+          "data": {
+            "total": 250,
+            "per_page": 10,
+            "current_page": 1,
+            "blocked_members": [
+              {
+                "phone": "91XXXXXXXX",
+                "blocked_at": "2026-03-26 10:15:32"
+              },
+              {
+                "phone": "919123456789",
+                "blocked_at": "2026-03-25 08:30:00"
+              }
+            ]
+          }
+        }
+
+         ```
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sender_id:
+                  type: string
+            example:
+              sender_id: '{{meta}}'
+  /whatsapp/blocked-members/import-csv:
+    post:
+      summary: File Upload User Block
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: Bearer {{token}}
+      responses: {}
+      tags:
+        - WhatsApp
+        - User Management
+      description: >-
+        # File Upload User Block (Bulk via CSV)
+
+
+        ## 1\. API Overview
+
+
+        | Parameter | Details |
+
+        | --- | --- |
+
+        | API Name | File Upload User Block |
+
+        | Method | POST |
+
+        | Endpoint | `/api/whatsapp/blocked-members/import-csv` |
+
+        | Full URL | `{{baseurl}}/api/whatsapp/blocked-members/import-csv` |
+
+        | Description | Block multiple users at once by uploading a CSV file
+        containing their mobile numbers. |
+
+
+        ## 2\. Headers
+
+
+        | Key | Value |
+
+        | --- | --- |
+
+        | Accept | `application/json` |
+
+        | Authorization | `Bearer {{Bearer Token}}` |
+
+
+        ## 3\. Request Parameters
+
+
+        | Parameter | Type | Required | Description |
+
+        | --- | --- | --- | --- |
+
+        | `sender_id` | Text | Yes | Your WABA number. |
+
+        | `file` | File | Yes | CSV file containing mobile numbers to block. One
+        number per row. |
+
+
+        ## 4\. Success Response
+
+
+        ``` json
+
+        {
+          "status": "success",
+          "message": "CSV imported successfully.",
+          "data": {
+            "total": 250,
+            "blocked": 248,
+            "failed": 2
+          }
+        }
+
+         ```
+
+        ## 5\. Response Parameters
+
+
+        | Parameter | Description |
+
+        | --- | --- |
+
+        | `status` | Indicates success. |
+
+        | `message` | CSV imported successfully. |
+
+        | `data.total` | Number of records found in the uploaded CSV. |
+
+        | `data.blocked` | Number of users successfully blocked. |
+
+        | `data.failed` | Number of entries that failed, such as invalid formats
+        or duplicates. |
+  /whatsapp/blocked-members/sync:
+    post:
+      summary: Sync Blocked Users
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: Bearer {{token}}
+      responses: {}
+      tags:
+        - WhatsApp
+        - User Management
+      security:
+        - BearerAuth: []
+      description: >-
+        | Field | Details |
+
+        | --- | --- |
+
+        | API Name | Sync Blocked Users |
+
+        | Method | `POST` |
+
+        | Endpoint | `{{Base URL}}/api/whatsapp/blocked-members/sync` |
+
+        | Description | Synchronise the blocked users list stored in CPaaS+ with
+        the WhatsApp Business Platform. Use this after bulk imports or manual
+        changes to ensure the block list is consistent across systems. |
+
+        | `sender_id` | Required: Yes |
+
+        | `sender_id` Description | Your official WhatsApp Business Account
+        number |
+
+        | `Accept` | `application/json` |
+
+        | `Content-Type` | `application/json` |
+
+        | `Authorization` | `Bearer {{Bearer Token}}` |
+
+
+        ### Request
+
+
+        Bash
+
+
+        ``` bash
+
+        curl --location
+        'https://api.yourcpaas.com/api/whatsapp/blocked-members/sync' \
+
+        --header 'Accept: application/json' \
+
+        --header 'Content-Type: application/json' \
+
+        --header 'Authorization: Bearer {{Bearer Token}}' \
+
+        --data '{
+          "sender_id": "Your WhatsApp Business Account Number"
+        }'
+
+         ```
+
+        ### Success Response
+
+
+        JSON
+
+
+        ``` json
+
+        {
+          "status": "success",
+          "message": "Blocked users synced successfully.",
+          "data": {
+            "synced": 250,
+            "synced_at": "2026-03-26 10:15:32"
+          }
+        }
+
+         ```
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sender_id:
+                  type: string
+            example:
+              sender_id: '{{WABA Number}}'
+  /api/whatsapp/msg:
+    post:
+      summary: With Media
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: Bearer {{Bearer Token}}
+      responses: {}
+      tags:
+        - WhatsApp
+        - Service API(s)
+      security:
+        - BearerAuth: []
+      description: >-
+        | Field | Description |
+
+        | --- | --- |
+
+        | API Name | Template Send – With Media |
+
+        | HTTP Method | POST |
+
+        | Endpoint | `/api/whatsapp/msg` |
+
+        | Base URL | `https://api.yourcpaas.com` |
+
+        | Full URL | `{{Base URL}}/api/whatsapp/msg` |
+
+        | Purpose | Sends an approved WhatsApp Business message template to a
+        recipient. Supports text-only templates and templates with media headers
+        (image, video, or document). |
+
+        | Authentication | Bearer Token |
+
+        | Content-Type | `application/json` |
+
+        | Accept | `application/json` |
+
+        | Authorization Header | `Bearer {{Bearer Token}}` |
+
+        | Required Parameter – `source` | WABA number |
+
+        | Required Parameter – `destination` | Destination mobile number |
+
+        | Required Parameter – `template.id` | Approved WhatsApp template ID |
+
+        | Optional Parameter – `media_url` | Publicly hosted media URL |
+
+        | Optional Parameter – `params` | Template variables |
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                source:
+                  type: string
+                destination:
+                  type: string
+                template:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                media_url:
+                  type: string
+            example:
+              source: '{{WA_SenderID}}'
+              destination: '{{phone}}'
+              template:
+                id: '{{Tempalte ID}}'
+              media_url: '{{Doc/PDF/Image URL}}'
+  /api/whatsapp/{source}/order-status/update:
+    post:
+      summary: Order Status
+      responses: {}
+      tags:
+        - WhatsApp
+        - Service API(s)
+      security:
+        - BearerAuth: []
+      description: >-
+        | Field | Description |
+
+        | --- | --- |
+
+        | API Name | Order Status Update |
+
+        | HTTP Method | POST |
+
+        | Endpoint | `/api/whatsapp/{{source}}/order-status/update` |
+
+        | Base URL | `https://api.yourcpaas.com` |
+
+        | Full URL | `{{Base URL}}/api/whatsapp/{{source}}/order-status/update`
+        |
+
+        | Purpose | Updates the order status within a WhatsApp Commerce
+        conversation flow. |
+
+        | Authentication | Bearer Token |
+
+        | Content-Type | `application/json` |
+
+        | Accept | `application/json` |
+
+        | Authorization Header | `Bearer {{Bearer Token}}` |
+
+        | Request Body Format | JSON |
+
+        | Required Parameter – `source` | Your WhatsApp Business Account (WABA)
+        number. Replace `{{source}}` in the endpoint URL with this number. |
+
+        | Required Parameter – `order_id` | Unique order identifier from your
+        system. |
+
+        | Required Parameter – `status` | New order status: `confirmed`,
+        `shipped`, `delivered`, or `cancelled`. |
+
+        | Optional Parameter – `tracking_url` | Publicly accessible shipment
+        tracking URL to share with the customer. |
+
+        | Optional Parameter – `description` | Additional status description or
+        notes for the customer. |
+
+        | Required Parameter – `receiver` | Customer’s WhatsApp number |
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            example: |-
+              {
+                  "order_reference_id": "{{Reference id of the payment}}",
+                  "status": "{{Status of the Order}}",    //partially-shipped,shipped,completed,canceled
+                  "status_notes": "{{Thank you for your purchase}}"
+              }
+    parameters:
+      - name: source
+        in: path
+        required: true
+        schema:
+          type: string
+        example: '{{source}}'
+  /api/whatsapp/GTSadmin/payment/refund:
+    post:
+      summary: Order Refund
+      responses: {}
+      tags:
+        - WhatsApp
+        - Service API(s)
+      security:
+        - BearerAuth: []
+      description: >-
+        | Field | Description |
+
+        | --- | --- |
+
+        | API Name | Order Refund |
+
+        | HTTP Method | POST |
+
+        | Endpoint | `/api/whatsapp/GTSadmin/payment/refund` |
+
+        | Base URL | `https://api.yourcpaas.com` |
+
+        | Full URL | `{{Base URL}}/api/whatsapp/GTSadmin/payment/refund` |
+
+        | Purpose | Initiates a payment refund for a WhatsApp Commerce order and
+        notifies the customer via WhatsApp with the refund details. |
+
+        | Authentication | Bearer Token |
+
+        | Content-Type | `application/json` |
+
+        | Accept | `application/json` |
+
+        | Authorization Header | `Bearer {{Bearer Token}}` |
+
+        | Request Body Format | JSON |
+
+        | Required Parameter – `order_id` | Unique order identifier for which
+        the refund is to be processed. |
+
+        | Required Parameter – `refund_amount` | Amount to be refunded in the
+        order currency. |
+
+        | Required Parameter – `currency` | Currency code, e.g. `INR` or `USD`.
+        |
+
+        | Optional Parameter – `reason` | Reason for the refund, e.g.
+        `customer_request` or `defective_product`. |
+
+        | Required Parameter – `receiver` | Customer’s WhatsApp number to notify
+        about the refund. |
+
+
+        ### Important response fields
+
+
+        | Field | Description |
+
+        | --- | --- |
+
+        | `refund_id` | Unique refund transaction identifier. |
+
+        | `order_id` | Order identifier associated with the refund. |
+
+        | `refund_amount` | Amount being refunded. |
+
+        | `currency` | Currency of the refund. |
+
+        | `refund_status` | Refund status: `processing`, `completed`, or
+        `failed`. |
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            example: |-
+              {
+                  "order_reference_id": "{{Reference ID}}",   //Reference ID used in Order Details Template
+                  "amount": "{{Amount}}",
+                  "speed": "{{Type}}"             //Normal or Instant
+              }
+  /api/email/template/send:
+    post:
+      summary: Template
+      responses: {}
+      tags:
+        - Email
+      security:
+        - BearerAuth: []
+      description: >-
+        | Field | Description |
+
+        | --- | --- |
+
+        | API Name | Template Send |
+
+        | HTTP Method | POST |
+
+        | Endpoint | `/api/email/template/send` |
+
+        | Base URL | `https://api.yourcpaas.com` |
+
+        | Full URL | `{{Base URL}}/api/email/template/send` |
+
+        | Purpose | Sends a pre-designed email template stored in the CPaaS+
+        Portal, with dynamic variables to personalise the email for each
+        recipient. |
+
+        | Authentication | Bearer Token |
+
+        | Content-Type | `application/json` |
+
+        | Accept | `application/json` |
+
+        | Authorization Header | `Bearer {{Bearer Token}}` |
+
+        | Request Body Format | JSON |
+
+        | Required Parameter – `service_name` | Email service configuration name
+        set in CPaaS+ Portal → Email Settings. |
+
+        | Required Parameter – `template_name` | Exact name of the email
+        template configured in the portal. |
+
+        | Required Parameter – `from` | Sender email address/domain registered
+        in the email configuration. |
+
+        | Required Parameter – `from_name` | Display name shown to the recipient
+        in their email client. |
+
+        | Required Parameter – `to` | Destination email address of the
+        recipient. |
+
+        | Optional Parameter – `cc` | Array of CC email addresses. Multiple
+        addresses can be added. |
+
+        | Optional Parameter – `bcc` | Array of BCC email addresses, hidden from
+        other recipients. |
+
+        | Required Parameter – `subject` | Subject line of the email. |
+
+        | Optional Parameter – `params` | Array of variable values used to
+        replace template placeholders, in the order defined in the template. |
+
+        | Optional Parameter – `attachments` | Array of attachment objects
+        containing `filename`, `type` (MIME type), and `content`
+        (Base64-encoded). |
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            example: |-
+              {
+                  "service_name": "{{Service Name of Email Configuration}}",
+                  "template_name": "{{Tempalte Name}}",
+                  "from": "{{Sender Domain}}",
+                  "from_name": "{{From Name of Configuration}}",
+                  "to": "{{Destination Email}}",
+                  "cc": [
+                      "{{Email id 1}}", //Can add multiple
+                      "{{Email id 2}}"
+                  ],
+                  "bcc": [
+                      "{{Email id 1}}", //Can add multiple
+                      "{{Email id 2}}"
+                  ],
+                  "subject": "{{Subject Line of the Email}}",
+                  "params": [
+                      "{{Var1}}", // Define Variables as configured in the template
+                      "{{Var2}}"
+                  ],
+                  "attachments": [
+                      {
+                          "filename": "{{File Name}}",
+                          "type": "{{Type of File}}", //e.g application/pdf
+                          "content": "{{Base64 data}}"
+                      }
+                  ]
+              }
+  /api/email/send:
+    post:
+      summary: Open Text
+      responses: {}
+      tags:
+        - Email
+      security:
+        - BearerAuth: []
+      description: >-
+        | Field | Description |
+
+        | --- | --- |
+
+        | API Name | Open Text |
+
+        | HTTP Method | POST |
+
+        | Endpoint | `/api/email/send` |
+
+        | Base URL | `https://api.yourcpaas.com` |
+
+        | Full URL | `{{Base URL}}/api/email/send` |
+
+        | Purpose | Sends custom HTML/text emails without using a pre-designed
+        template. |
+
+        | Authentication | Bearer Token |
+
+        | Content-Type | `application/json` |
+
+        | Accept | `application/json` |
+
+        | Authorization Header | `Bearer {{Bearer Token}}` |
+
+        | Request Body Format | JSON |
+
+        | Required Parameter – `account` | Email account name configured in
+        CPaaS+ Portal → Email Settings. |
+
+        | Required Parameter – `to` | Destination email address. |
+
+        | Required Parameter – `from` | Sender email address. The sender domain
+        must be configured in the portal. |
+
+        | Required Parameter – `subject` | Subject line of the email. |
+
+        | Required Parameter – `body` | HTML or plain-text email body content. |
+
+
+        ### Sample success response
+
+
+        ``` json
+
+        {
+          "message_id": "3f70a02c-305e-4a95-b389-9c4640741684",
+          "status": "delivered",
+          "timeline": {
+            "queued_at": "2026-02-27T12:00:09.000000Z",
+            "sent_at": "2026-02-27T12:00:09.000000Z",
+            "delivered_at": "2026-02-27T12:00:11.000000Z",
+            "opened_at": null,
+            "clicked_at": null,
+            "bounced_at": null,
+            "failed_at": null,
+            "unsubscribed_at": null,
+            "complained_at": null
+          },
+          "recipient": "\"oliver.mail_1@gmail.com\"",
+          "subject": "Post deployment 18/2/2026",
+          "details": {
+            "open_count": 0,
+            "click_count": 0
+          }
+        }
+
+         ```
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            example: |-
+              {
+                  "account": "{{Service Name of Email Configuration}}",
+                  "from": "{{Sender Domain}}",
+                  "from_name": "{{From Name of Configuration}}",
+                  "to": "{{Destination Email}}",
+                  "cc": [
+                      "{{Email id 1}}", //Can add multiple
+                      "{{Email id 2}}"
+                  ],
+                  "bcc": [
+                      "{{Email id 1}}" //Can add multiple
+                  ],
+                  "subject": "{{Subject Line of the Email}}",
+                  "body": "{{Body of Email}}",
+                  "attachments": [
+                      {
+                          "filename": "{{File Name}}",
+                          "type": "{{File Type}}", //e.g. application/pdf
+                          "content": "{{Base64 data}}"
+                      }
+                  ]
+              }
+  /api/email/status:
+    get:
+      summary: Status
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: Bearer {{Bearer Token}}
+      responses: {}
+      tags:
+        - Email
+      security:
+        - BearerAuth: []
+      description: >-
+        | Field | Description |
+
+        | --- | --- |
+
+        | API Name | Status Check |
+
+        | HTTP Method | GET |
+
+        | Endpoint | `/api/email/status` |
+
+        | Base URL | `https://api.yourcpaas.com` |
+
+        | Full URL | `{{Base URL}}/api/email/status` |
+
+        | Purpose | Checks the delivery status of a previously sent email using
+        the `message_id` returned by the Email Send API. |
+
+        | Authentication | Bearer Token |
+
+        | Content-Type | `application/json` |
+
+        | Accept | `application/json` |
+
+        | Authorization Header | `Bearer {{Bearer Token}}` |
+
+        | Request Format | JSON body, as shown in the guide's GET request
+        example. |
+
+        | Required Parameter – `id` | The unique `message_id` returned in the
+        Email Send API response. Pass it in the request body using the parameter
+        name `id`. |
+
+
+        ### Important response fields
+
+
+        | Field | Description |
+
+        | --- | --- |
+
+        | `message_id` | Unique email message identifier. |
+
+        | `status` | Current email status, such as `queued`, `sent`,
+        `delivered`, `opened`, or `failed`. |
+
+        | `sent_at` | Timestamp when the email was dispatched. |
+
+        | `opened_at` | Timestamp when the recipient opened the email; may be
+        `null` if it has not been opened. |
+
+        | `failed_at` | Timestamp of failure; may be `null` if the email has not
+        failed. |
+
+
+        ### 1\. Success Response
+
+
+        ``` json
+
+        {
+          "message_id": "3f70a02c-305e-4a95-b389-9c4640741684",
+          "status": "delivered",
+          "timeline": {
+            "queued_at": "2026-02-27T12:00:09.000000Z",
+            "sent_at": "2026-02-27T12:00:09.000000Z",
+            "delivered_at": "2026-02-27T12:00:11.000000Z",
+            "opened_at": null,
+            "clicked_at": null,
+            "bounced_at": null,
+            "failed_at": null,
+            "unsubscribed_at": null,
+            "complained_at": null
+          },
+          "recipient": "\"oliver.mail_1@gmail.com\"",
+          "subject": "Post deployment 18/2/2026",
+          "details": {
+            "open_count": 0,
+            "click_count": 0
+          }
+        }
+
+         ```
+
+        ### 2\. Error Response
+
+
+        | Field | Error | Resolution |
+
+        | --- | --- | --- |
+
+        | `id` | The `id` field is required. | Add the `message_id` from the
+        Email Send API response. |
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+            example:
+              id: '{{Message ID}}'
+  /api/verify/send-otp:
+    post:
+      summary: OTP Generation/Send
+      parameters:
+        - name: verification_id
+          in: query
+          description: Fetch from Template through CPaaS Portal
+          schema:
+            type: string
+          example: '{{Verification Id}}'
+        - name: type
+          in: query
+          schema:
+            type: string
+          example: email
+        - name: email
+          in: query
+          schema:
+            type: string
+          example: '{{Destination Email}}'
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: Bearer <Token>
+      responses: {}
+      tags:
+        - Email
+      description: >-
+        This API sends an OTP to a user's email address.
+
+
+        | Field | Description |
+
+        | --- | --- |
+
+        | API Name | OTP Generation/Send |
+
+        | HTTP Method | POST |
+
+        | Endpoint | `/api/verify/send-otp` |
+
+        | Base URL | `https://api.yourcpaas.com` |
+
+        | Full URL | `{{Base URL}}/api/verify/send-otp` |
+
+        | Purpose | Generates and sends an OTP via email. |
+
+        | Authentication | Bearer Token |
+
+        | Content-Type | `application/json` |
+
+        | Accept | `application/json` |
+
+        | Authorization Header | `Bearer {{Bearer Token}}` |
+
+        | Request Format | Query parameters in the URL |
+
+        | Required Parameter – `verification_id` | Verification Template ID.
+        Fetch it from CPaaS+ Portal → Templates → OTP Templates. |
+
+        | Required Parameter – `type` | Channel type for OTP delivery. Use
+        `email`. |
+
+        | Required Parameter – `email` | Destination email address to which the
+        OTP will be sent. |
+
+
+        CPaaS_API_UserGuide 1(2).pdf
+
+
+        ### Success Response
+
+
+        ``` json
+
+        {
+          "status": "success",
+          "message": "OTP sent successfully.",
+          "data": {
+            "unique_id": "otp-sess-a1b2c3d4e5f6",
+            "expires_in": 300,
+            "channel": "email"
+          }
+        }
+
+         ```
+
+        ### Error Response
+
+
+        ``` json
+
+        {
+          "status": "error",
+          "error_code": 422,
+          "error_message": "Verification template not found or inactive"
+        }
+
+         ```
+
+        ### Error details
+
+
+        | Field | Error | Resolution |
+
+        | --- | --- | --- |
+
+        | `verification_id` | Verification template not found or inactive |
+        Verify the template ID in CPaaS+ Portal → Templates → OTP Templates. |
+
+        | `type` | The type field is required. | Add `type=email` to the query
+        parameters. |
+
+        | `email` | Invalid email address format | Ensure the destination is a
+        valid email address. |
+  /api/verify/validate-otp:
+    post:
+      summary: OTP Verification
+      parameters:
+        - name: unique_id
+          in: query
+          description: API response while triggering Verification Request
+          schema:
+            type: string
+          example: '{{Unique_Id}}'
+        - name: otp
+          in: query
+          description: OTP Value received in email
+          schema:
+            type: string
+          example: '{{OTP Received in Email}}'
+      responses: {}
+      tags:
+        - Email
+      security:
+        - BearerAuth: []
+      description: >-
+        | Field | Description |
+
+        | --- | --- |
+
+        | API Name | OTP Verification |
+
+        | HTTP Method | POST |
+
+        | Endpoint | `/api/verify/validate-otp` |
+
+        | Base URL | `https://api.yourcpaas.com` |
+
+        | Full URL | `{{Base
+        URL}}/api/verify/validate-otp?unique_id={{Unique_Id}}&otp={{OTP}}` |
+
+        | Purpose | Validates the OTP entered by the user and returns a
+        `verified` true/false result. |
+
+        | Authentication | Bearer Token |
+
+        | Content-Type | `application/json` |
+
+        | Accept | `application/json` |
+
+        | Authorization Header | `Bearer {{Bearer Token}}` |
+
+        | Request Format | Query parameters in the URL |
+
+        | Required Parameter – `unique_id` | Session ID returned by the OTP
+        Generation/Send API. |
+
+        | Required Parameter – `otp` | OTP value entered by the user for
+        validation. |
+
+
+        ### Success Response
+
+
+        ``` json
+
+        {
+          "status": "success",
+          "message": "OTP verified successfully.",
+          "data": {
+            "verified": true,
+            "unique_id": "otp-sess-a1b2c3d4e5f6"
+          }
+        }
+
+         ```
+
+        ### Error Responses
+
+
+        Wrong OTP
+
+
+        ``` json
+
+        {
+          "status": "error",
+          "message": "Invalid OTP.",
+          "data": {
+            "verified": false
+          }
+        }
+
+         ```
+
+        Expired OTP
+
+
+        ``` json
+
+        {
+          "status": "error",
+          "message": "OTP has expired. Please request a new OTP.",
+          "data": {
+            "verified": false
+          }
+        }
+
+         ```
+
+        ### Error details
+
+
+        | Field | Error | Resolution |
+
+        | --- | --- | --- |
+
+        | `unique_id` | The `unique_id` field is required. | Add the `unique_id`
+        from the OTP Send API response. |
+
+        | `otp` | The `otp` field is required. | Add the OTP entered by the
+        user. |
+
+        | `otp` | Invalid OTP | The entered OTP does not match; ask the user to
+        re-enter it. |
+
+        | `unique_id` | OTP has expired | Call the OTP Send API again to
+        generate a new OTP. |
+  /api/rcs/template/create:
+    post:
+      summary: Plain Text + Button
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: Bearer {{Bearer Token}}
+      responses: {}
+      tags:
+        - RCS
+        - Template Upload
+      security:
+        - BearerAuth: []
+      description: >-
+        | Field | Description |
+
+        | --- | --- |
+
+        | Request Name | Plain Text + Button |
+
+        | HTTP Method | POST |
+
+        | Endpoint | `/api/rcs/template/create` |
+
+        | Base URL | `https://api.yourcpaas.com` |
+
+        | Authentication | Bearer Token |
+
+        | Authorization Variable | `{{Bearer Token}}` |
+
+        | Content-Type | `application/json` |
+
+        | Accept | `application/json` |
+
+        | Body Type | Raw → JSON |
+
+        | Purpose | Creates an RCS plain-text message template with optional
+        interactive buttons. |
+
+        | Template Type | `text_message` |
+
+
+        ### B. Request body parameters
+
+
+        | Parameter | Required / Optional | Description |
+
+        | --- | --- | --- |
+
+        | `name` | Required | Name assigned to the template. |
+
+        | `agent_id` | Required | RCS Agent ID associated with the template. |
+
+        | `type` | Required | Template type. Use `text_message` for this
+        request. |
+
+        | `textMessageContent` | Required | Text content of the message. Can
+        contain variables such as `{{name}}` and `{{order_id}}`. |
+
+        | `suggestions` | Optional | Array of interactive buttons. Maximum 11
+        buttons. |
+
+        | `suggestions[].suggestionType` | As applicable | Button type, such as
+        `reply`, `url_action`, or `dialer_action`. |
+
+        | `suggestions[].displayText` | As applicable | Text displayed on the
+        button. Maximum 25 characters. |
+
+        | `suggestions[].postback` | Optional | Callback value associated with
+        the button. |
+
+        | `suggestions[].url` | Conditional | Target URL for a `url_action`
+        button. |
+
+        | `suggestions[].phoneNumber` | Conditional | Phone number for a
+        `dialer_action` button. |
+
+
+        ### C. Sample success response
+
+
+        ``` json
+
+        {
+          "status": "success",
+          "message": "Template created successfully.",
+          "data": {
+            "template_id": "rcs-tpl-20260326-001",
+            "name": "order_ready_v1",
+            "approval_status": "pending"
+          }
+        }
+
+         ```
+
+        | Response field | Description |
+
+        | --- | --- |
+
+        | `status` | Overall request result, such as `success` or `error`. |
+
+        | `message` | Message describing the result. |
+
+        | `data.template_id` | Unique template ID. |
+
+        | `data.name` | Name of the created template. |
+
+        | `data.approval_status` | Template review status: `pending`,
+        `approved`, or `rejected`. |
+
+
+        ### D. Error response
+
+
+        | Error documentation | What to record |
+
+        | --- | --- |
+
+        | Sample error JSON | Not provided in the guide for this request. |
+
+        | Error details | The guide does not list request-specific errors in
+        this section. |
+
+        | Recommended action | Ensure all required fields are supplied and
+        conditional fields are included for the selected button type. Treat this
+        as a validation recommendation, not a documented API error response. |
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            example: |-
+              {
+                  "name": "{{Template Name}}",
+                  "agent_id": "{{Your Agent ID}}",
+                  "type": "text_message",
+                  "textMessageContent": "Hello {{name}}, your order {{order_id}} is ready for pickup!", //Define Variables in Template
+                  "suggestions": [                            //Max 11 buttons
+                      {
+                          "suggestionType": "reply",          //Optional  Quick Reply Button
+                          "displayText": "Optout",            //Button Name max 25 characters
+                          "postback": "opt_out"               //Optional Callback Value of Button
+                      },
+                      {
+                          "suggestionType": "url_action",                 //Optional CTA(URL) Button
+                          "displayText": "View Details",                 //Button Name max 25 characters
+                          "url": "https://example.com/order/{{order_id}}", //Dynamic CTA addition
+                          "postback": "view_details"                     //Optional Callback Value of Button
+                      },
+                      {
+                          "suggestionType": "dialer_action",      //Optional CTA(Dialer) Button
+                          "displayText": "Call Support",          //Button Name max 25 characters
+                          "phoneNumber": "+911234567890",         //Dailer Number
+                          "postback": "call_support"              //Optional Callback Value of Button
+                      }
+                  ]
+              }
+  /api/rcs/send:
+    post:
+      summary: Text VI
+      responses: {}
+      tags:
+        - RCS
+        - Service
+        - VI
+      security:
+        - BearerAuth: []
+      description: >-
+        | Section | Details |
+
+        | --- | --- |
+
+        | A. Request Details |  |
+
+        | Request Name | Text VI |
+
+        | HTTP Method | `POST` |
+
+        | Endpoint | `{{BaseURL}}/api/rcs/vi/service/send` |
+
+        | Purpose | Sends an RCS text message through the VI operator network. |
+
+        | Authentication | Bearer Token |
+
+        | Content-Type | `application/json` |
+
+        | B. Request Parameters |  |
+
+        | `botId` | RCS Bot/Agent ID registered on the VI network. |
+
+        | `to` | Recipient's mobile number. |
+
+        | `message_type` | Set to `text_message` for a text message. |
+
+        | `content` | Contains the text message content and any configured
+        suggested actions. |
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            example: |2-
+                  {
+                  "agent_id": "{{Agent ID}}",
+                  "to": ["{{Mobile Number}}"],
+                  "message_type": "text",
+                  "content": {
+                      "name": "{{Template Name}}",
+                      "type": "text_message",
+                      "botId": "{{BOT ID}}",
+                      "suggestions": [
+                          {
+                              "postback": "{{Value}}",
+                              "displayText": "{{Button Name}}",
+                              "suggestionId": "{{Button ID}}",
+                              "suggestionType": "{{Button Type}}" // Values can be reply, dialer_action,url_action,share_location
+                          }
+                      ],
+                      "textMessageContent": "{{Message Text}}"
+                  }
+                  }
+  /api/rcs/status:
+    get:
+      summary: Status Check
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+          example: '{{ID}}'
+      responses: {}
+      tags:
+        - RCS
+        - Service
+      security:
+        - BearerAuth: []
+      description: >-
+        ### A. Request Details
+
+
+        | Parameter | Details |
+
+        | --- | --- |
+
+        | Folder | RCS → JIO |
+
+        | Request Name | Status Check |
+
+        | Method | `GET` |
+
+        | Endpoint | `{{BaseURL}}/api/rcs/status` |
+
+        | Authentication | Bearer Token |
+
+        | Request Body | Not required |
+
+        | Purpose | Check the delivery status of an RCS message sent through the
+        JIO flow. |
+
+
+        ### B. Request Parameters
+
+
+        | Parameter | Location | Required | Description |
+
+        | --- | --- | --- | --- |
+
+        | `id` | Query parameter | Yes | The message ID returned by the RCS Send
+        API. |
+
+
+        ### C. Sample Success Response
+
+
+        The API guide provides the following sample response for Status Check:
+
+
+        ``` json
+
+        {
+          "success": true,
+          "data": {
+            "message_id": "7870e824-693d-4e25-b424-099f273c89a8",
+            "status": "read",
+            "status_description": "Unknown status",
+            "message_type": "text",
+            "priority": null,
+            "direction": "outbound",
+            "number": "919202511257",
+            "created_at": "2026-03-13 15:44:31",
+            "scheduled_at": "2026-03-13 15:44:31",
+            "sent_at": "2026-03-13 15:44:32",
+            "delivered_at": "2026-03-13 15:44:41",
+            "failed_at": null,
+            "cancelled_at": null,
+            "updated_at": "2026-03-13 15:44:53"
+          }
+        }
+
+         ```
+
+        | Response Field | Description |
+
+        | --- | --- |
+
+        | `success` | Indicates whether the status-check request succeeded. |
+
+        | `message_id` | Unique identifier of the message. |
+
+        | `status` | Current message status; the sample shows `read`. |
+
+        | `status_description` | Text describing the status. |
+
+        | `message_type` | Type of message sent. |
+
+        | `priority` | Message priority; `null` in the sample. |
+
+        | `direction` | Message direction; `outbound` in the sample. |
+
+        | `number` | Recipient's mobile number. |
+
+        | `created_at` | Time the message record was created. |
+
+        | `scheduled_at` | Scheduled time for the message. |
+
+        | `sent_at` | Time the message was sent. |
+
+        | `delivered_at` | Time the message was delivered. |
+
+        | `failed_at` | Failure timestamp, if applicable. |
+
+        | `cancelled_at` | Cancellation timestamp, if applicable. |
+
+        | `updated_at` | Time the message record was last updated. |
+  /:
+    post:
+      summary: Message Send API
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: Bearer {{Bearer Token}}
+      responses: {}
+      tags:
+        - Flow Builder API
+      security:
+        - BearerAuth: []
+      description: >-
+        ## A. Request Details
+
+
+        | Field | Details |
+
+        | --- | --- |
+
+        | API Name | Message Send API |
+
+        | HTTP Method | POST |
+
+        | Endpoint | `{{Flow Webhook URL}}` |
+
+        | Example Endpoint |
+        `https://api.yourcpaas.com/flow-api/webhook/trigger/{{flow_id}}` |
+
+        | Base URL | `https://api.yourcpaas.com` |
+
+        | Purpose | Trigger a published CPaaS+ flow for a specific recipient. |
+
+        | Precondition | The flow must be Published and Active in the CPaaS+
+        Portal before calling the API. |
+
+
+        ## B. Request Headers
+
+
+        | Key | Value |
+
+        | --- | --- |
+
+        | `Content-Type` | `application/json` |
+
+        | `Accept` | `application/json` |
+
+        | `Authorization` | `Bearer {{Bearer Token}}` |
+
+
+        ## C. Request Parameters
+
+
+        | Parameter | Required | Description |
+
+        | --- | --- | --- |
+
+        | `phone` | Conditional | Recipient mobile number. Required if the flow
+        uses SMS or WhatsApp. |
+
+        | `email` | Conditional | Recipient email address. Required if the flow
+        uses Email. |
+
+        | `var1` | Optional | Dynamic variable injected into the flow at
+        runtime, e.g. customer name or order ID. |
+
+        | `var2` | Optional | Pass the required number of dynamic values in
+        template variables for respective channels. |
+
+
+        ## D. Sample Success Response
+
+
+        | Field | Value | Description |
+
+        | --- | --- | --- |
+
+        | `status` | `success/error` | Overall request submission status |
+
+        | `message` | `Flow jobs dispatched successfully` | Confirmation message
+        from platform |
+
+
+        ### E.Success response sample
+
+
+        ``` json
+
+        {
+          "status": "success",
+          "message": "Flow jobs dispatched successfully"
+        }
+
+         ```
+
+        ## F. Error Responses
+
+
+        | Field | Error | Resolution |
+
+        | --- | --- | --- |
+
+        | `phone/email` | Invalid JSON format. Please check your request body. |
+        Ensure you are passing email or phone or params correctly. |
+
+        | `flow_id` | Flow not found | Configure the flow in your CPaaS+ Portal
+        → Flow Builder. |
+
+        | `flow_id` | Flow is not published or inactive | Publish and activate
+        the flow in the CPaaS+ Portal before calling the API. |
+
+
+        ### Sample Error Responses
+
+
+        Flow Not Found
+
+
+        ``` json
+
+        {
+          "status": "error",
+          "message": "Flow not found."
+        }
+
+         ```
+
+        Missing Field
+
+
+        ``` json
+
+        {
+          "status": "error",
+          "message": "Invalid JSON format. Please check your request body."
+        }
+
+         ```
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone:
+                  type: string
+                email:
+                  type: string
+                var1:
+                  type: string
+                var2:
+                  type: string
+            example:
+              phone: '{{Mobile Number}}'
+              email: '{{Email id}}'
+              var1: '{{Var1}}'
+              var2: '{{Var2}}'
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
