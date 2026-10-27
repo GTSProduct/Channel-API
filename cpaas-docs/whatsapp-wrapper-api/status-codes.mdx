@@ -1,35 +1,35 @@
 ---
 title: "Common HTTP Status Codes"
-description: "HTTP status codes and possible causes documented in the source guide"
+description: "HTTP status codes, possible causes, and troubleshooting guidance for the WhatsApp Wrapper API."
 ---
 
 # Common HTTP Status Codes
 
-The source guide lists the following common status codes returned when a request fails on submission, along with the possible causes below.
+The following HTTP status codes describe common outcomes when submitting requests to the WhatsApp Wrapper API.
 
-| HTTP code | Meaning | Possible cause stated in the guide |
+| HTTP code | Meaning | Possible cause |
 |---|---|---|
-| `200` | OK | Message accepted for delivery. This is an acceptance signal, not a guarantee of recipient delivery. |
+| `200` | OK | Message accepted for delivery. This does not guarantee that the recipient received the message. |
 | `400` | Bad Request | Invalid JSON, missing required fields, or malformed recipient number. |
 | `401` | Unauthorized | Invalid, expired, or missing Bearer token. |
-| `403` | Forbidden | Sender account is not permitted to message this recipient. The guide points to the re-engagement note. |
+| `403` | Forbidden | Sender account is not permitted to message the recipient. A re-engagement requirement may apply. |
 | `404` | Not Found | Account ID in the URL does not exist. |
 | `413` | Payload Too Large | Uploaded media file exceeds Meta's size limit for its type. |
 | `429` | Too Many Requests | Messaging rate limit for the sender number has been exceeded. |
-| `500` | Internal Server Error | Server-side issue; the guide says to retry or contact support. |
+| `500` | Internal Server Error | Server-side issue. Retry or contact support. |
 
-## Important distinction: accepted versus delivered
+## Accepted versus delivered
 
-The guide explicitly notes that a success status confirms the message was accepted by CPaaS+/Meta for delivery; it does **not** guarantee the recipient has received it.
+An HTTP `200 OK` response indicates that the message was accepted for delivery. It does **not** confirm that the recipient received the message.
 
-## Troubleshooting based on the guide
+## Troubleshooting
 
-- **400:** check that the body is valid JSON, all required fields are present, and the recipient number is correctly formatted.
-- **401:** check that the Bearer token is present, valid, and not expired.
-- **403:** check whether the recipient is outside the 24-hour customer-service window; follow the re-engagement workflow in [Integration Notes](integration-notes).
-- **404:** verify the account/sender identifier used in the URL.
-- **413:** check the uploaded media file against Meta's size limit for that media type. The PDF does not list numeric limits.
-- **429:** the guide indicates the sender number's messaging rate limit has been exceeded. It does not specify a retry interval.
-- **500:** the guide says to retry or contact support; it does not define a retry schedule.
+- **`400 Bad Request`:** Check that the request body contains valid JSON, all required fields are present, and the recipient number is correctly formatted.
+- **`401 Unauthorized`:** Verify that the Bearer token is present, valid, and not expired.
+- **`403 Forbidden`:** Check whether the recipient is outside the 24-hour customer-service window. If applicable, follow the re-engagement workflow in [Integration Notes](integration-notes).
+- **`404 Not Found`:** Verify the account or sender identifier used in the request URL.
+- **`413 Payload Too Large`:** Check the uploaded media file against Meta's size limit for that media type. Numeric size limits are not specified here.
+- **`429 Too Many Requests`:** The sender number's messaging rate limit has been exceeded. A retry interval is not specified here.
+- **`500 Internal Server Error`:** Retry the request or contact support. A retry schedule is not specified here.
 
-This page only includes causes and guidance stated in the source guide. Consult the API response and your integration logs for details specific to an individual request.
+Consult the API response and your integration logs for details specific to an individual request.
