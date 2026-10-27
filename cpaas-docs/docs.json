@@ -1,3 +1,4 @@
+
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
@@ -49,6 +50,10 @@
       {
         "tab": "API Reference",
         "openapi": "openapi.yaml"
+      },
+      {
+        "tab": "WhatsApp Wrapper API",
+        "openapi": "wrapper-openapi.yaml"
       }
     ]
   }
