@@ -5,8 +5,9 @@ info:
   title: CPaaS+ WhatsApp Wrapper API
   version: 1.0.0
   description: |
-    The CPaaS+ WhatsApp Wrapper API provides a simplified REST layer
-    over Meta's WhatsApp Cloud API.
+    The CPaaS+ WhatsApp Wrapper API is a simplified REST layer built
+    on top of Meta's WhatsApp Cloud API. It allows applications to
+    send supported WhatsApp message types through a consistent API.
 
 servers:
   - url: https://testqa.cpaas.globeteleservices.com
@@ -15,25 +16,39 @@ servers:
 security:
   - BearerAuth: []
 
+tags:
+  - name: Messages
+    description: Send WhatsApp messages and interact with received messages.
+
 paths:
   /api/whatsapp/{senderHash}/messages:
     post:
+      tags:
+        - Messages
       summary: Send a WhatsApp message
+      operationId: sendWhatsAppMessage
       description: |
-        Sends a WhatsApp message using the specified Sender Hash.
+        Sends a supported WhatsApp message using the specified Sender Hash.
+
         The recipient number must be in international format without
         the leading plus sign.
 
-        The 24-hour customer-service window applies to free-form
-        messages, as described in the API guide.
-      operationId: sendWhatsAppMessage
-      tags:
-        - Messages
+        Free-form messages are subject to Meta's 24-hour customer-service
+        window. Outside this window, an approved template message is
+        required to reopen the conversation.
+
+        A successful response means the request was accepted for delivery.
+        It does not guarantee that the recipient received the message.
+
+        Media messages require a media ID obtained through the Media
+        Upload API before the message is sent.
       parameters:
         - name: senderHash
           in: path
           required: true
-          description: Sender Hash from CPaaS+ Portal > Account > Numbers > WhatsApp channel.
+          description: |
+            Sender Hash from CPaaS+ Portal > Account > Numbers >
+            WhatsApp channel.
           schema:
             type: string
       requestBody:
@@ -41,52 +56,75 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - messaging_product
-                - to
-                - type
-                - text
-              properties:
-                messaging_product:
-                  type: string
-                  enum:
-                    - whatsapp
-                  description: Identifies WhatsApp as the messaging product.
-                recipient_type:
-                  type: string
-                  enum:
-                    - individual
-                  description: Recipient type. The guide identifies individual as the default.
-                to:
-                  type: string
-                  description: Recipient phone number in international format without a leading plus sign.
-                type:
-                  type: string
-                  enum:
-                    - text
-                  description: Message type.
-                text:
-                  type: object
-                  required:
-                    - body
-                  properties:
-                    body:
-                      type: string
-                      maxLength: 4096
-                      description: Text content of the WhatsApp message.
-                    preview_url:
-                      type: boolean
-                      description: Controls URL preview in the text message.
+              oneOf:
+                - $ref: '#/components/schemas/TextMessage'
+                - $ref: '#/components/schemas/AudioMessage'
+                - $ref: '#/components/schemas/ImageMessage'
+                - $ref: '#/components/schemas/VideoMessage'
+                - $ref: '#/components/schemas/DocumentMessage'
+                - $ref: '#/components/schemas/StickerMessage'
+                - $ref: '#/components/schemas/ContactsMessage'
+                - $ref: '#/components/schemas/LocationMessage'
+                - $ref: '#/components/schemas/LocationRequestMessage'
+                - $ref: '#/components/schemas/InteractiveCTAURLMessage'
+                - $ref: '#/components/schemas/InteractiveListMessage'
+                - $ref: '#/components/schemas/InteractiveButtonsMessage'
+                - $ref: '#/components/schemas/ReactionMessage'
+                - $ref: '#/components/schemas/ContextualReplyMessage'
+                - $ref: '#/components/schemas/ReadReceiptMessage'
+            examples:
+              textMessage:
+                summary: Text message
+                value:
+                  messaging_product: whatsapp
+                  recipient_type: individual
+                  to: '919876543210'
+                  type: text
+                  text:
+                    body: Hello! How can we help you?
+                    preview_url: false
+              imageMessage:
+                summary: Image message
+                value:
+                  messaging_product: whatsapp
+                  to: '919876543210'
+                  type: image
+                  image:
+                    id: MEDIA_ID
+                    caption: Please see the attached image.
+              locationMessage:
+                summary: Location message
+                value:
+                  messaging_product: whatsapp
+                  to: '919876543210'
+                  type: location
+                  location:
+                    latitude: 19.076
+                    longitude: 72.8777
+                    name: Example location
+                    address: Mumbai, India
+              reactionMessage:
+                summary: React to a message
+                value:
+                  messaging_product: whatsapp
+                  to: '919876543210'
+                  type: reaction
+                  reaction:
+                    message_id: wamid.example
+                    emoji: '👍'
       responses:
         '200':
-          description: Request accepted for delivery. This does not guarantee receipt by the recipient.
+          description: |
+            Request accepted for delivery. This does not guarantee
+            receipt by the recipient.
         '400':
-          description: Invalid JSON, missing required fields, or malformed recipient.
+          description: Invalid JSON, missing fields, or malformed recipient.
         '401':
           description: Bearer token is missing, invalid, or expired.
         '403':
-          description: Sender account is not permitted to message the recipient, including a re-engagement-window restriction.
+          description: |
+            Sender account is not permitted to message the recipient.
+            This can include a re-engagement-window restriction.
         '404':
           description: Sender account ID in the URL was not found.
         '413':
@@ -94,7 +132,7 @@ paths:
         '429':
           description: Sender rate limit exceeded.
         '500':
-          description: Server-side error. Retry or contact support as directed by the API guide.
+          description: Server-side error. Retry or contact support.
 
 components:
   securitySchemes:
@@ -102,3 +140,726 @@ components:
       type: http
       scheme: bearer
       bearerFormat: Bearer token
+
+  schemas:
+    TextMessage:
+      type: object
+      required:
+        - messaging_product
+        - to
+        - type
+        - text
+      properties:
+        messaging_product:
+          type: string
+          enum:
+            - whatsapp
+        recipient_type:
+          type: string
+          enum:
+            - individual
+          default: individual
+        to:
+          type: string
+          description: Recipient phone number without a leading plus sign.
+        type:
+          type: string
+          enum:
+            - text
+        text:
+          type: object
+          required:
+            - body
+          properties:
+            body:
+              type: string
+              maxLength: 4096
+              description: Text content of the message.
+            preview_url:
+              type: boolean
+              description: Controls URL preview in the text message.
+
+    AudioMessage:
+      type: object
+      required:
+        - messaging_product
+        - to
+        - type
+        - audio
+      properties:
+        messaging_product:
+          type: string
+          enum:
+            - whatsapp
+        recipient_type:
+          type: string
+          enum:
+            - individual
+        to:
+          type: string
+        type:
+          type: string
+          enum:
+            - audio
+        audio:
+          type: object
+          required:
+            - id
+          properties:
+            id:
+              type: string
+              description: Media ID obtained through media upload.
+
+    ImageMessage:
+      type: object
+      required:
+        - messaging_product
+        - to
+        - type
+        - image
+      properties:
+        messaging_product:
+          type: string
+          enum:
+            - whatsapp
+        recipient_type:
+          type: string
+          enum:
+            - individual
+        to:
+          type: string
+        type:
+          type: string
+          enum:
+            - image
+        image:
+          type: object
+          required:
+            - id
+          properties:
+            id:
+              type: string
+              description: Media ID obtained through media upload.
+            caption:
+              type: string
+              description: Optional image caption.
+
+    VideoMessage:
+      type: object
+      required:
+        - messaging_product
+        - to
+        - type
+        - video
+      properties:
+        messaging_product:
+          type: string
+          enum:
+            - whatsapp
+        recipient_type:
+          type: string
+          enum:
+            - individual
+        to:
+          type: string
+        type:
+          type: string
+          enum:
+            - video
+        video:
+          type: object
+          required:
+            - id
+          properties:
+            id:
+              type: string
+              description: Media ID obtained through media upload.
+            caption:
+              type: string
+              description: Optional video caption.
+
+    DocumentMessage:
+      type: object
+      required:
+        - messaging_product
+        - to
+        - type
+        - document
+      properties:
+        messaging_product:
+          type: string
+          enum:
+            - whatsapp
+        recipient_type:
+          type: string
+          enum:
+            - individual
+        to:
+          type: string
+        type:
+          type: string
+          enum:
+            - document
+        document:
+          type: object
+          required:
+            - id
+          properties:
+            id:
+              type: string
+              description: Media ID obtained through media upload.
+            caption:
+              type: string
+              description: Optional document caption.
+            filename:
+              type: string
+              description: Optional document filename.
+
+    StickerMessage:
+      type: object
+      required:
+        - messaging_product
+        - to
+        - type
+        - sticker
+      properties:
+        messaging_product:
+          type: string
+          enum:
+            - whatsapp
+        recipient_type:
+          type: string
+          enum:
+            - individual
+        to:
+          type: string
+        type:
+          type: string
+          enum:
+            - sticker
+        sticker:
+          type: object
+          required:
+            - id
+          properties:
+            id:
+              type: string
+              description: Media ID for a WebP sticker.
+
+    ContactsMessage:
+      type: object
+      required:
+        - messaging_product
+        - to
+        - type
+        - contacts
+      properties:
+        messaging_product:
+          type: string
+          enum:
+            - whatsapp
+        recipient_type:
+          type: string
+          enum:
+            - individual
+        to:
+          type: string
+        type:
+          type: string
+          enum:
+            - contacts
+        contacts:
+          type: array
+          items:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: object
+                required:
+                  - formatted_name
+                properties:
+                  formatted_name:
+                    type: string
+                  first_name:
+                    type: string
+                  last_name:
+                    type: string
+                  middle_name:
+                    type: string
+                  suffix:
+                    type: string
+                  prefix:
+                    type: string
+              phones:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    phone:
+                      type: string
+                    type:
+                      type: string
+                    wa_id:
+                      type: string
+              emails:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                    type:
+                      type: string
+              addresses:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    street:
+                      type: string
+                    city:
+                      type: string
+                    state:
+                      type: string
+                    zip:
+                      type: string
+                    country:
+                      type: string
+                    country_code:
+                      type: string
+                    type:
+                      type: string
+              org:
+                type: object
+                properties:
+                  company:
+                    type: string
+                  department:
+                    type: string
+                  title:
+                    type: string
+              urls:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    url:
+                      type: string
+                    type:
+                      type: string
+
+    LocationMessage:
+      type: object
+      required:
+        - messaging_product
+        - to
+        - type
+        - location
+      properties:
+        messaging_product:
+          type: string
+          enum:
+            - whatsapp
+        recipient_type:
+          type: string
+          enum:
+            - individual
+        to:
+          type: string
+        type:
+          type: string
+          enum:
+            - location
+        location:
+          type: object
+          required:
+            - latitude
+            - longitude
+          properties:
+            latitude:
+              type: number
+            longitude:
+              type: number
+            name:
+              type: string
+            address:
+              type: string
+
+    LocationRequestMessage:
+      type: object
+      required:
+        - messaging_product
+        - to
+        - type
+        - interactive
+      properties:
+        messaging_product:
+          type: string
+          enum:
+            - whatsapp
+        recipient_type:
+          type: string
+          enum:
+            - individual
+        to:
+          type: string
+        type:
+          type: string
+          enum:
+            - interactive
+        interactive:
+          type: object
+          required:
+            - type
+            - body
+            - action
+          properties:
+            type:
+              type: string
+              enum:
+                - location_request_message
+            body:
+              type: object
+              required:
+                - text
+              properties:
+                text:
+                  type: string
+            action:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  enum:
+                    - send_location
+
+    InteractiveCTAURLMessage:
+      type: object
+      required:
+        - messaging_product
+        - to
+        - type
+        - interactive
+      properties:
+        messaging_product:
+          type: string
+          enum:
+            - whatsapp
+        recipient_type:
+          type: string
+          enum:
+            - individual
+        to:
+          type: string
+        type:
+          type: string
+          enum:
+            - interactive
+        interactive:
+          type: object
+          required:
+            - type
+            - body
+            - action
+          properties:
+            type:
+              type: string
+              enum:
+                - cta_url
+            header:
+              type: object
+              description: Optional message header.
+              properties:
+                type:
+                  type: string
+                text:
+                  type: string
+            body:
+              type: object
+              required:
+                - text
+              properties:
+                text:
+                  type: string
+            footer:
+              type: object
+              properties:
+                text:
+                  type: string
+            action:
+              type: object
+              required:
+                - parameters
+              properties:
+                parameters:
+                  type: object
+                  required:
+                    - display_text
+                    - url
+                  properties:
+                    display_text:
+                      type: string
+                    url:
+                      type: string
+
+    InteractiveListMessage:
+      type: object
+      required:
+        - messaging_product
+        - to
+        - type
+        - interactive
+      properties:
+        messaging_product:
+          type: string
+          enum:
+            - whatsapp
+        recipient_type:
+          type: string
+          enum:
+            - individual
+        to:
+          type: string
+        type:
+          type: string
+          enum:
+            - interactive
+        interactive:
+          type: object
+          required:
+            - type
+            - body
+            - action
+          properties:
+            type:
+              type: string
+              enum:
+                - list
+            header:
+              type: object
+              properties:
+                type:
+                  type: string
+                text:
+                  type: string
+            body:
+              type: object
+              required:
+                - text
+              properties:
+                text:
+                  type: string
+            footer:
+              type: object
+              properties:
+                text:
+                  type: string
+            action:
+              type: object
+              required:
+                - button
+                - sections
+              properties:
+                button:
+                  type: string
+                sections:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      title:
+                        type: string
+                      rows:
+                        type: array
+                        items:
+                          type: object
+                          required:
+                            - id
+                            - title
+                          properties:
+                            id:
+                              type: string
+                            title:
+                              type: string
+                            description:
+                              type: string
+
+    InteractiveButtonsMessage:
+      type: object
+      required:
+        - messaging_product
+        - to
+        - type
+        - interactive
+      properties:
+        messaging_product:
+          type: string
+          enum:
+            - whatsapp
+        recipient_type:
+          type: string
+          enum:
+            - individual
+        to:
+          type: string
+        type:
+          type: string
+          enum:
+            - interactive
+        interactive:
+          type: object
+          required:
+            - type
+            - body
+            - action
+          properties:
+            type:
+              type: string
+              enum:
+                - button
+            header:
+              type: object
+              properties:
+                type:
+                  type: string
+                text:
+                  type: string
+            body:
+              type: object
+              required:
+                - text
+              properties:
+                text:
+                  type: string
+            footer:
+              type: object
+              properties:
+                text:
+                  type: string
+            action:
+              type: object
+              required:
+                - buttons
+              properties:
+                buttons:
+                  type: array
+                  maxItems: 3
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum:
+                          - reply
+                      reply:
+                        type: object
+                        required:
+                          - id
+                          - title
+                        properties:
+                          id:
+                            type: string
+                          title:
+                            type: string
+
+    ReactionMessage:
+      type: object
+      required:
+        - messaging_product
+        - to
+        - type
+        - reaction
+      properties:
+        messaging_product:
+          type: string
+          enum:
+            - whatsapp
+        recipient_type:
+          type: string
+          enum:
+            - individual
+        to:
+          type: string
+        type:
+          type: string
+          enum:
+            - reaction
+        reaction:
+          type: object
+          required:
+            - message_id
+            - emoji
+          properties:
+            message_id:
+              type: string
+              description: ID (wamid) of the message to react to.
+            emoji:
+              type: string
+              description: A single emoji, or an empty string to remove a reaction.
+
+    ContextualReplyMessage:
+      type: object
+      required:
+        - messaging_product
+        - to
+        - type
+        - context
+        - text
+      properties:
+        messaging_product:
+          type: string
+          enum:
+            - whatsapp
+        recipient_type:
+          type: string
+          enum:
+            - individual
+        to:
+          type: string
+        type:
+          type: string
+          enum:
+            - text
+        context:
+          type: object
+          required:
+            - message_id
+          properties:
+            message_id:
+              type: string
+              description: ID (wamid) of the message being replied to.
+        text:
+          type: object
+          required:
+            - body
+          properties:
+            body:
+              type: string
+              maxLength: 4096
+
+    ReadReceiptMessage:
+      type: object
+      required:
+        - status
+        - message_id
+      properties:
+        status:
+          type: string
+          enum:
+            - read
+          description: Marks an incoming message as read.
+        message_id:
+          type: string
+          description: ID of the incoming message to mark as read.
+        typing_indicator:
+          type: object
+          description: Optional typing indicator described in the guide.
+          properties:
+            type:
+              type: string
+              enum:
+                - text
