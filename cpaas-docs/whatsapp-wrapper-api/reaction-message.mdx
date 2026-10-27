@@ -1,46 +1,52 @@
 ---
 title: "Reaction Message"
-description: "React to a specific message with an emoji"
+description: "React to a specific WhatsApp message with an emoji."
 ---
 
 # Reaction Message
 
-React to a specific inbound or outbound message with a single emoji.
+React to a specific inbound or outbound WhatsApp message using a single emoji. You can also remove an existing reaction by sending an empty string in the emoji field.
 
 ## Endpoint
 
-```http
-POST /api/whatsapp/{Sender Hash}/messages
-```
+**Method:** `POST`
+
+**Path:** `/api/whatsapp/{Sender Hash}/messages`
 
 **Sandbox base URL:** `https://testqa.cpaas.globeteleservices.com`
 
-## Common headers
+Replace `{Sender Hash}` with the hash assigned to your registered WhatsApp sender.
 
-```http
-Accept: application/json
-Content-Type: application/json
-Authorization: Bearer <token>
-```
+## Authentication and headers
 
-The Bearer token is generated in the CPaaS+ Portal under the API tab. Replace `{Sender Hash}` with the registered sender hash obtained from the WhatsApp channel's Numbers section. The guide says the top-level `to` value should use international format without a leading `+`.
+Every request requires a valid Bearer token generated in the **API** tab of the CPaaS+ Portal.
 
-## Parameters
+| Header | Value |
+|---|---|
+| `Accept` | `application/json` |
+| `Content-Type` | `application/json` |
+| `Authorization` | `Bearer <token>` |
 
-| Parameter | Required | Description from the guide |
+The top-level `to` field must contain the recipient's WhatsApp number in international format, without a leading `+`.
+
+## Request parameters
+
+Submit the following fields in the JSON request body.
+
+| Parameter | Required | Description |
 |---|---|---|
 | `messaging_product` | Yes | Fixed value `"whatsapp"`. |
-| `recipient_type` | Optional | Fixed value `"individual"`; default stated in the guide. |
-| `to` | Yes | Recipient WhatsApp number, without a leading `+`. |
+| `recipient_type` | Optional | Fixed value `"individual"`; this is the default. |
+| `to` | Yes | Recipient's WhatsApp number in international format, without a leading `+`. |
 | `type` | Yes | Fixed value `"reaction"`. |
-| `reaction.message_id` | Yes | The `wamid` of the message being reacted to. |
-| `reaction.emoji` | Yes | A single emoji character, or an empty string to remove a reaction. |
+| `reaction.message_id` | Yes | WhatsApp message ID (`wamid`) of the message being reacted to. |
+| `reaction.emoji` | Yes | A single emoji character. Use an empty string (`""`) to remove a reaction. |
 
-## Request example
+## Example request
 
-Use the following JSON as the request body. Replace the sender hash, token, recipient, IDs, and example values with values for your integration.
+Use the following JSON as the request body. Replace the recipient number, message ID, and example emoji with values for your integration.
 
-```json
+```json id="xqk28m"
 {
   "messaging_product": "whatsapp",
   "recipient_type": "individual",
@@ -53,10 +59,14 @@ Use the following JSON as the request body. Replace the sender hash, token, reci
 }
 ```
 
-## Notes
+## Important considerations
 
-The `message_id` must identify the message to react to. The guide states that an empty string for `reaction.emoji` removes a reaction.
+- The `reaction.message_id` field must identify the message being reacted to.
+- The message ID (`wamid`) is available in the response to the original send request or through your inbound webhook.
+- The `reaction.emoji` field accepts a single emoji character.
+- To remove a reaction, set `reaction.emoji` to an empty string (`""`).
+- The 24-hour customer-service window applies to free-form reactions. See [Integration Notes](integration-notes) for details.
 
 ## Responses and errors
 
-The source guide provides a common HTTP status-code table rather than a separate response body for this message type. See [Common HTTP Status Codes](../status-codes) for the documented meanings and possible causes. A success status indicates acceptance for delivery and does not guarantee that the recipient received the message.
+Refer to [Common HTTP Status Codes](../status-codes) for HTTP status codes, their meanings, and possible causes.
