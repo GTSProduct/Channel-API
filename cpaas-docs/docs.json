@@ -1,4 +1,4 @@
-<code></code>{
+{
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "CPaaS+ API Documentation",
@@ -57,7 +57,6 @@
             "group": "Overview",
             "pages": [
               "whatsapp-wrapper-overview",
-              "whatsapp-wrapper-api/overview",
               "whatsapp-wrapper-api/getting-started"
             ]
           },
