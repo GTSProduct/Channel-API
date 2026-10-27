@@ -1,0 +1,104 @@
+
+openapi: 3.0.3
+
+info:
+  title: CPaaS+ WhatsApp Wrapper API
+  version: 1.0.0
+  description: |
+    The CPaaS+ WhatsApp Wrapper API provides a simplified REST layer
+    over Meta's WhatsApp Cloud API.
+
+servers:
+  - url: https://testqa.cpaas.globeteleservices.com
+    description: Sandbox environment
+
+security:
+  - BearerAuth: []
+
+paths:
+  /api/whatsapp/{senderHash}/messages:
+    post:
+      summary: Send a WhatsApp message
+      description: |
+        Sends a WhatsApp message using the specified Sender Hash.
+        The recipient number must be in international format without
+        the leading plus sign.
+
+        The 24-hour customer-service window applies to free-form
+        messages, as described in the API guide.
+      operationId: sendWhatsAppMessage
+      tags:
+        - Messages
+      parameters:
+        - name: senderHash
+          in: path
+          required: true
+          description: Sender Hash from CPaaS+ Portal > Account > Numbers > WhatsApp channel.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - messaging_product
+                - to
+                - type
+                - text
+              properties:
+                messaging_product:
+                  type: string
+                  enum:
+                    - whatsapp
+                  description: Identifies WhatsApp as the messaging product.
+                recipient_type:
+                  type: string
+                  enum:
+                    - individual
+                  description: Recipient type. The guide identifies individual as the default.
+                to:
+                  type: string
+                  description: Recipient phone number in international format without a leading plus sign.
+                type:
+                  type: string
+                  enum:
+                    - text
+                  description: Message type.
+                text:
+                  type: object
+                  required:
+                    - body
+                  properties:
+                    body:
+                      type: string
+                      maxLength: 4096
+                      description: Text content of the WhatsApp message.
+                    preview_url:
+                      type: boolean
+                      description: Controls URL preview in the text message.
+      responses:
+        '200':
+          description: Request accepted for delivery. This does not guarantee receipt by the recipient.
+        '400':
+          description: Invalid JSON, missing required fields, or malformed recipient.
+        '401':
+          description: Bearer token is missing, invalid, or expired.
+        '403':
+          description: Sender account is not permitted to message the recipient, including a re-engagement-window restriction.
+        '404':
+          description: Sender account ID in the URL was not found.
+        '413':
+          description: Media exceeds Meta's size limit.
+        '429':
+          description: Sender rate limit exceeded.
+        '500':
+          description: Server-side error. Retry or contact support as directed by the API guide.
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Bearer token
