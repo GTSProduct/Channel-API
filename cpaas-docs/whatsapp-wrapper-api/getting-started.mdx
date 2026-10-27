@@ -5,11 +5,11 @@ description: "Configure authentication, identify your WhatsApp sender, and prepa
 
 # Getting Started
 
-Connect your application to the CPaaS+ WhatsApp Wrapper API using your API token, registered sender hash, and the appropriate message payload.
+Connect your application to the CPaaS+ WhatsApp Wrapper API using a valid API token, your registered sender hash, and the appropriate message payload.
 
 ## Base URL
 
-Use the following sandbox endpoint for testing:
+Use the following sandbox base URL for testing:
 
 ```text
 https://testqa.cpaas.globeteleservices.com
@@ -33,7 +33,7 @@ Generate the token from the **API** tab in the CPaaS+ Portal. The token is assoc
 
 The sender hash identifies your registered WhatsApp sender and forms part of the request URL. Retrieve it from the **Numbers** section of the WhatsApp channel in the CPaaS+ Portal.
 
-The example below illustrates the sender hash format:
+Example sender hash:
 
 ```text
 25bd1f59-e3e8-4997-9d6f-8ff103ced889
@@ -45,9 +45,9 @@ Use the sender hash assigned to your own account.
 
 WhatsApp message requests use the following endpoint:
 
-```http
-POST /api/whatsapp/{Sender Hash}/messages
-```
+**Method:** `POST`
+
+**Path:** `/api/whatsapp/{Sender Hash}/messages`
 
 The complete sandbox URL is:
 
@@ -61,17 +61,17 @@ Replace `{Sender Hash}` with your registered sender hash. The message type and i
 
 Include the following headers in message requests:
 
-```http
-Accept: application/json
-Content-Type: application/json
-Authorization: Bearer <token>
-```
+| Header | Value |
+|---|---|
+| `Accept` | `application/json` |
+| `Content-Type` | `application/json` |
+| `Authorization` | `Bearer <token>` |
 
-The API uses JSON request bodies for messaging operations. Media upload uses `multipart/form-data`.
+Messaging operations use JSON request bodies. Media upload uses `multipart/form-data`.
 
 ## Recipient number format
 
-The top-level `to` field must contain the recipient's WhatsApp number in international format, without a leading plus sign.
+The top-level `to` field must contain the recipient's WhatsApp number in international format, without a leading `+`.
 
 Example:
 
@@ -85,21 +85,23 @@ Phone numbers included inside a contact-card payload are separate contact detail
 
 ## Media messages
 
-Audio, image, video, document, and sticker messages reference uploaded files by media ID.
+Audio, image, video, document, and sticker messages reference uploaded files by media ID rather than embedding the files directly in the message payload.
 
 Before sending one of these message types:
 
 1. Upload the file using the Media Upload API.
 2. Capture the media ID returned by the upload operation.
-3. Include the ID in the appropriate field, such as `image.id`, `audio.id`, or `document.id`.
+3. Include the ID in the corresponding field, such as `image.id`, `audio.id`, or `document.id`.
 
-Refer to [Media Handling](media-handling) for the media workflow and supported message fields.
+Refer to [Media Handling](media-handling) for details about the media-ID workflow.
+
+The Media Upload API's endpoint and request specification are not detailed on this page. Refer to the applicable media-upload documentation for those steps.
 
 ## Before sending your first request
 
 - Confirm the correct sandbox or production base URL.
 - Retrieve the sender hash from the CPaaS+ Portal.
 - Generate and securely store a valid Bearer token.
-- Format the recipient number without a leading plus sign.
+- Format the top-level recipient number without a leading `+`.
 - For media messages, obtain the required media ID before sending.
-- Check the [Integration Notes](integration-notes) for the 24-hour customer-service window and message ID requirements.
+- Review [Integration Notes](integration-notes) for the 24-hour customer-service window and message ID requirements.
