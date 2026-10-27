@@ -1,45 +1,51 @@
 ---
 title: "Location Message"
-description: "Share a pinned location"
+description: "Share a pinned WhatsApp location with coordinates and optional name and address."
 ---
 
 # Location Message
 
-Share a pinned location with the recipient, including coordinates and optional name and address.
+Share a pinned location with a WhatsApp recipient using latitude and longitude coordinates. You can also include an optional location name and address.
 
 ## Endpoint
 
-```http
-POST /api/whatsapp/{Sender Hash}/messages
-```
+**Method:** `POST`
+
+**Path:** `/api/whatsapp/{Sender Hash}/messages`
 
 **Sandbox base URL:** `https://testqa.cpaas.globeteleservices.com`
 
-## Common headers
+Replace `{Sender Hash}` with the hash assigned to your registered WhatsApp sender.
 
-```http
-Accept: application/json
-Content-Type: application/json
-Authorization: Bearer <token>
-```
+## Authentication and headers
 
-The Bearer token is generated in the CPaaS+ Portal under the API tab. Replace `{Sender Hash}` with the registered sender hash obtained from the WhatsApp channel's Numbers section. The guide says the top-level `to` value should use international format without a leading `+`.
+Every request requires a valid Bearer token generated in the **API** tab of the CPaaS+ Portal.
 
-## Parameters
+| Header | Value |
+|---|---|
+| `Accept` | `application/json` |
+| `Content-Type` | `application/json` |
+| `Authorization` | `Bearer <token>` |
 
-| Parameter | Required | Description from the guide |
+The top-level `to` field must contain the recipient's WhatsApp number in international format, without a leading `+`.
+
+## Request parameters
+
+Submit the following fields in the JSON request body.
+
+| Parameter | Required | Description |
 |---|---|---|
 | `messaging_product` | Yes | Fixed value `"whatsapp"`. |
-| `to` | Yes | Recipient WhatsApp number, without a leading `+`. |
+| `to` | Yes | Recipient's WhatsApp number in international format, without a leading `+`. |
 | `type` | Yes | Fixed value `"location"`. |
-| `location.latitude` | Yes | Decimal latitude. |
-| `location.longitude` | Yes | Decimal longitude. |
-| `location.name` | Optional | Label shown above the address. |
-| `location.address` | Optional | Address text shown below the name. |
+| `location.latitude` | Yes | Latitude coordinate of the location. |
+| `location.longitude` | Yes | Longitude coordinate of the location. |
+| `location.name` | Optional | Name or label associated with the location. |
+| `location.address` | Optional | Address associated with the location. |
 
-## Request example
+## Example request
 
-Use the following JSON as the request body. Replace the sender hash, token, recipient, IDs, and example values with values for your integration.
+Use the following JSON as the request body. Replace the recipient number, coordinates, and example location details with values for your integration.
 
 ```json
 {
@@ -55,6 +61,13 @@ Use the following JSON as the request body. Replace the sender hash, token, reci
 }
 ```
 
+## Important considerations
+
+- Both `location.latitude` and `location.longitude` are required.
+- The location name and address are optional.
+- The top-level `to` field must use international number format without a leading `+`.
+- The 24-hour customer-service window applies to free-form location messages. See [Integration Notes](integration-notes) for details.
+
 ## Responses and errors
 
-The source guide provides a common HTTP status-code table rather than a separate response body for this message type. See [Common HTTP Status Codes](../status-codes) for the documented meanings and possible causes. A success status indicates acceptance for delivery and does not guarantee that the recipient received the message.
+Refer to [Common HTTP Status Codes](../status-codes) for HTTP status codes, their meanings, and possible causes.
