@@ -1,32 +1,42 @@
-
 ---
 title: "WhatsApp Wrapper API"
-description: "Overview of the CPaaS+ WhatsApp Wrapper API"
+description: "Integrate WhatsApp Business messaging into applications through the CPaaS+ platform."
 ---
 
 # WhatsApp Wrapper API
 
-The CPaaS+ WhatsApp Wrapper API lets your application send supported WhatsApp message types through a common API endpoint.
+The CPaaS+ WhatsApp Wrapper API provides a unified interface for sending supported WhatsApp messages through a common REST endpoint. It enables applications to deliver text, media, interactive content, location information, and other supported messaging experiences through a configured WhatsApp sender.
 
-## What you can do
+## Capabilities
 
-- Send text messages
-- Send media messages, including images, audio, video, documents, and stickers
-- Send contact and location information
-- Send interactive messages, including buttons, lists, and CTA URLs
-- Send reactions and contextual replies
-- Manage read receipts and typing indicators, where supported by the API
+| Category | Supported functionality |
+|---|---|
+| Text and media | Text, image, audio, video, document, and sticker messages |
+| Contact and location | Contact cards, location messages, and location requests |
+| Interactive messaging | Reply buttons, interactive lists, and CTA URL messages |
+| Message interactions | Reactions and contextual replies |
+| Messaging controls | Typing indicators and read receipts, where supported |
 
-## API endpoint
+## API Endpoint
 
-`POST /api/whatsapp/{senderHash}/messages`
+**Method:** `POST`
 
-## Before you begin
+**Path:** `/api/whatsapp/{senderHash}/messages`
 
-You need a valid bearer token and the appropriate `senderHash` for your WhatsApp sender configuration.
+The endpoint accepts requests for supported message types. The request body and required fields depend on the message type being sent.
 
-For media messages, follow the media requirements documented for your CPaaS+ account.
+## Authentication
 
-## Explore the API
+Requests require a valid Bearer token in the `Authorization` header. The request must also include the appropriate `senderHash`, which identifies the configured WhatsApp sender.
 
-Open the **Endpoints** section in the navigation to view the request schema, examples, and interactive API reference.
+## Request Format
+
+Requests use JSON payloads. Each message type has its own schema and field requirements; refer to the corresponding endpoint documentation for request structures and examples.
+
+## Media Messages
+
+Image, audio, video, document, and sticker messages are subject to the applicable media requirements. Complete any required media preparation or upload steps before submitting a message request. Refer to the media handling documentation for details supported by your CPaaS+ configuration.
+
+## API Reference
+
+Explore the **Endpoints** section for message-specific schemas, request examples, parameters, and documented response codes.
