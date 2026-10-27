@@ -1,56 +1,64 @@
 ---
 title: "Typing Indicators & Read Receipts"
-description: "Mark an inbound message as read and optionally show typing"
+description: "Mark an inbound WhatsApp message as read and optionally show a typing indicator."
 ---
 
 # Typing Indicators & Read Receipts
 
-Mark an inbound message as read and optionally show a typing indicator to the recipient while a reply is being prepared.
+Mark an inbound WhatsApp message as read and optionally show a typing indicator while preparing a reply.
 
 ## Endpoint
 
-```http
-POST /api/whatsapp/{Sender Hash}/messages
-```
+**Method:** `POST`
+
+**Path:** `/api/whatsapp/{Sender Hash}/messages`
 
 **Sandbox base URL:** `https://testqa.cpaas.globeteleservices.com`
 
-## Common headers
+Replace `{Sender Hash}` with the hash assigned to your registered WhatsApp sender.
 
-```http
-Accept: application/json
-Content-Type: application/json
-Authorization: Bearer <token>
-```
+## Authentication and headers
 
-The Bearer token is generated in the CPaaS+ Portal under the API tab. Replace `{Sender Hash}` with the registered sender hash obtained from the WhatsApp channel's Numbers section. The guide says the top-level `to` value should use international format without a leading `+`.
+Every request requires a valid Bearer token generated in the **API** tab of the CPaaS+ Portal.
 
-## Parameters
+| Header | Value |
+|---|---|
+| `Accept` | `application/json` |
+| `Content-Type` | `application/json` |
+| `Authorization` | `Bearer <token>` |
 
-| Parameter | Required | Description from the guide |
+## Request parameters
+
+Submit the following fields in the JSON request body.
+
+| Parameter | Required | Description |
 |---|---|---|
 | `messaging_product` | Yes | Fixed value `"whatsapp"`. |
 | `status` | Yes | Fixed value `"read"`. |
-| `message_id` | Yes | The `wamid` of the inbound message to mark as read. |
+| `message_id` | Yes | WhatsApp message ID (`wamid`) of the inbound message to mark as read. |
 | `typing_indicator.type` | Optional | Fixed value `"text"` to also display a typing indicator. |
 
-## Request example
+## Example request
 
-Use the following JSON as the request body. Replace the sender hash, token, recipient, IDs, and example values with values for your integration.
+Use the following JSON as the request body. Replace the message ID with the ID of the inbound message you want to mark as read.
 
-```json
+```json id="m4q8vc"
 {
   "messaging_product": "whatsapp",
   "status": "read",
   "message_id": "wamid.HBgMOTE5MzczMDg0ODgwFQIAERgSNzJFNDJBOUFFNjA4MUZGNUEyAA==",
-  "typing_indicator": { "type": "text" }
+  "typing_indicator": {
+    "type": "text"
+  }
 }
 ```
 
-## Notes
+## Important considerations
 
-The guide states that `message_id` must belong to an incoming message from the recipient. An outbound message ID cannot be marked as read.
+- The `message_id` must identify an incoming message from the recipient.
+- An outbound message ID cannot be marked as read.
+- The optional `typing_indicator.type` field uses the fixed value `"text"` when a typing indicator is included.
 
 ## Responses and errors
 
-The source guide provides a common HTTP status-code table rather than a separate response body for this message type. See [Common HTTP Status Codes](../status-codes) for the documented meanings and possible causes. A success status indicates acceptance for delivery and does not guarantee that the recipient received the message.
+Refer to [Common HTTP Status Codes](../status-codes) for HTTP status codes, their meanings, and possible causes.
