@@ -1,58 +1,73 @@
 ---
 title: "Sticker Message"
-description: "Send a WebP sticker by media ID."
+description: "Send a WebP sticker using a media ID."
 ---
 
 # Sticker Message
 
-Send a WebP sticker by media ID.
+Send a static or animated WebP sticker to a WhatsApp recipient using a media ID.
 
 ## Endpoint
 
-```http
-POST /api/whatsapp/{Sender Hash}/messages
-```
+**Method:** `POST`
+
+**Path:** `/api/whatsapp/{Sender Hash}/messages`
 
 **Sandbox base URL:** `https://testqa.cpaas.globeteleservices.com`
 
-## Common headers
+Replace `{Sender Hash}` with the hash assigned to your registered WhatsApp sender.
 
-```http
-Accept: application/json
-Content-Type: application/json
-Authorization: Bearer <token>
-```
+## Authentication and headers
 
-The Bearer token is generated in the CPaaS+ Portal under the API tab. Replace `{Sender Hash}` with the registered sender hash obtained from the WhatsApp channel's Numbers section. The guide says the top-level `to` value should use international format without a leading `+`.
+Every request requires a valid Bearer token generated in the **API** tab of the CPaaS+ Portal.
 
-## Parameters
+| Header | Value |
+|---|---|
+| `Accept` | `application/json` |
+| `Content-Type` | `application/json` |
+| `Authorization` | `Bearer <token>` |
 
-| Parameter | Required | Description from the guide |
+The top-level `to` field must contain the recipient's WhatsApp number in international format, without a leading `+`.
+
+## Request parameters
+
+Submit the following fields in the JSON request body.
+
+| Parameter | Required | Description |
 |---|---|---|
 | `messaging_product` | Yes | Fixed value `"whatsapp"`. |
-| `recipient_type` | Optional | Fixed value `"individual"`; default stated in the guide. |
-| `to` | Yes | Recipient WhatsApp number, without a leading `+`. |
+| `recipient_type` | Optional | Fixed value `"individual"`; this is the default. |
+| `to` | Yes | Recipient's WhatsApp number in international format, without a leading `+`. |
 | `type` | Yes | Fixed value `"sticker"`. |
 | `sticker.id` | Yes | Media ID returned by the Media Upload API. |
 
-## Request example
+## Example request
 
-Use the following JSON as the request body. Replace the sender hash, token, recipient, IDs, and example values with values for your integration.
+Use the following JSON as the request body. Replace the recipient number and media ID with values for your integration.
 
-```json
+```json id="p8m2vd"
 {
   "messaging_product": "whatsapp",
   "recipient_type": "individual",
   "to": "919373084880",
   "type": "sticker",
-  "sticker": { "id": "762449710003335" }
+  "sticker": {
+    "id": "762449710003335"
+  }
 }
 ```
 
-## Notes
+## Before sending the request
 
-Upload the sticker file first. The guide says sticker files must be static or animated WebP and follow Meta sticker size guidelines.
+Upload the sticker file using the Media Upload API first. Use the media ID returned by that operation as the value of `sticker.id`.
+
+## Important considerations
+
+- Sticker files must use WebP format and can be static or animated.
+- Sticker files must comply with Meta's sticker size guidelines.
+- The `sticker.id` field is required.
+- The 24-hour customer-service window applies to free-form sticker messages. See [Integration Notes](integration-notes) for details.
 
 ## Responses and errors
 
-The source guide provides a common HTTP status-code table rather than a separate response body for this message type. See [Common HTTP Status Codes](../status-codes) for the documented meanings and possible causes. A success status indicates acceptance for delivery and does not guarantee that the recipient received the message.
+Refer to [Common HTTP Status Codes](../status-codes) for HTTP status codes, their meanings, and possible causes.
