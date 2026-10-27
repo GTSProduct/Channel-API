@@ -1,47 +1,55 @@
 ---
 title: "Contact Message"
-description: "Share one or more contact cards"
+description: "Share one or more contact cards through WhatsApp."
 ---
 
 # Contact Message
 
-Share one or more vCard-style contact cards. The guide describes name, phone, email, address, organisation, and URL details.
+Send one or more vCard-style contact cards to a WhatsApp recipient through the CPaaS+ WhatsApp Wrapper API.
+
+A contact card can include a person's name and optional details such as phone numbers, email addresses, postal addresses, organisation information, and URLs.
 
 ## Endpoint
 
-```http
-POST /api/whatsapp/{Sender Hash}/messages
-```
+**Method:** `POST`
+
+**Path:** `/api/whatsapp/{Sender Hash}/messages`
 
 **Sandbox base URL:** `https://testqa.cpaas.globeteleservices.com`
 
-## Common headers
+Replace `{Sender Hash}` with the hash assigned to your registered WhatsApp sender.
 
-```http
-Accept: application/json
-Content-Type: application/json
-Authorization: Bearer <token>
-```
+## Authentication and headers
 
-The Bearer token is generated in the CPaaS+ Portal under the API tab. Replace `{Sender Hash}` with the registered sender hash obtained from the WhatsApp channel's Numbers section. The guide says the top-level `to` value should use international format without a leading `+`.
+Every request requires a valid Bearer token generated in the **API** tab of the CPaaS+ Portal.
 
-## Parameters
+| Header | Value |
+|---|---|
+| `Accept` | `application/json` |
+| `Content-Type` | `application/json` |
+| `Authorization` | `Bearer <token>` |
 
-| Parameter | Required | Description from the guide |
+## Request parameters
+
+Submit the following fields in the JSON request body.
+
+| Parameter | Required | Description |
 |---|---|---|
 | `messaging_product` | Yes | Fixed value `"whatsapp"`. |
-| `to` | Yes | Recipient WhatsApp number, without a leading `+`. |
+| `to` | Yes | Recipient's WhatsApp number in international format, without a leading `+`. |
 | `type` | Yes | Fixed value `"contacts"`. |
-| `contacts[].name` | Yes | Object with `formatted_name` plus first, last, middle name, prefix, and suffix fields. |
-| `contacts[].phones` | Optional | Array of phone objects with `phone`, `type`, and optional `wa_id`. |
-| `contacts[].emails` | Optional | Array of email objects with `email` and `type`. |
-| `contacts[].addresses` | Optional | Array of address objects; guide lists street, city, state, zip, country, and type. Its example also includes `country_code`. |
-| `contacts[].org` | Optional | Object with company, department, and title. |
-| `contacts[].urls` | Optional | Array of URL objects with `url` and `type`. |
+| `contacts[].name` | Yes | Name object containing `formatted_name` and the supported name fields: `first_name`, `last_name`, `middle_name`, `prefix`, and `suffix`. |
+| `contacts[].phones` | Optional | Array of phone objects containing `phone` and `type`; `wa_id` may also be included. |
+| `contacts[].emails` | Optional | Array of email objects containing `email` and `type`. |
+| `contacts[].addresses` | Optional | Array of address objects. The documented fields include `street`, `city`, `state`, `zip`, `country`, and `type`. The example also includes `country_code`. |
+| `contacts[].org` | Optional | Organisation object containing `company`, `department`, and `title`. |
+| `contacts[].urls` | Optional | Array of URL objects containing `url` and `type`. |
 
-## Request example
+The `[]` notation indicates an array. For example, `contacts[].phones` represents the phone details for a contact in the `contacts` array.
 
-Use the following JSON as the request body. Replace the sender hash, token, recipient, IDs, and example values with values for your integration.
+## Example request
+
+Use the following JSON as the request body. Replace the example values with the contact and recipient details for your integration.
 
 ```json
 {
@@ -59,11 +67,21 @@ Use the following JSON as the request body. Replace the sender hash, token, reci
         "suffix": "Esq."
       },
       "phones": [
-        { "phone": "+16505559999", "type": "Landline" },
-        { "phone": "+19175559999", "type": "Mobile", "wa_id": "19175559999" }
+        {
+          "phone": "+16505559999",
+          "type": "Landline"
+        },
+        {
+          "phone": "+19175559999",
+          "type": "Mobile",
+          "wa_id": "19175559999"
+        }
       ],
       "emails": [
-        { "email": "bjohnson@luckyshrub.com", "type": "Work" }
+        {
+          "email": "bjohnson@luckyshrub.com",
+          "type": "Work"
+        }
       ],
       "addresses": [
         {
@@ -76,8 +94,17 @@ Use the following JSON as the request body. Replace the sender hash, token, reci
           "type": "Office"
         }
       ],
-      "org": { "company": "Lucky Shrub", "department": "Legal", "title": "Lead Counsel" },
-      "urls": [ { "url": "https://www.luckyshrub.com", "type": "Company" } ]
+      "org": {
+        "company": "Lucky Shrub",
+        "department": "Legal",
+        "title": "Lead Counsel"
+      },
+      "urls": [
+        {
+          "url": "https://www.luckyshrub.com",
+          "type": "Company"
+        }
+      ]
     }
   ]
 }
@@ -85,4 +112,6 @@ Use the following JSON as the request body. Replace the sender hash, token, reci
 
 ## Responses and errors
 
-The source guide provides a common HTTP status-code table rather than a separate response body for this message type. See [Common HTTP Status Codes](../status-codes) for the documented meanings and possible causes. A success status indicates acceptance for delivery and does not guarantee that the recipient received the message.
+The documentation provides a common HTTP status-code table rather than a separate response-body example for this message type.
+
+Refer to [Common HTTP Status Codes](../status-codes) for the documented status codes, meanings, and possible causes. An HTTP success status indicates that the message was accepted for delivery; it does not by itself confirm receipt by the recipient.
