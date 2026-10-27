@@ -1,47 +1,54 @@
 ---
 title: "Interactive Message — List"
-description: "Send a scrollable list of selectable options"
+description: "Send an interactive WhatsApp message with a selectable list of options."
 ---
 
 # Interactive Message — List
 
-Send a message with a scrollable list of options grouped into sections, letting the recipient pick one row.
+Send an interactive WhatsApp message containing a scrollable list of options grouped into sections. The recipient can open the list and select a row.
 
 ## Endpoint
 
-```http
-POST /api/whatsapp/{Sender Hash}/messages
-```
+**Method:** `POST`
+
+**Path:** `/api/whatsapp/{Sender Hash}/messages`
 
 **Sandbox base URL:** `https://testqa.cpaas.globeteleservices.com`
 
-## Common headers
+Replace `{Sender Hash}` with the hash assigned to your registered WhatsApp sender.
 
-```http
-Accept: application/json
-Content-Type: application/json
-Authorization: Bearer <token>
-```
+## Authentication and headers
 
-The Bearer token is generated in the CPaaS+ Portal under the API tab. Replace `{Sender Hash}` with the registered sender hash obtained from the WhatsApp channel's Numbers section. The guide says the top-level `to` value should use international format without a leading `+`.
+Every request requires a valid Bearer token generated in the **API** tab of the CPaaS+ Portal.
 
-## Parameters
+| Header | Value |
+|---|---|
+| `Accept` | `application/json` |
+| `Content-Type` | `application/json` |
+| `Authorization` | `Bearer <token>` |
 
-| Parameter | Required | Description from the guide |
+The top-level `to` field must contain the recipient's WhatsApp number in international format, without a leading `+`.
+
+## Request parameters
+
+Submit the following fields in the JSON request body.
+
+| Parameter | Required | Description |
 |---|---|---|
 | `messaging_product` | Yes | Fixed value `"whatsapp"`. |
-| `to` | Yes | Recipient WhatsApp number, without a leading `+`. |
+| `recipient_type` | Optional | Fixed value `"individual"`; this is the default. |
+| `to` | Yes | Recipient's WhatsApp number in international format, without a leading `+`. |
 | `type` | Yes | Fixed value `"interactive"`. |
 | `interactive.type` | Yes | Fixed value `"list"`. |
-| `interactive.header.text` | Optional | Short header shown above the body. |
+| `interactive.header.text` | Optional | Header text displayed above the body. |
 | `interactive.body.text` | Yes | Main message text. |
-| `interactive.footer.text` | Optional | Small text below the body. |
-| `interactive.action.button` | Yes | Label of the button that opens the list. |
-| `interactive.action.sections` | Yes | Array of sections, each with a title and rows containing `id`, `title`, and `description`. |
+| `interactive.footer.text` | Optional | Text displayed below the body. |
+| `interactive.action.button` | Yes | Label on the button that opens the list. |
+| `interactive.action.sections` | Yes | Array of sections. Each section contains a title and rows with `id`, `title`, and `description`. |
 
-## Request example
+## Example request
 
-Use the following JSON as the request body. Replace the sender hash, token, recipient, IDs, and example values with values for your integration.
+Use the following JSON as the request body. Replace the recipient number and example values with values for your integration.
 
 ```json
 {
@@ -51,24 +58,47 @@ Use the following JSON as the request body. Replace the sender hash, token, reci
   "type": "interactive",
   "interactive": {
     "type": "list",
-    "header": { "type": "text", "text": "Choose Shipping Option" },
-    "body": { "text": "Which shipping option do you prefer?" },
-    "footer": { "text": "CPaaS+: reliable delivery, every time" },
+    "header": {
+      "type": "text",
+      "text": "Choose Shipping Option"
+    },
+    "body": {
+      "text": "Which shipping option do you prefer?"
+    },
+    "footer": {
+      "text": "CPaaS+: reliable delivery, every time"
+    },
     "action": {
       "button": "Shipping Options",
       "sections": [
         {
           "title": "I want it ASAP!",
           "rows": [
-            { "id": "priority_express", "title": "Priority Mail Express", "description": "Next Day to 2 Days" },
-            { "id": "priority_mail", "title": "Priority Mail", "description": "1-3 Days" }
+            {
+              "id": "priority_express",
+              "title": "Priority Mail Express",
+              "description": "Next Day to 2 Days"
+            },
+            {
+              "id": "priority_mail",
+              "title": "Priority Mail",
+              "description": "1-3 Days"
+            }
           ]
         },
         {
           "title": "I can wait a bit",
           "rows": [
-            { "id": "ground_advantage", "title": "Ground Advantage", "description": "2-5 Days" },
-            { "id": "media_mail", "title": "Media Mail", "description": "2-8 Days" }
+            {
+              "id": "ground_advantage",
+              "title": "Ground Advantage",
+              "description": "2-5 Days"
+            },
+            {
+              "id": "media_mail",
+              "title": "Media Mail",
+              "description": "2-8 Days"
+            }
           ]
         }
       ]
@@ -77,6 +107,15 @@ Use the following JSON as the request body. Replace the sender hash, token, reci
 }
 ```
 
+## Important considerations
+
+- Each row has an `id`, a `title`, and a `description`.
+- The `interactive.action.button` value is the label used to open the list.
+- The 24-hour customer-service window applies to free-form interactive messages. See [Integration Notes](integration-notes) for details.
+
 ## Responses and errors
 
-The source guide provides a common HTTP status-code table rather than a separate response body for this message type. See [Common HTTP Status Codes](../status-codes) for the documented meanings and possible causes. A success status indicates acceptance for delivery and does not guarantee that the recipient received the message.
+Refer to [Common HTTP Status Codes](../status-codes) for HTTP status codes, their meanings, and possible causes.
+
+A successful response does not necessarily mean the recipient received the message.
+
