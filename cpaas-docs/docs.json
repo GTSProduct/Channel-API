@@ -53,7 +53,15 @@
       },
       {
         "tab": "WhatsApp Wrapper API",
-        "openapi": "wrapper-openapi.yaml"
+        "groups": [
+          {
+            "group": "Endpoints",
+            "openapi": {
+              "source": "wrapper-openapi.yaml",
+              "directory": "whatsapp-wrapper-api"
+            }
+          }
+        ]
       }
     ]
   }
