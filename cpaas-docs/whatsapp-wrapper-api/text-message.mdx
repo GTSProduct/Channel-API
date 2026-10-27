@@ -1,58 +1,65 @@
 ---
 title: "Text Message"
-description: "Send a text message, optionally with a link preview"
+description: "Send a WhatsApp text message through the CPaaS+ Wrapper API."
 ---
 
 # Text Message
 
-Send a plain text WhatsApp message. If the body contains a URL, `text.preview_url` can be used to request a link preview.
+Send a text message to a WhatsApp recipient through the CPaaS+ WhatsApp Wrapper API. Text messages can also include a link preview where supported by the request format.
 
 ## Endpoint
 
-```http
-POST /api/whatsapp/{Sender Hash}/messages
-```
+`POST /api/whatsapp/{Sender Hash}/messages`
 
-**Sandbox base URL:** `https://testqa.cpaas.globeteleservices.com`
+## Authentication
 
-## Common headers
+Include a valid Bearer token in the `Authorization` header. See [Getting Started](getting-started) for authentication and sender configuration.
 
-```http
-Accept: application/json
-Content-Type: application/json
-Authorization: Bearer <token>
-```
+## Request headers
 
-The Bearer token is generated in the CPaaS+ Portal under the API tab. Replace `{Sender Hash}` with the registered sender hash obtained from the WhatsApp channel's Numbers section. The guide says the top-level `to` value should use international format without a leading `+`.
+| Header | Value |
+|---|---|
+| `Accept` | `application/json` |
+| `Content-Type` | `application/json` |
+| `Authorization` | `Bearer <token>` |
 
-## Parameters
+## Request parameters
 
-| Parameter | Required | Description from the guide |
+Submit the following fields in the JSON request body.
+
+| Parameter | Required | Description |
 |---|---|---|
-| `messaging_product` | Yes | Fixed value `"whatsapp"`. |
-| `recipient_type` | Optional | Fixed value `"individual"`; default stated in the guide. |
+| `messaging_product` | Yes | Fixed value `whatsapp`. |
+| `recipient_type` | Optional | Fixed value `individual`; this is the default. |
 | `to` | Yes | Recipient's WhatsApp number in international format, without a leading `+`. |
-| `type` | Yes | Fixed value `"text"`. |
-| `text.body` | Yes | Message text, up to 4,096 characters. |
-| `text.preview_url` | Optional | Set to `true` to render a link preview for the first URL in the body. |
+| `type` | Yes | Fixed value `text`. |
+| `text.body` | Yes | Text content of the message. |
+| `text.preview_url` | Optional | Controls link-preview behaviour when a URL is included in the message. |
 
-## Request example
+## Example request
 
-Use the following JSON as the request body. Replace the sender hash, token, recipient, IDs, and example values with values for your integration.
-
-```json
-{
+```bash
+curl --location 'https://testqa.cpaas.globeteleservices.com/api/whatsapp/{Sender Hash}/messages' \
+--header 'Accept: application/json' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer {{Bearer Token}}' \
+--data '{
   "messaging_product": "whatsapp",
   "recipient_type": "individual",
   "to": "919373084880",
   "type": "text",
   "text": {
-    "preview_url": true,
-    "body": "As requested, here is the link to our latest product:"
+    "preview_url": false,
+    "body": "Hello! Your appointment is confirmed."
   }
-}
+}'
 ```
 
-## Responses and errors
+Replace `{Sender Hash}` and `{{Bearer Token}}` with the values assigned to your CPaaS+ account. Update `to` and `text.body` for the intended recipient and message.
 
-The source guide provides a common HTTP status-code table rather than a separate response body for this message type. See [Common HTTP Status Codes](../status-codes) for the documented meanings and possible causes. A success status indicates acceptance for delivery and does not guarantee that the recipient received the message.
+## Important considerations
+
+- The `to` field identifies the message recipient; do not include a leading plus sign.
+- Use `text.body` for the message content.
+- The `text.preview_url` field controls link-preview behaviour in the request.
+- Free-form text messages are subject to Meta's 24-hour customer-service window. See [Integration Notes](integration-notes) for details.
