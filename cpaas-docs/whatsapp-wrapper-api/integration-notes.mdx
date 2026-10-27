@@ -1,54 +1,94 @@
 ---
 title: "Integration Notes"
-description: "Re-engagement window, message IDs, sender hash, and recipient format"
+description: "Understand the 24-hour messaging window, message IDs, sender hashes, and recipient number format."
 ---
 
 # Integration Notes
 
-This page consolidates the general integration notes at the end of the source guide.
+This page covers key integration requirements for the CPaaS+ WhatsApp Wrapper API, including the customer-service window, sender identification, media IDs, message IDs, and authentication.
 
 ## 24-hour customer-service window
 
-The guide states that Meta enforces a 24-hour customer-service window. Free-form messages described in the guide—including text, media, interactive, location, contacts, and reactions—can only be sent to a recipient within 24 hours of their last inbound message to you.
+Free-form WhatsApp messages can be sent only within 24 hours of the recipient's most recent inbound message to your business. This applies to the message types documented here, including text, media, interactive messages, locations, contacts, and reactions.
 
-Outside that window, requests to the messages endpoint may be rejected with a re-engagement error from Meta.
+Outside this window, a message request may be rejected with a re-engagement error from Meta.
 
-### Re-engagement workflow described in the guide
+### Re-engagement workflow
 
-If a re-engagement error occurs while testing the Wrapper API:
+If a re-engagement error occurs:
 
-1. Send an approved template/campaign message to the recipient.
-2. Have the recipient reply on the same number.
-3. The 24-hour window will reopen for the message types documented in the guide.
+1. Send an approved template or campaign message to the recipient.
+2. Have the recipient reply to your business from the same number.
+3. Once the recipient replies, the 24-hour customer-service window reopens for the supported free-form message types.
 
-This page preserves the workflow described by the source guide; consult your approved template/campaign process for the applicable implementation details.
+Use your approved template or campaign process for the initial re-engagement message.
 
 ## Sender hash
 
-The sender hash in the URL path identifies the registered WhatsApp sender. Obtain it from the CPaaS+ Portal under the WhatsApp channel's **Numbers** section.
+The sender hash identifies the registered WhatsApp sender and forms part of the request URL.
+
+Retrieve it from the **Numbers** section of the WhatsApp channel in the CPaaS+ Portal.
+
+Example endpoint:
+
+```http
+POST /api/whatsapp/{Sender Hash}/messages
+```
+
+Replace `{Sender Hash}` with the value assigned to your registered sender.
 
 ## Recipient number format
 
-The guide says the top-level `to` field must contain the recipient's number in international format without a leading plus sign. Example: `919373084880`.
+The top-level `to` field must contain the recipient's WhatsApp number in international format, without a leading `+`.
+
+Example:
+
+```json
+{
+  "to": "919373084880"
+}
+```
+
+This requirement applies to the top-level message recipient field.
 
 ## Media IDs
 
-Media IDs returned by the Media Upload API are required for audio, image, video, document, and sticker messages. Upload the file first, capture the returned ID, and pass it in the corresponding message object. The supplied PDF does not include the upload endpoint details.
+Audio, image, video, document, and sticker messages require a media ID returned by the Media Upload API.
+
+Before sending one of these message types:
+
+1. Upload the media file using the Media Upload API.
+2. Capture the media ID returned by the upload operation.
+3. Include the ID in the corresponding message object, such as `audio.id`, `image.id`, `video.id`, `document.id`, or `sticker.id`.
+
+The Media Upload API's endpoint and request specification are not detailed here. Refer to the applicable media-upload documentation for those details.
 
 ## Message IDs (`wamid`)
 
-The guide states that message IDs required by Reaction, Contextual Reply, and Read Receipt calls are returned in the response to the original send or received through your inbound webhook.
+Reaction, Contextual Reply, and Read Receipt requests use a WhatsApp message ID (`wamid`) to identify the message being referenced.
 
-- **Reaction:** pass the target message ID in `reaction.message_id`.
-- **Contextual reply:** pass the earlier message ID in `context.message_id`.
-- **Read receipt:** pass the inbound message ID in `message_id`.
+The message ID is available in the response to the original send or through your inbound webhook.
 
-The guide specifically notes that a read receipt must reference an incoming message from the recipient; an outbound message ID cannot be marked as read.
+| Operation | Message ID field | Purpose |
+|---|---|---|
+| Reaction | `reaction.message_id` | Identifies the message being reacted to. |
+| Contextual Reply | `context.message_id` | Identifies the earlier message being replied to. |
+| Read Receipt | `message_id` | Identifies the inbound message being marked as read. |
+
+**Important:** A read receipt must reference an incoming message from the recipient. An outbound message ID cannot be marked as read.
 
 ## Bearer tokens
 
-Bearer tokens can be generated and revoked from the CPaaS+ Portal under the API tab. The guide warns that a generated token will not be displayed again, so store it securely.
+Generate and revoke Bearer tokens through the **API** tab in the CPaaS+ Portal.
+
+The Portal does not display a generated token again, so store it securely when it is created. Include the token in the `Authorization` header of each authenticated request.
+
+```http
+Authorization: Bearer <token>
+```
 
 ## Acceptance is not delivery
 
-A success status indicates that the message was accepted by CPaaS+/Meta for delivery. It does not guarantee that the recipient has received it. See [Common HTTP Status Codes](../status-codes).
+A successful API response indicates that the request was accepted for processing or delivery. It does not, by itself, confirm that the recipient received the message.
+
+Refer to [Common HTTP Status Codes](../status-codes) for the documented HTTP status codes, meanings, and possible causes.
