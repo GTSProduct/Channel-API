@@ -1,0 +1,72 @@
+---
+title: "Interactive Message — Reply Buttons"
+description: "Send up to three quick-reply buttons"
+---
+
+# Interactive Message — Reply Buttons
+
+Send a message with up to three quick-reply buttons so the recipient can respond with a single tap.
+
+## Endpoint
+
+```http
+POST /api/whatsapp/{Sender Hash}/messages
+```
+
+**Sandbox base URL:** `https://testqa.cpaas.globeteleservices.com`
+
+## Common headers
+
+```http
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer <token>
+```
+
+The Bearer token is generated in the CPaaS+ Portal under the API tab. Replace `{Sender Hash}` with the registered sender hash obtained from the WhatsApp channel's Numbers section. The guide says the top-level `to` value should use international format without a leading `+`.
+
+## Parameters
+
+| Parameter | Required | Description from the guide |
+|---|---|---|
+| `messaging_product` | Yes | Fixed value `"whatsapp"`. |
+| `to` | Yes | Recipient WhatsApp number, without a leading `+`. |
+| `type` | Yes | Fixed value `"interactive"`. |
+| `interactive.type` | Yes | Fixed value `"button"`. |
+| `interactive.header` | Optional | Text, image, video, or document header object. |
+| `interactive.body.text` | Yes | Main message text. |
+| `interactive.footer.text` | Optional | Small text below the body. |
+| `interactive.action.buttons` | Yes | Array of up to 3 reply button objects containing `id` and `title`; the sample uses `type: "reply"` and a nested `reply` object. |
+
+## Request example
+
+Use the following JSON as the request body. Replace the sender hash, token, recipient, IDs, and example values with values for your integration.
+
+```json
+{
+  "messaging_product": "whatsapp",
+  "recipient_type": "individual",
+  "to": "919373084880",
+  "type": "interactive",
+  "interactive": {
+    "type": "button",
+    "header": { "type": "image", "image": { "id": "762449710003335" } },
+    "body": { "text": "Your appointment is scheduled for 9am tomorrow. Use the buttons if you need to reschedule." },
+    "footer": { "text": "CPaaS+ Appointments" },
+    "action": {
+      "buttons": [
+        { "type": "reply", "reply": { "id": "change-button", "title": "Change" } },
+        { "type": "reply", "reply": { "id": "cancel-button", "title": "Cancel" } }
+      ]
+    }
+  }
+}
+```
+
+## Notes
+
+The guide states that up to three quick-reply buttons can be sent. The example includes two buttons.
+
+## Responses and errors
+
+The source guide provides a common HTTP status-code table rather than a separate response body for this message type. See [Common HTTP Status Codes](../status-codes) for the documented meanings and possible causes. A success status indicates acceptance for delivery and does not guarantee that the recipient received the message.

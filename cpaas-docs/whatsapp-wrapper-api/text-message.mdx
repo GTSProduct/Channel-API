@@ -1,0 +1,58 @@
+---
+title: "Text Message"
+description: "Send a text message, optionally with a link preview"
+---
+
+# Text Message
+
+Send a plain text WhatsApp message. If the body contains a URL, `text.preview_url` can be used to request a link preview.
+
+## Endpoint
+
+```http
+POST /api/whatsapp/{Sender Hash}/messages
+```
+
+**Sandbox base URL:** `https://testqa.cpaas.globeteleservices.com`
+
+## Common headers
+
+```http
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer <token>
+```
+
+The Bearer token is generated in the CPaaS+ Portal under the API tab. Replace `{Sender Hash}` with the registered sender hash obtained from the WhatsApp channel's Numbers section. The guide says the top-level `to` value should use international format without a leading `+`.
+
+## Parameters
+
+| Parameter | Required | Description from the guide |
+|---|---|---|
+| `messaging_product` | Yes | Fixed value `"whatsapp"`. |
+| `recipient_type` | Optional | Fixed value `"individual"`; default stated in the guide. |
+| `to` | Yes | Recipient's WhatsApp number in international format, without a leading `+`. |
+| `type` | Yes | Fixed value `"text"`. |
+| `text.body` | Yes | Message text, up to 4,096 characters. |
+| `text.preview_url` | Optional | Set to `true` to render a link preview for the first URL in the body. |
+
+## Request example
+
+Use the following JSON as the request body. Replace the sender hash, token, recipient, IDs, and example values with values for your integration.
+
+```json
+{
+  "messaging_product": "whatsapp",
+  "recipient_type": "individual",
+  "to": "919373084880",
+  "type": "text",
+  "text": {
+    "preview_url": true,
+    "body": "As requested, here is the link to our latest product:"
+  }
+}
+```
+
+## Responses and errors
+
+The source guide provides a common HTTP status-code table rather than a separate response body for this message type. See [Common HTTP Status Codes](../status-codes) for the documented meanings and possible causes. A success status indicates acceptance for delivery and does not guarantee that the recipient received the message.

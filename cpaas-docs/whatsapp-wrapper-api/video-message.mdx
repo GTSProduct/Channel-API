@@ -1,0 +1,62 @@
+---
+title: "Video Message"
+description: "Send a video clip with an optional caption, by media ID."
+---
+
+# Video Message
+
+Send a video clip with an optional caption, by media ID.
+
+## Endpoint
+
+```http
+POST /api/whatsapp/{Sender Hash}/messages
+```
+
+**Sandbox base URL:** `https://testqa.cpaas.globeteleservices.com`
+
+## Common headers
+
+```http
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer <token>
+```
+
+The Bearer token is generated in the CPaaS+ Portal under the API tab. Replace `{Sender Hash}` with the registered sender hash obtained from the WhatsApp channel's Numbers section. The guide says the top-level `to` value should use international format without a leading `+`.
+
+## Parameters
+
+| Parameter | Required | Description from the guide |
+|---|---|---|
+| `messaging_product` | Yes | Fixed value `"whatsapp"`. |
+| `recipient_type` | Optional | Fixed value `"individual"`; default stated in the guide. |
+| `to` | Yes | Recipient WhatsApp number, without a leading `+`. |
+| `type` | Yes | Fixed value `"video"`. |
+| `video.id` | Yes | Media ID returned by the Media Upload API. |
+| `video.caption` | Optional | Text shown beneath the video. |
+
+## Request example
+
+Use the following JSON as the request body. Replace the sender hash, token, recipient, IDs, and example values with values for your integration.
+
+```json
+{
+  "messaging_product": "whatsapp",
+  "recipient_type": "individual",
+  "to": "919373084880",
+  "type": "video",
+  "video": {
+    "id": "1487009022497978",
+    "caption": "A quick look at the product in action"
+  }
+}
+```
+
+## Notes
+
+Upload the video file first via the Media Upload API to obtain the ID used in `video.id`.
+
+## Responses and errors
+
+The source guide provides a common HTTP status-code table rather than a separate response body for this message type. See [Common HTTP Status Codes](../status-codes) for the documented meanings and possible causes. A success status indicates acceptance for delivery and does not guarantee that the recipient received the message.

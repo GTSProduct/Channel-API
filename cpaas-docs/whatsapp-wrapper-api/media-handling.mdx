@@ -1,0 +1,37 @@
+---
+title: "Media Handling"
+description: "Media upload prerequisite and media IDs for WhatsApp messages"
+---
+
+# Media Handling
+
+The CPaaS+ WhatsApp Wrapper API guide states that media files are uploaded separately and referenced by media ID when sending a message. Media upload uses `multipart/form-data`; message requests use JSON.
+
+## Message types that require a media ID
+
+| Message type | Field containing the media ID |
+|---|---|
+| Audio | `audio.id` |
+| Image | `image.id` |
+| Video | `video.id` |
+| Document | `document.id` |
+| Sticker | `sticker.id` |
+
+## Documented workflow
+
+1. Upload the media file using the Media Upload API.
+2. Capture the returned media ID.
+3. Send a `POST` request to `/api/whatsapp/{Sender Hash}/messages`.
+4. Put the media ID in the relevant field for the selected message type.
+
+## Upload API specification availability
+
+The supplied PDF refers to the Media Upload API as section `0.0`, but the provided 23 pages do not include the upload endpoint, multipart field names, file-size limits, supported MIME types, or a sample upload request/response. Those details are intentionally not filled in here. Add them only after verifying the actual Media Upload API specification or collection.
+
+## Sticker note
+
+The guide says sticker files must be static or animated WebP and follow Meta's sticker size guidelines. It does not provide numeric size limits in the supplied PDF.
+
+## Media-related errors
+
+The guide lists HTTP `413 Payload Too Large` as a possible response when an uploaded media file exceeds Meta's size limit for its type. It does not provide numeric size limits. See [Common HTTP Status Codes](../status-codes).
