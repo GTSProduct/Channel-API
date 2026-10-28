@@ -1,64 +1,15 @@
 ---
-title: "WhatsApp Wrapper API Overview"
-description: "Overview of the CPaaS+ WhatsApp Wrapper API and its supported message types"
+title: "WhatsApp Wrapper API"
+description: "Test dashboard layout."
 ---
 
-# WhatsApp Wrapper API
+## Get started
 
-## Overview
-
-The CPaaS+ WhatsApp Wrapper API is a simplified REST layer built on top of Meta's WhatsApp Cloud API. It lets developers send WhatsApp message types through a single CPaaS+ endpoint instead of calling Meta's Graph API directly.
-
-The guide describes text, media, interactive, location, contacts, reactions, and stickers. All requests use HTTP and JSON, except media upload, which uses `multipart/form-data`. Requests are secured with Bearer Token authentication.
-
-For the full specification of the underlying message objects, the source guide points to [Meta's WhatsApp Cloud API — Send Messages](https://developers.facebook.com/docs/whatsapp/cloud-api/guides/send-messages).
-
-## Supported message types
-
-| Message type | Use described in the guide |
-|---|---|
-| Text | Plain text, optionally with a link preview |
-| Audio | Voice note or audio clip referenced by media ID |
-| Image | Photo with an optional caption |
-| Video | Video clip with an optional caption |
-| Document | PDF or other file with an optional filename and caption |
-| Sticker | WebP sticker referenced by media ID |
-| Contacts | One or more vCard-style contact cards |
-| Location | Pinned location with coordinates and optional name/address |
-| Location request | Prompt asking the recipient to share their current location |
-| Interactive — CTA URL | Message with a button that opens a URL |
-| Interactive — List | Scrollable list of selectable options grouped into sections |
-| Interactive — Reply buttons | Message with up to three quick-reply buttons |
-| Reaction | Emoji reaction to a specific message |
-| Contextual reply | Text that visually quotes and replies to an earlier message |
-| Typing indicators and read receipts | Mark an inbound message as read and optionally show a typing indicator |
-
-## Common endpoint
-
-Most message types in this guide use the same endpoint and HTTP method:
-
-```http
-POST /api/whatsapp/{Sender Hash}/messages
-```
-
-The request body determines the message type. The `type` field and its corresponding object (for example, `text`, `image`, or `interactive`) must match the message being sent. Read the individual API pages for the fields and examples for each type.
-
-## Typical request flow
-
-1. Generate a Bearer token in the CPaaS+ Portal under the **API** tab. The guide says the token is tied to a specific WhatsApp sender account and will not be displayed again after generation, so store it securely.
-2. Obtain the sender hash from the CPaaS+ account under **Numbers** in the WhatsApp channel.
-3. For audio, image, video, document, and sticker messages, upload the file first using the Media Upload API and retain the returned media ID.
-4. Send a `POST` request to the messages endpoint with the required JSON payload and headers.
-5. Interpret the API response carefully: a success status confirms acceptance for delivery, not that the recipient has received the message.
-
-## Environment
-
-The guide's examples use the sandbox host below. It says to replace this with the production CPaaS+ host once issued.
-
-```text
-https://testqa.cpaas.globeteleservices.com
-```
-
-## Important integration rule: 24-hour window
-
-The guide states that Meta enforces a 24-hour customer-service window. Free-form messages described in the guide can only be sent within 24 hours of the recipient's last inbound message. Outside that window, requests may be rejected with a re-engagement error. See [Integration Notes](integration-notes) for the workflow described in the guide.
+<Columns cols={2}>
+  <Card title="Text Message" icon="message-square" href="/text-message">
+    Send a WhatsApp text message.
+  </Card>
+  <Card title="Image Message" icon="image" href="/image-message">
+    Send an image to a recipient.
+  </Card>
+</Columns>
