@@ -1,11 +1,11 @@
 ---
 title: "Interactive Message — Reply Buttons"
-description: "Send up to three quick-reply buttons"
+description: "Send an interactive message with up to three quick-reply buttons."
 ---
 
 # Interactive Message — Reply Buttons
 
-Send a message with up to three quick-reply buttons so the recipient can respond with a single tap.
+Send a message with up to three quick-reply buttons. The recipient can respond by selecting a button.
 
 ## Endpoint
 
@@ -15,7 +15,7 @@ POST /api/whatsapp/{Sender Hash}/messages
 
 **Sandbox base URL:** `https://testqa.cpaas.globeteleservices.com`
 
-## Common headers
+## Headers
 
 ```http
 Accept: application/json
@@ -23,24 +23,24 @@ Content-Type: application/json
 Authorization: Bearer <token>
 ```
 
-The Bearer token is generated in the CPaaS+ Portal under the API tab. Replace `{Sender Hash}` with the registered sender hash obtained from the WhatsApp channel's Numbers section. The guide says the top-level `to` value should use international format without a leading `+`.
+Generate the Bearer token from the **API** tab in the CPaaS+ Portal. Replace `{Sender Hash}` with the registered sender hash available under **Numbers** in the WhatsApp channel.
+
+Pass the recipient's WhatsApp number in international format without the leading `+` sign.
 
 ## Parameters
 
-| Parameter | Required | Description from the guide |
+| Parameter | Required | Description |
 |---|---|---|
-| `messaging_product` | Yes | Fixed value `"whatsapp"`. |
-| `to` | Yes | Recipient WhatsApp number, without a leading `+`. |
-| `type` | Yes | Fixed value `"interactive"`. |
-| `interactive.type` | Yes | Fixed value `"button"`. |
-| `interactive.header` | Optional | Text, image, video, or document header object. |
+| `messaging_product` | Yes | Fixed value: `"whatsapp"`. |
+| `to` | Yes | Recipient's WhatsApp number without a leading `+` sign. |
+| `type` | Yes | Fixed value: `"interactive"`. |
+| `interactive.type` | Yes | Fixed value: `"button"`. |
+| `interactive.header` | Optional | Header object. The reference lists text, image, video, and document headers. |
 | `interactive.body.text` | Yes | Main message text. |
-| `interactive.footer.text` | Optional | Small text below the body. |
-| `interactive.action.buttons` | Yes | Array of up to 3 reply button objects containing `id` and `title`; the sample uses `type: "reply"` and a nested `reply` object. |
+| `interactive.footer.text` | Optional | Footer text displayed below the body. |
+| `interactive.action.buttons` | Yes | Array of up to three reply button objects. Each button uses `type: "reply"` and a `reply` object containing `id` and `title`. |
 
-## Request example
-
-Use the following JSON as the request body. Replace the sender hash, token, recipient, IDs, and example values with values for your integration.
+## Request Example
 
 ```json
 {
@@ -50,23 +50,48 @@ Use the following JSON as the request body. Replace the sender hash, token, reci
   "type": "interactive",
   "interactive": {
     "type": "button",
-    "header": { "type": "image", "image": { "id": "762449710003335" } },
-    "body": { "text": "Your appointment is scheduled for 9am tomorrow. Use the buttons if you need to reschedule." },
-    "footer": { "text": "CPaaS+ Appointments" },
+    "header": {
+      "type": "image",
+      "image": {
+        "id": "762449710003335"
+      }
+    },
+    "body": {
+      "text": "Your appointment is scheduled for 9am tomorrow. Use the buttons if you need to reschedule."
+    },
+    "footer": {
+      "text": "CPaaS+ Appointments"
+    },
     "action": {
       "buttons": [
-        { "type": "reply", "reply": { "id": "change-button", "title": "Change" } },
-        { "type": "reply", "reply": { "id": "cancel-button", "title": "Cancel" } }
+        {
+          "type": "reply",
+          "reply": {
+            "id": "change-button",
+            "title": "Change"
+          }
+        },
+        {
+          "type": "reply",
+          "reply": {
+            "id": "cancel-button",
+            "title": "Cancel"
+          }
+        }
       ]
     }
   }
 }
 ```
 
+Replace the example recipient number, media ID, button IDs, and message text with values for your integration.
+
 ## Notes
 
-The guide states that up to three quick-reply buttons can be sent. The example includes two buttons.
+The request example contains two quick-reply buttons. Up to three buttons are supported, as specified in the reference.
 
-## Responses and errors
+## Responses and Errors
 
-See [Common HTTP Status Codes](../status-codes) for the documented meanings and possible causes. A success status indicates acceptance for delivery and does not guarantee that the recipient received the message.
+Refer to [Common HTTP Status Codes](../status-codes) for status code meanings and possible causes.
+
+A successful response indicates that the request was accepted for processing; it does not guarantee delivery to the recipient.
