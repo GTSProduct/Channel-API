@@ -1,11 +1,10 @@
+
 ---
 title: "Contact Message"
-description: "Share one or more contact cards"
+description: "Share one or more contact cards with a WhatsApp recipient."
 ---
 
-# Contact Message
-
-Share one or more vCard-style contact cards. The guide describes name, phone, email, address, organisation, and URL details.
+Share one or more contact cards containing details such as a person's name, phone numbers, email addresses, postal addresses, organisation, and URLs.
 
 ## Endpoint
 
@@ -15,7 +14,9 @@ POST /api/whatsapp/{Sender Hash}/messages
 
 **Sandbox base URL:** `https://testqa.cpaas.globeteleservices.com`
 
-## Common headers
+Replace `{Sender Hash}` with the registered sender hash from the WhatsApp channel's **Numbers** section in the CPaaS+ Portal.
+
+## Headers
 
 ```http
 Accept: application/json
@@ -23,25 +24,25 @@ Content-Type: application/json
 Authorization: Bearer <token>
 ```
 
-The Bearer token is generated in the CPaaS+ Portal under the API tab. Replace `{Sender Hash}` with the registered sender hash obtained from the WhatsApp channel's Numbers section. The guide says the top-level `to` value should use international format without a leading `+`.
+Generate the Bearer token from the **API** tab in the CPaaS+ Portal.
 
-## Parameters
+## Request parameters
 
-| Parameter | Required | Description from the guide |
+| Parameter | Required | Description |
 |---|---|---|
-| `messaging_product` | Yes | Fixed value `"whatsapp"`. |
-| `to` | Yes | Recipient WhatsApp number, without a leading `+`. |
-| `type` | Yes | Fixed value `"contacts"`. |
-| `contacts[].name` | Yes | Object with `formatted_name` plus first, last, middle name, prefix, and suffix fields. |
-| `contacts[].phones` | Optional | Array of phone objects with `phone`, `type`, and optional `wa_id`. |
-| `contacts[].emails` | Optional | Array of email objects with `email` and `type`. |
-| `contacts[].addresses` | Optional | Array of address objects; guide lists street, city, state, zip, country, and type. Its example also includes `country_code`. |
-| `contacts[].org` | Optional | Object with company, department, and title. |
-| `contacts[].urls` | Optional | Array of URL objects with `url` and `type`. |
+| `messaging_product` | Yes | Set to `"whatsapp"`. |
+| `to` | Yes | Recipient's WhatsApp number in international format, without a leading `+`. |
+| `type` | Yes | Set to `"contacts"`. |
+| `contacts[].name` | Yes | Contact name object containing `formatted_name` and supported name fields. |
+| `contacts[].phones` | No | Array of phone objects containing `phone`, `type`, and optionally `wa_id`. |
+| `contacts[].emails` | No | Array of email objects containing `email` and `type`. |
+| `contacts[].addresses` | No | Array of address objects. The documented fields include `street`, `city`, `state`, `zip`, `country`, and `type`. The example also includes `country_code`. |
+| `contacts[].org` | No | Organisation object containing `company`, `department`, and `title`. |
+| `contacts[].urls` | No | Array of URL objects containing `url` and `type`. |
+
+The name object supports `formatted_name`, `first_name`, `last_name`, `middle_name`, `prefix`, and `suffix`.
 
 ## Request example
-
-Use the following JSON as the request body. Replace the sender hash, token, recipient, IDs, and example values with values for your integration.
 
 ```json
 {
@@ -59,11 +60,21 @@ Use the following JSON as the request body. Replace the sender hash, token, reci
         "suffix": "Esq."
       },
       "phones": [
-        { "phone": "+16505559999", "type": "Landline" },
-        { "phone": "+19175559999", "type": "Mobile", "wa_id": "19175559999" }
+        {
+          "phone": "+16505559999",
+          "type": "Landline"
+        },
+        {
+          "phone": "+19175559999",
+          "type": "Mobile",
+          "wa_id": "19175559999"
+        }
       ],
       "emails": [
-        { "email": "bjohnson@luckyshrub.com", "type": "Work" }
+        {
+          "email": "bjohnson@luckyshrub.com",
+          "type": "Work"
+        }
       ],
       "addresses": [
         {
@@ -76,13 +87,26 @@ Use the following JSON as the request body. Replace the sender hash, token, reci
           "type": "Office"
         }
       ],
-      "org": { "company": "Lucky Shrub", "department": "Legal", "title": "Lead Counsel" },
-      "urls": [ { "url": "https://www.luckyshrub.com", "type": "Company" } ]
+      "org": {
+        "company": "Lucky Shrub",
+        "department": "Legal",
+        "title": "Lead Counsel"
+      },
+      "urls": [
+        {
+          "url": "https://www.luckyshrub.com",
+          "type": "Company"
+        }
+      ]
     }
   ]
 }
 ```
 
+Replace the example recipient number and contact details with the values required for your integration. The example includes phone numbers with a leading `+` inside the contact card; this is separate from the top-level `to` field.
+
 ## Responses and errors
 
-The source guide provides a common HTTP status-code table rather than a separate response body for this message type. See [Common HTTP Status Codes](../status-codes) for the documented meanings and possible causes. A success status indicates acceptance for delivery and does not guarantee that the recipient received the message.
+The source documentation provides a common HTTP status-code reference rather than a separate response-body example for this message type.
+
+See [Common HTTP Status Codes](../status-codes) for the documented status meanings and possible causes.
