@@ -1,107 +1,52 @@
 ---
-title: "Getting Started"
-description: "Configure authentication, identify your WhatsApp sender, and prepare API requests."
+title: "WhatsApp Wrapper API User Guide"
+description: "Documentation for integrating and using the CPaaS+ WhatsApp Wrapper API."
 ---
 
-# Getting Started
+# Build with the WhatsApp Wrapper API
 
-Connect your application to the CPaaS+ WhatsApp Wrapper API using a valid API token, your registered sender hash, and the appropriate message payload.
+The CPaaS+ WhatsApp Wrapper API provides endpoints for integrating WhatsApp messaging into your applications. This guide helps developers understand the available message types, interactive messaging capabilities, message interactions, and integration requirements.
 
-## Base URL
+Start with the Getting Started guide, then select the relevant API documentation to understand its endpoint, authentication, request parameters, and example requests.
 
-Use the following sandbox base URL for testing:
+## Get started
 
-```text
-https://testqa.cpaas.globeteleservices.com
-```
+<CardGroup cols={2}>
+  <Card title="Getting Started" icon="rocket" href="/whatsapp-wrapper-api/getting-started">
+    Learn the basics of connecting to the WhatsApp Wrapper API and making requests.
+  </Card>
+  <Card title="Integration Notes" icon="book-open" href="/whatsapp-wrapper-api/integration-notes">
+    Review integration considerations and implementation guidance.
+  </Card>
+</CardGroup>
 
-Replace the sandbox host with your production CPaaS+ host when it is issued for your account.
+## Explore the API documentation
 
-## Authentication
+<CardGroup cols={2}>
+  <Card title="Message Types" icon="message-square" href="/whatsapp-wrapper-api/text-message">
+    Send text, image, audio, video, document, sticker, contact, and location messages.
+  </Card>
+  <Card title="Interactive Messages" icon="messages-square" href="/whatsapp-wrapper-api/interactive-reply-buttons">
+    Implement interactive reply buttons, lists, and CTA URL messages.
+  </Card>
+  <Card title="Message Interactions" icon="message-circle" href="/whatsapp-wrapper-api/reaction-message">
+    Handle reactions, contextual replies, typing indicators, and read receipts.
+  </Card>
+  <Card title="Integration and Troubleshooting" icon="wrench" href="/whatsapp-wrapper-api/media-handling">
+    Review media handling, integration notes, and HTTP status codes.
+  </Card>
+</CardGroup>
 
-Every request must include a Bearer token in the `Authorization` header.
+## Integration essentials
 
-```http
-Authorization: Bearer <token>
-```
-
-Generate the token from the **API** tab in the CPaaS+ Portal. The token is associated with a specific WhatsApp sender account.
-
-**Token security:** Store the token securely when it is generated. The CPaaS+ Portal will not display the same token again. Tokens can be generated and revoked through the Portal.
-
-## Identify your WhatsApp sender
-
-The sender hash identifies your registered WhatsApp sender and forms part of the request URL. Retrieve it from the **Numbers** section of the WhatsApp channel in the CPaaS+ Portal.
-
-Example sender hash:
-
-```text
-25bd1f59-e3e8-4997-9d6f-8ff103ced889
-```
-
-Use the sender hash assigned to your own account.
-
-## API endpoint
-
-WhatsApp message requests use the following endpoint:
-
-**Method:** `POST`
-
-**Path:** `/api/whatsapp/{Sender Hash}/messages`
-
-The complete sandbox URL is:
-
-```text
-https://testqa.cpaas.globeteleservices.com/api/whatsapp/{Sender Hash}/messages
-```
-
-Replace `{Sender Hash}` with your registered sender hash. The message type and its associated fields are specified in the JSON request body.
-
-## Request headers
-
-Include the following headers in message requests:
-
-| Header | Value |
+| Concept | Description |
 |---|---|
-| `Accept` | `application/json` |
-| `Content-Type` | `application/json` |
-| `Authorization` | `Bearer <token>` |
+| Endpoint | Use the endpoint documented for the specific operation. |
+| Authentication | Include the required Bearer token in the `Authorization` header. |
+| Request format | Follow the endpoint's documented HTTP method, headers, and JSON body. |
+| Sender identification | Use the registered sender's assigned hash wherever the endpoint requires it. |
+| Troubleshooting | Consult the relevant API guide and status-code documentation when investigating errors. |
 
-Messaging operations use JSON request bodies. Media upload uses `multipart/form-data`.
-
-## Recipient number format
-
-The top-level `to` field must contain the recipient's WhatsApp number in international format, without a leading `+`.
-
-Example:
-
-```json
-{
-  "to": "919373084880"
-}
-```
-
-Phone numbers included inside a contact-card payload are separate contact details and are not the top-level message recipient.
-
-## Media messages
-
-Audio, image, video, document, and sticker messages reference uploaded files by media ID rather than embedding the files directly in the message payload.
-
-Before sending one of these message types:
-
-1. Upload the file using the Media Upload API.
-2. Capture the media ID returned by the upload operation.
-3. Include the ID in the corresponding field, such as `image.id`, `audio.id`, or `document.id`.
-
-Refer to [Media Handling](media-handling) for details about the media-ID workflow.
-
-The Media Upload API's endpoint and request specification are not detailed on this page. Refer to the applicable media-upload documentation for those steps.
-
-## Before sending your first request
-
-- Confirm the correct sandbox or production base URL.
-- Retrieve the sender hash from the CPaaS+ Portal.
-- Generate and securely store a valid Bearer token.
-- Format the top-level recipient number without a leading `+`.
-- For media messages, obtain the required media ID before sending.
-- Review [Integration Notes](integration-notes) for the 24-hour customer-service window and message ID requirements.
+<Note>
+Start with Getting Started, then open the guide for the message or interaction you want to implement. Use each endpoint's documentation as the source of truth for request fields and supported behaviour.
+</Note>
