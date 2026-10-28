@@ -1,11 +1,11 @@
 ---
 title: "Interactive Message — Call-To-Action URL"
-description: "Send an interactive message with a URL button"
+description: "Send an interactive message with a button that opens a URL."
 ---
 
 # Interactive Message — Call-To-Action URL
 
-Send a message with a header, body, footer, and a single tappable button that opens an external URL.
+Send an interactive WhatsApp message with a header, body, optional footer, and a button that opens an external URL.
 
 ## Endpoint
 
@@ -15,7 +15,7 @@ POST /api/whatsapp/{Sender Hash}/messages
 
 **Sandbox base URL:** `https://testqa.cpaas.globeteleservices.com`
 
-## Common headers
+## Headers
 
 ```http
 Accept: application/json
@@ -23,25 +23,25 @@ Content-Type: application/json
 Authorization: Bearer <token>
 ```
 
-The Bearer token is generated in the CPaaS+ Portal under the API tab. Replace `{Sender Hash}` with the registered sender hash obtained from the WhatsApp channel's Numbers section. The guide says the top-level `to` value should use international format without a leading `+`.
+Generate the Bearer token from the **API** tab in the CPaaS+ Portal. Replace `{Sender Hash}` with the registered sender hash available under **Numbers** in the WhatsApp channel.
+
+Pass the recipient's WhatsApp number in international format without the leading `+` sign.
 
 ## Parameters
 
-| Parameter | Required | Description from the guide |
+| Parameter | Required | Description |
 |---|---|---|
-| `messaging_product` | Yes | Fixed value `"whatsapp"`. |
-| `to` | Yes | Recipient WhatsApp number, without a leading `+`. |
-| `type` | Yes | Fixed value `"interactive"`. |
-| `interactive.type` | Yes | Fixed value `"cta_url"`. |
-| `interactive.header` | Optional | Text, image, video, or document header object. |
+| `messaging_product` | Yes | Fixed value: `"whatsapp"`. |
+| `to` | Yes | Recipient's WhatsApp number without a leading `+` sign. |
+| `type` | Yes | Fixed value: `"interactive"`. |
+| `interactive.type` | Yes | Fixed value: `"cta_url"`. |
+| `interactive.header` | Optional | Header object. The reference lists text, image, video, and document headers. |
 | `interactive.body.text` | Yes | Main message text. |
-| `interactive.footer.text` | Optional | Small text below the body. |
-| `interactive.action.parameters.display_text` | Yes | Text shown on the button. |
+| `interactive.footer.text` | Optional | Footer text displayed below the body. |
+| `interactive.action.parameters.display_text` | Yes | Text displayed on the button. |
 | `interactive.action.parameters.url` | Yes | URL opened when the button is tapped. |
 
-## Request example
-
-Use the following JSON as the request body. Replace the sender hash, token, recipient, IDs, and example values with values for your integration.
+## Request Example
 
 ```json
 {
@@ -51,8 +51,15 @@ Use the following JSON as the request body. Replace the sender hash, token, reci
   "type": "interactive",
   "interactive": {
     "type": "cta_url",
-    "header": { "type": "image", "image": { "link": "https://picsum.photos/200/300" } },
-    "body": { "text": "Tap the button below to see available dates." },
+    "header": {
+      "type": "image",
+      "image": {
+        "link": "https://picsum.photos/200/300"
+      }
+    },
+    "body": {
+      "text": "Tap the button below to see available dates."
+    },
     "action": {
       "name": "cta_url",
       "parameters": {
@@ -60,14 +67,21 @@ Use the following JSON as the request body. Replace the sender hash, token, reci
         "url": "https://www.example.com?clickID=kqDGWd24Q5TRwoEQTICY7W1J"
       }
     },
-    "footer": { "text": "Dates subject to change." }
+    "footer": {
+      "text": "Dates subject to change."
+    }
   }
 }
 ```
 
+Replace the example recipient number, image URL, button text, and destination URL with values for your integration.
+
 ## Notes
 
-The sample header uses an image link. The guide allows text, image, video, or document header objects, but does not enumerate all object schemas on this page.
+The example uses an image header. The reference also lists text, video, and document headers but does not provide their full request schemas on this page.
 
-## Responses and errors
-See [Common HTTP Status Codes](../status-codes) for the documented meanings and possible causes. A success status indicates acceptance for delivery and does not guarantee that the recipient received the message.
+## Responses and Errors
+
+Refer to [Common HTTP Status Codes](../status-codes) for status code meanings and possible causes.
+
+A successful response indicates that the request was accepted for processing; it does not guarantee delivery to the recipient.
