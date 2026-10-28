@@ -1,11 +1,8 @@
----
-title: "Audio Message"
-description: "Send a voice note or audio clip by referencing a media ID obtained from the Media Upload API."
----
+
 
 # Audio Message
 
-Send a voice note or audio clip by referencing a media ID obtained from the Media Upload API.
+Send an audio message to a WhatsApp recipient using a media ID returned by the Media Upload API.
 
 ## Endpoint
 
@@ -15,7 +12,11 @@ POST /api/whatsapp/{Sender Hash}/messages
 
 **Sandbox base URL:** `https://testqa.cpaas.globeteleservices.com`
 
-## Common headers
+Replace `{Sender Hash}` with the registered sender hash from the WhatsApp channel's **Numbers** section in the CPaaS+ Portal.
+
+## Headers
+
+Include the following headers in the request:
 
 ```http
 Accept: application/json
@@ -23,21 +24,19 @@ Content-Type: application/json
 Authorization: Bearer <token>
 ```
 
-The Bearer token is generated in the CPaaS+ Portal under the API tab. Replace `{Sender Hash}` with the registered sender hash obtained from the WhatsApp channel's Numbers section. The guide says the top-level `to` value should use international format without a leading `+`.
+Generate the Bearer token from the **API** tab in the CPaaS+ Portal.
 
-## Parameters
+## Request parameters
 
-| Parameter | Required | Description from the guide |
+| Parameter | Required | Description |
 |---|---|---|
-| `messaging_product` | Yes | Fixed value `"whatsapp"`. |
-| `recipient_type` | Optional | Fixed value `"individual"`; default stated in the guide. |
-| `to` | Yes | Recipient WhatsApp number, without a leading `+`. |
-| `type` | Yes | Fixed value `"audio"`. |
+| `messaging_product` | Yes | Set to `"whatsapp"`. |
+| `recipient_type` | No | Set to `"individual"`. The source guide states this as the default. |
+| `to` | Yes | Recipient's WhatsApp number in international format, without a leading `+`. |
+| `type` | Yes | Set to `"audio"`. |
 | `audio.id` | Yes | Media ID returned by the Media Upload API. |
 
 ## Request example
-
-Use the following JSON as the request body. Replace the sender hash, token, recipient, IDs, and example values with values for your integration.
 
 ```json
 {
@@ -45,14 +44,27 @@ Use the following JSON as the request body. Replace the sender hash, token, reci
   "recipient_type": "individual",
   "to": "919373084880",
   "type": "audio",
-  "audio": { "id": "766235952871902" }
+  "audio": {
+    "id": "766235952871902"
+  }
 }
 ```
 
-## Notes
+Replace the example recipient number and media ID with values for your integration. Send the JSON as the request body and include the required headers.
 
-Upload the audio file first via the Media Upload API to obtain the ID used in `audio.id`. The supplied PDF refers to that API but does not include its endpoint or full schema.
+## Before sending an audio message
+
+1. Upload the audio file through the Media Upload API.
+2. Capture the returned media ID.
+3. Set `audio.id` to that media ID in the message request.
+4. Send the request to the endpoint using your registered sender hash and Bearer token.
+
+The available source documentation references the Media Upload API but does not specify its endpoint or complete request schema here. Refer to the published Media Handling documentation for any available upload instructions.
 
 ## Responses and errors
 
-The source guide provides a common HTTP status-code table rather than a separate response body for this message type. See [Common HTTP Status Codes](../status-codes) for the documented meanings and possible causes. A success status indicates acceptance for delivery and does not guarantee that the recipient received the message.
+The source documentation provides a shared HTTP status-code reference rather than a separate response-body example for audio messages.
+
+See [Common HTTP Status Codes](../status-codes) for the documented status meanings and possible causes.
+
+A successful HTTP response indicates that the request was accepted for processing; it does not, by itself, confirm that the recipient received the audio message.
