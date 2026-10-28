@@ -1,34 +1,32 @@
 ---
-title: "Media Handling"
-description: "Media upload prerequisite and media IDs for WhatsApp messages"
----
 
 # Media Handling
 
-Media files are uploaded separately and referenced by media ID when sending a message. Media upload uses `multipart/form-data`; message requests use JSON.
+Upload media files separately before sending messages that contain them. Media uploads use `multipart/form-data`; message requests use JSON and reference the uploaded file by its media ID.
 
-## Message types that require a media ID
+## Message Types That Require a Media ID
 
 | Message type | Field containing the media ID |
-|---|---|
-| Audio | `audio.id` |
-| Image | `image.id` |
-| Video | `video.id` |
-| Document | `document.id` |
-| Sticker | `sticker.id` |
+| ------------ | ----------------------------- |
+| Audio        | `audio.id`                    |
+| Image        | `image.id`                    |
+| Video        | `video.id`                    |
+| Document     | `document.id`                 |
+| Sticker      | `sticker.id`                  |
 
-## Documented workflow
+## Workflow
 
 1. Upload the media file using the Media Upload API.
-2. Capture the returned media ID.
+2. Capture the media ID returned by the upload request.
 3. Send a `POST` request to `/api/whatsapp/{Sender Hash}/messages`.
-4. Put the media ID in the relevant field for the selected message type.
+4. Include the media ID in the appropriate field for the message type.
 
+## Sticker Requirements
 
-## Sticker note
+Sticker files must use static or animated WebP format and comply with Meta's sticker size guidelines.&#x20;
 
-The guide says sticker files must be static or animated WebP and follow Meta's sticker size guidelines. It does not provide numeric size limits in the supplied PDF.
+## Media-Related Errors
 
-## Media-related errors
+**HTTP `413 Payload Too Large`** may occur when an uploaded media file exceeds the size limit for its media type.&#x20;
 
-HTTP `413 Payload Too Large` is a possible response when an uploaded media file exceeds Meta's size limit for its type. It does not provide numeric size limits. See [Common HTTP Status Codes](../status-codes).
+For more information, see [Common HTTP Status Codes](../status-codes).
