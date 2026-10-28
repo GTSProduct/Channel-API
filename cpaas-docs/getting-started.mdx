@@ -1,51 +1,53 @@
 ---
 title: "Getting Started"
-description: "Authentication, base URL, sender hash, and common request headers"
+description: "Authentication, base URL, sender hash, and request headers"
 ---
 
 # Getting Started
 
-This page consolidates the setup information in the CPaaS+ WhatsApp Wrapper API guide.
-
 ## 1. Base URL
 
-The sandbox/test host used in the guide's examples is:
+Use the following sandbox host for testing:
 
 ```text
 https://testqa.cpaas.globeteleservices.com
 ```
 
-The guide says to replace this with your production CPaaS+ host once it has been issued. Do not assume the sandbox host is the production host.
+Replace the sandbox host with your assigned production CPaaS+ host when moving to production.
 
-## 2. Sender hash
+## 2. Sender Hash
 
-The sender hash identifies your registered WhatsApp sender and appears in the URL path:
+The sender hash identifies the registered WhatsApp sender. It forms part of the message API endpoint:
 
 ```text
 /api/whatsapp/{Sender Hash}/messages
 ```
 
-The guide says it can be obtained from the CPaaS+ account under **Numbers** in the WhatsApp channel. Replace `{Sender Hash}` with the value assigned to your sender. The guide provides this example format:
+Find the sender hash in the CPaaS+ Portal under **Numbers** in the WhatsApp channel.
+
+Example:
 
 ```text
 25bd1f59-e3e8-4997-9d6f-8ff103ced889
 ```
 
-This is an illustrative value from the guide; use the sender hash assigned to your own integration.
+Replace this example with the sender hash assigned to your account.
 
-## 3. Bearer token authentication
+## 3. Authentication
 
-Every request must include a Bearer token in the `Authorization` header. The guide says the token is generated in the CPaaS+ Portal under the **API** tab and is tied to a specific WhatsApp sender account.
+All API requests require a Bearer token in the `Authorization` header.
 
 ```http
 Authorization: Bearer <token>
 ```
 
-**Security note from the guide:** store the token securely once generated because the CPaaS+ Portal will not display it again. The guide also states that tokens can be generated and revoked from the Portal under the API tab.
+Generate the token from the **API** tab in the CPaaS+ Portal. Each token is associated with a specific WhatsApp sender account.
 
-## 4. Request headers
+Store the token securely. It cannot be viewed again in the Portal after generation. Tokens can be generated or revoked from the same **API** tab.
 
-The sample requests use these headers:
+## 4. Request Headers
+
+Include the following headers in API requests:
 
 ```http
 Accept: application/json
@@ -53,19 +55,25 @@ Content-Type: application/json
 Authorization: Bearer <token>
 ```
 
-Requests are JSON-formatted, except media upload, which the guide says uses `multipart/form-data`.
+Use JSON for message request bodies. Media uploads use `multipart/form-data`.
 
-## 5. Common message endpoint
+## 5. Message Endpoint
+
+Send WhatsApp messages using the following endpoint:
 
 ```http
 POST https://testqa.cpaas.globeteleservices.com/api/whatsapp/{Sender Hash}/messages
 ```
 
-The individual message type is specified in the JSON body. For example, a text message uses `"type": "text"`, while an image message uses `"type": "image"` and an `image` object.
+Replace `{Sender Hash}` with your registered sender's hash.
 
-## 6. Recipient number format
+Specify the message type in the JSON request body. For example, text messages use `"type": "text"`, while image messages use `"type": "image"` and include an `image` object.
 
-The guide says the `to` field should contain the recipient's WhatsApp number in international format **without a leading plus sign**. Example:
+## 6. Recipient Number Format
+
+Pass the recipient's WhatsApp number in international format without the leading `+` sign.
+
+Example:
 
 ```json
 {
@@ -73,17 +81,21 @@ The guide says the `to` field should contain the recipient's WhatsApp number in 
 }
 ```
 
-Follow the parameter requirements on the relevant message page. The source guide's Contacts example also contains phone numbers within the contact-card object; those are contact details being shared, not the top-level recipient field.
+Follow the field requirements for the relevant message type. Phone numbers included inside a contact-card object represent the contact details being shared, not the message recipient.
 
-## 7. Media prerequisite
+## 7. Media Messages
 
-Audio, image, video, document, and sticker messages reference an uploaded file by media ID instead of embedding the file in the message request. Upload the file first, capture the returned ID, and pass it in the relevant object such as `image.id` or `audio.id`. The source PDF refers to a Media Upload API in section 0.0 but does not provide its endpoint or full request schema in the supplied guide.
+Image, audio, video, document, and sticker messages use a media ID to reference an uploaded file.
 
-## 8. Before testing
+Upload the media first, then pass the returned ID in the appropriate message object, such as `image.id` or `audio.id`.
 
-- Confirm you have the correct sandbox or production host.
+The media upload endpoint and full request schema are not specified here. Refer to the available media upload documentation for those details.
+
+## 8. Integration Considerations
+
+- Use the sandbox host for testing and your assigned production host for live traffic.
 - Obtain the sender hash from the CPaaS+ Portal.
 - Generate and securely store the Bearer token.
-- Use the recipient number format described above.
-- For media messages, obtain a media ID before sending the message.
+- Format recipient numbers without a leading `+` sign.
+- Upload media before sending messages that reference a media ID.
 - Check the 24-hour customer-service window described in [Integration Notes](integration-notes).
