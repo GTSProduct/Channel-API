@@ -23,7 +23,7 @@ Content-Type: application/json
 Authorization: Bearer <token>
 ```
 
-The Bearer token is generated in the CPaaS+ Portal under the API tab. Replace `{Sender Hash}` with the registered sender hash obtained from the WhatsApp channel's Numbers section. The guide says the top-level `to` value should use international format without a leading `+`.
+The Bearer token is generated in the CPaaS+ Portal under the API tab. Replace `{Sender Hash}` with the registered sender hash obtained from the WhatsApp channel's Numbers section. The top-level `to` value should use international format without a leading `+`.
 
 ## Parameters
 
@@ -55,8 +55,8 @@ Use the following JSON as the request body. Replace the sender hash, token, reci
 
 ## Notes
 
-The `message_id` must identify the message to react to. The guide states that an empty string for `reaction.emoji` removes a reaction.
+The `message_id` must identify the message to react to. An empty string for `reaction.emoji` removes a reaction.
 
 ## Responses and errors
 
-The source guide provides a common HTTP status-code table rather than a separate response body for this message type. See [Common HTTP Status Codes](../status-codes) for the documented meanings and possible causes. A success status indicates acceptance for delivery and does not guarantee that the recipient received the message.
+See [Common HTTP Status Codes](../status-codes) for the documented meanings and possible causes. A success status indicates acceptance for delivery and does not guarantee that the recipient received the message.
