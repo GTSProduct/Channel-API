@@ -9,7 +9,7 @@ This page consolidates the general integration notes at the end of the source gu
 
 ## 24-hour customer-service window
 
-The guide states that Meta enforces a 24-hour customer-service window. Free-form messages described in the guide—including text, media, interactive, location, contacts, and reactions—can only be sent to a recipient within 24 hours of their last inbound message to you.
+Meta enforces a 24-hour customer-service window. Free-form messages described in the guide—including text, media, interactive, location, contacts, and reactions—can only be sent to a recipient within 24 hours of their last inbound message to you.
 
 Outside that window, requests to the messages endpoint may be rejected with a re-engagement error from Meta.
 
@@ -36,14 +36,13 @@ The guide says the top-level `to` field must contain the recipient's number in i
 Media IDs returned by the Media Upload API are required for audio, image, video, document, and sticker messages. Upload the file first, capture the returned ID, and pass it in the corresponding message object. The supplied PDF does not include the upload endpoint details.
 
 ## Message IDs (`wamid`)
-
-The guide states that message IDs required by Reaction, Contextual Reply, and Read Receipt calls are returned in the response to the original send or received through your inbound webhook.
+Message IDs required by Reaction, Contextual Reply, and Read Receipt calls are returned in the response to the original send or received through your inbound webhook.
 
 - **Reaction:** pass the target message ID in `reaction.message_id`.
 - **Contextual reply:** pass the earlier message ID in `context.message_id`.
 - **Read receipt:** pass the inbound message ID in `message_id`.
 
-The guide specifically notes that a read receipt must reference an incoming message from the recipient; an outbound message ID cannot be marked as read.
+ A read receipt must reference an incoming message from the recipient; an outbound message ID cannot be marked as read.
 
 ## Bearer tokens
 
