@@ -57,46 +57,46 @@
           {
             "group": "Overview",
             "pages": [
-              "whatsapp-wrapper-api/overview/index",
-              "whatsapp-wrapper-api/overview/getting-started"
+              "whatsapp-wrapper-overview",
+              "getting-started"
             ]
           },
           {
             "group": "Message Types",
             "pages": [
-              "whatsapp-wrapper-api/message-types/text-message",
-              "whatsapp-wrapper-api/message-types/image-message",
-              "whatsapp-wrapper-api/message-types/audio-message",
-              "whatsapp-wrapper-api/message-types/video-message",
-              "whatsapp-wrapper-api/message-types/document-message",
-              "whatsapp-wrapper-api/message-types/sticker-message",
-              "whatsapp-wrapper-api/message-types/contact-message",
-              "whatsapp-wrapper-api/message-types/location-message",
-              "whatsapp-wrapper-api/message-types/location-request-message"
+              "text-message",
+              "image-message",
+              "audio-message",
+              "video-message",
+              "document-message",
+              "sticker-message",
+              "contact-message",
+              "location-message",
+              "location-request-message"
             ]
           },
           {
             "group": "Interactive Messages",
             "pages": [
-              "whatsapp-wrapper-api/interactive-messages/interactive-reply-buttons",
-              "whatsapp-wrapper-api/interactive-messages/interactive-list",
-              "whatsapp-wrapper-api/interactive-messages/interactive-cta-url"
+              "interactive-reply-buttons",
+              "interactive-list",
+              "interactive-cta-url"
             ]
           },
           {
             "group": "Message Interactions",
             "pages": [
-              "whatsapp-wrapper-api/message-interactions/reaction-message",
-              "whatsapp-wrapper-api/message-interactions/contextual-reply-message",
-              "whatsapp-wrapper-api/message-interactions/typing-indicators-read-receipts"
+              "reaction-message",
+              "contextual-reply-message",
+              "typing-indicators-read-receipts"
             ]
           },
           {
             "group": "Integration and Troubleshooting",
             "pages": [
-              "whatsapp-wrapper-api/integration-troubleshooting/integration-notes",
-              "whatsapp-wrapper-api/integration-troubleshooting/status-codes",
-              "whatsapp-wrapper-api/integration-troubleshooting/media-handling"
+              "media-handling",
+              "integration-notes",
+              "status-codes"
             ]
           }
         ]
