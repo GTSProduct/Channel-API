@@ -8,9 +8,7 @@ Share one or more contact cards containing details such as a person's name, phon
 
 ## Endpoint
 
-```http
-POST /api/whatsapp/{Sender Hash}/messages
-```
+<Badge color="green">POST</Badge> `/api/whatsapp/{Sender Hash}/messages`
 
 **Sandbox base URL:** `https://testqa.cpaas.globeteleservices.com`
 
@@ -18,11 +16,13 @@ Replace `{Sender Hash}` with the registered sender hash from the WhatsApp channe
 
 ## Headers
 
-```http
-Accept: application/json
-Content-Type: application/json
-Authorization: Bearer <token>
-```
+Include the following headers in the request.
+
+| Header | Value |
+|---|---|
+| `Accept` | `application/json` |
+| `Content-Type` | `application/json` |
+| `Authorization` | `Bearer <token>` |
 
 Generate the Bearer token from the **API** tab in the CPaaS+ Portal.
 
@@ -36,13 +36,22 @@ Generate the Bearer token from the **API** tab in the CPaaS+ Portal.
 | `contacts[].name` | Yes | Contact name object containing `formatted_name` and supported name fields. |
 | `contacts[].phones` | No | Array of phone objects containing `phone`, `type`, and optionally `wa_id`. |
 | `contacts[].emails` | No | Array of email objects containing `email` and `type`. |
-| `contacts[].addresses` | No | Array of address objects. The documented fields include `street`, `city`, `state`, `zip`, `country`, and `type`. The example also includes `country_code`. |
+| `contacts[].addresses` | No | Array of address objects containing `street`, `city`, `state`, `zip`, `country`, and `type`. The example also includes `country_code`. |
 | `contacts[].org` | No | Organisation object containing `company`, `department`, and `title`. |
 | `contacts[].urls` | No | Array of URL objects containing `url` and `type`. |
 
-The name object supports `formatted_name`, `first_name`, `last_name`, `middle_name`, `prefix`, and `suffix`.
+The `contacts[].name` object supports the following fields:
+
+- `formatted_name`
+- `first_name`
+- `last_name`
+- `middle_name`
+- `prefix`
+- `suffix`
 
 ## Request example
+
+The following example shares a contact card with name, phone, email, address, organisation, and URL details.
 
 ```json
 {
@@ -103,10 +112,10 @@ The name object supports `formatted_name`, `first_name`, `last_name`, `middle_na
 }
 ```
 
-Replace the example recipient number and contact details with the values required for your integration. The example includes phone numbers with a leading `+` inside the contact card; this is separate from the top-level `to` field.
+Replace the example recipient number and contact details with values for your integration. The top-level `to` value does not include a leading `+`; phone numbers inside the contact card follow the format shown in the example.
 
 ## Responses and errors
 
 The source documentation provides a common HTTP status-code reference rather than a separate response-body example for this message type.
 
-See [Common HTTP Status Codes](../status-codes) for the documented status meanings and possible causes.
+See [Common HTTP Status Codes](../status-codes) for documented status meanings and possible causes.
