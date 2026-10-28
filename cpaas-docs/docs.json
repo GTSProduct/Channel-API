@@ -1,5 +1,5 @@
+
 {
-  "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "CPaaS+ API Documentation",
   "colors": {
@@ -12,9 +12,14 @@
       "display": "interactive"
     },
     "examples": {
-      "languages": ["curl", "python", "javascript"]
+      "languages": [
+        "curl",
+        "python",
+        "javascript"
+      ]
     }
   },
+  "$schema": "https://mintlify.com/docs.json",
   "navigation": {
     "tabs": [
       {
@@ -52,46 +57,46 @@
           {
             "group": "Overview",
             "pages": [
-              "whatsapp-wrapper-overview",
-              "whatsapp-wrapper-api/getting-started"
+              "whatsapp-wrapper-api/overview/index",
+              "whatsapp-wrapper-api/overview/getting-started"
             ]
           },
           {
             "group": "Message Types",
             "pages": [
-              "whatsapp-wrapper-api/text-message",
-              "whatsapp-wrapper-api/image-message",
-              "whatsapp-wrapper-api/audio-message",
-              "whatsapp-wrapper-api/video-message",
-              "whatsapp-wrapper-api/document-message",
-              "whatsapp-wrapper-api/sticker-message",
-              "whatsapp-wrapper-api/contact-message",
-              "whatsapp-wrapper-api/location-message",
-              "whatsapp-wrapper-api/location-request-message"
+              "whatsapp-wrapper-api/message-types/text-message",
+              "whatsapp-wrapper-api/message-types/image-message",
+              "whatsapp-wrapper-api/message-types/audio-message",
+              "whatsapp-wrapper-api/message-types/video-message",
+              "whatsapp-wrapper-api/message-types/document-message",
+              "whatsapp-wrapper-api/message-types/sticker-message",
+              "whatsapp-wrapper-api/message-types/contact-message",
+              "whatsapp-wrapper-api/message-types/location-message",
+              "whatsapp-wrapper-api/message-types/location-request-message"
             ]
           },
           {
             "group": "Interactive Messages",
             "pages": [
-              "whatsapp-wrapper-api/interactive-reply-buttons",
-              "whatsapp-wrapper-api/interactive-list",
-              "whatsapp-wrapper-api/interactive-cta-url"
+              "whatsapp-wrapper-api/interactive-messages/interactive-reply-buttons",
+              "whatsapp-wrapper-api/interactive-messages/interactive-list",
+              "whatsapp-wrapper-api/interactive-messages/interactive-cta-url"
             ]
           },
           {
             "group": "Message Interactions",
             "pages": [
-              "whatsapp-wrapper-api/reaction-message",
-              "whatsapp-wrapper-api/contextual-reply-message",
-              "whatsapp-wrapper-api/typing-indicators-read-receipts"
+              "whatsapp-wrapper-api/message-interactions/reaction-message",
+              "whatsapp-wrapper-api/message-interactions/contextual-reply-message",
+              "whatsapp-wrapper-api/message-interactions/typing-indicators-read-receipts"
             ]
           },
           {
             "group": "Integration and Troubleshooting",
             "pages": [
-              "whatsapp-wrapper-api/media-handling",
-              "whatsapp-wrapper-api/integration-notes",
-              "whatsapp-wrapper-api/status-codes"
+              "whatsapp-wrapper-api/integration-troubleshooting/integration-notes",
+              "whatsapp-wrapper-api/integration-troubleshooting/status-codes",
+              "whatsapp-wrapper-api/integration-troubleshooting/media-handling"
             ]
           }
         ]
