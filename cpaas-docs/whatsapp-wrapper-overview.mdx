@@ -1,88 +1,85 @@
----
-title: "WhatsApp Wrapper API"
-description: "Developer documentation for WhatsApp messaging through GTS CPaaS+."
----
+# WhatsApp Wrapper API
 
-Send WhatsApp messages through the GTS CPaaS+ WhatsApp Wrapper API. Use this documentation to configure requests, explore supported message types, and troubleshoot integrations.
+Explore the GTS CPaaS+ WhatsApp Wrapper API documentation. Use the guides below to understand how to send messages, manage media, handle interactive messages, and process message interactions.
 
-## Get started
+## Get Started
 
-<Columns cols={2}>
+<CardGroup cols={2}>
   <Card title="Getting Started" icon="rocket" href="/getting-started">
-    Review the setup and requirements for making API requests.
+    Learn the basics of integrating with the WhatsApp Wrapper API.
   </Card>
-  <Card title="Integration Notes" icon="book-open" href="/integration-notes">
-    Review additional integration guidance.
+  <Card title="Integration Notes" icon="plug" href="/integration-notes">
+    Review integration guidance before implementing the API.
   </Card>
-</Columns>
+</CardGroup>
 
-## Standard messages
+## Message Types
 
-<Columns cols={3}>
-  <Card title="Text Message" icon="message-square" href="./text-message">
-    Send a text message.
+<CardGroup cols={3}>
+  <Card title="Text Message" icon="message-square" href="/text-message">
+    Send text messages.
   </Card>
   <Card title="Image Message" icon="image" href="/image-message">
-    Send an image using a media ID.
+    Send images.
   </Card>
-  <Card title="Audio Message" icon="audio-lines" href="/audio-message">
-    Send an audio clip or voice note.
+  <Card title="Audio Message" icon="headphones" href="/audio-message">
+    Send audio messages.
   </Card>
   <Card title="Video Message" icon="video" href="/video-message">
-    Send a video using a media ID.
+    Send video messages.
   </Card>
   <Card title="Document Message" icon="file-text" href="/document-message">
-    Share a document with a recipient.
-  </Card>
-  <Card title="Contact Message" icon="contact" href="/contact-message">
-    Share one or more contact cards.
-  </Card>
-  <Card title="Location Message" icon="map-pin" href="/location-message">
-    Share location information.
-  </Card>
-  <Card title="Location Request" icon="map" href="/location-request-message">
-    Request location information.
+    Send documents.
   </Card>
   <Card title="Sticker Message" icon="sticker" href="/sticker-message">
-    Send a sticker.
+    Send stickers.
   </Card>
-</Columns>
+  <Card title="Contact Message" icon="contact" href="/contact-message">
+    Share contact information.
+  </Card>
+  <Card title="Location Message" icon="map-pin" href="/location-message">
+    Share a location.
+  </Card>
+  <Card title="Location Request" icon="map" href="/location-request-message">
+    Request a user's location.
+  </Card>
+</CardGroup>
 
-## Interactive messages
+## Interactive Messages
 
-<Columns cols={3}>
+<CardGroup cols={2}>
+  <Card title="Reply Buttons" icon="mouse-pointer-click" href="/interactive-reply-buttons">
+    Let users respond using predefined buttons.
+  </Card>
+  <Card title="Interactive List" icon="list" href="/interactive-list">
+    Present a list of selectable options.
+  </Card>
   <Card title="CTA URL" icon="external-link" href="/interactive-cta-url">
     Send an interactive message with a URL action.
   </Card>
-  <Card title="Reply Buttons" icon="mouse-pointer-click" href="/interactive-reply-buttons">
-    Present interactive reply options.
-  </Card>
-  <Card title="List Message" icon="list" href="/interactive-list">
-    Present a selectable list of options.
-  </Card>
-</Columns>
+</CardGroup>
 
-## Message interactions
+## Message Interactions
 
-<Columns cols={2}>
-  <Card title="Reactions" icon="heart" href="/reaction-message">
-    Send a reaction to a message.
+<CardGroup cols={2}>
+  <Card title="Reaction Message" icon="heart" href="/reaction-message">
+    Handle reactions to messages.
   </Card>
-  <Card title="Contextual Replies" icon="reply" href="/contextual-reply-message">
+  <Card title="Contextual Reply" icon="reply" href="/contextual-reply-message">
     Reply in the context of an existing message.
   </Card>
-  <Card title="Typing and Read Receipts" icon="check-check" href="/typing-indicators-read-receipts">
-    Review documented typing and read-receipt interactions.
+  <Card title="Typing Indicators and Read Receipts" icon="check-check" href="/typing-indicators-read-receipts">
+    Work with typing indicators and read receipts.
   </Card>
-</Columns>
+</CardGroup>
 
-## Integration and troubleshooting
+## Integration and Troubleshooting
 
-<Columns cols={2}>
-  <Card title="Media Handling" icon="file-up" href="/media-handling">
-    Review media-related integration guidance.
+<CardGroup cols={2}>
+  <Card title="Media Handling" icon="file-image" href="/media-handling">
+    Understand media-related integration steps.
   </Card>
-  <Card title="HTTP Status Codes" icon="circle-help" href="/status-codes">
-    Understand HTTP responses and errors.
+  <Card title="Status Codes" icon="circle-help" href="/status-codes">
+    Review API status codes and troubleshooting guidance.
   </Card>
-</Columns>
+</CardGroup>
