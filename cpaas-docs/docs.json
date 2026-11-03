@@ -38,61 +38,61 @@
             "group": "Channel guides",
             "pages": [
               "guides/sms",
-              "guides/whatsapp",
-              "guides/whatsapp-user-management",
-              "guides/email",
-              "guides/rcs",
-              "guides/flow-builder"
-            ]
-          },
-          {
-            "group": "WhatsApp",
-            "pages": [
               {
-                "group": "Wrapper API",
+                "group": "WhatsApp",
                 "pages": [
-                  "whatsapp-wrapper-overview",
-                  "getting-started",
+                  "guides/whatsapp",
+                  "guides/whatsapp-user-management",
                   {
-                    "group": "Message Types",
+                    "group": "Wrapper API",
                     "pages": [
-                      "text-message",
-                      "image-message",
-                      "audio-message",
-                      "video-message",
-                      "document-message",
-                      "sticker-message",
-                      "contact-message",
-                      "location-message",
-                      "location-request-message"
-                    ]
-                  },
-                  {
-                    "group": "Interactive Messages",
-                    "pages": [
-                      "interactive-reply-buttons",
-                      "interactive-list",
-                      "interactive-cta-url"
-                    ]
-                  },
-                  {
-                    "group": "Message Interactions",
-                    "pages": [
-                      "reaction-message",
-                      "contextual-reply-message",
-                      "typing-indicators-read-receipts"
-                    ]
-                  },
-                  {
-                    "group": "Integration and Troubleshooting",
-                    "pages": [
-                      "media-handling",
-                      "integration-notes",
-                      "status-codes"
+                      "whatsapp-wrapper-overview",
+                      "getting-started",
+                      {
+                        "group": "Message Types",
+                        "pages": [
+                          "text-message",
+                          "image-message",
+                          "audio-message",
+                          "video-message",
+                          "document-message",
+                          "sticker-message",
+                          "contact-message",
+                          "location-message",
+                          "location-request-message"
+                        ]
+                      },
+                      {
+                        "group": "Interactive Messages",
+                        "pages": [
+                          "interactive-reply-buttons",
+                          "interactive-list",
+                          "interactive-cta-url"
+                        ]
+                      },
+                      {
+                        "group": "Message Interactions",
+                        "pages": [
+                          "reaction-message",
+                          "contextual-reply-message",
+                          "typing-indicators-read-receipts"
+                        ]
+                      },
+                      {
+                        "group": "Integration and Troubleshooting",
+                        "pages": [
+                          "media-handling",
+                          "integration-notes",
+                          "status-codes"
+                        ]
+                      }
                     ]
                   }
                 ]
-              }
+              },
+              "guides/email",
+              "guides/rcs",
+              "guides/flow-builder"
             ]
           }
         ]
