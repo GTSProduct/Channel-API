@@ -44,6 +44,14 @@
                   "guides/whatsapp",
                   "guides/whatsapp-user-management",
                   {
+                    "group": "Template Management",
+                    "pages": [
+                      "create-whatsapp-message-template",
+                      "fetch-whatsapp-message-templates",
+                      "delete-whatsapp-message-template"
+                    ]
+                  },
+                  {
                     "group": "Wrapper API",
                     "pages": [
                       "whatsapp-wrapper-overview",
@@ -92,7 +100,17 @@
               },
               "guides/email",
               "guides/rcs",
-              "guides/flow-builder"
+              {
+                "group": "Flow Builder",
+                "pages": [
+                  "guides/flow-builder",
+                  "create-whatsapp-flow",
+                  "assign-assets-to-whatsapp-flow",
+                  "publish-whatsapp-flow",
+                  "deprecate-whatsapp-flow",
+                  "delete-whatsapp-flow"
+                ]
+              }
             ]
           }
         ]
