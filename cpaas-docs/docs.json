@@ -99,15 +99,7 @@
       },
       {
         "tab": "API Reference",
-        "openapi": "cpaas-api-reference.yaml",
-        "groups": [
-          {
-            "group": "WhatsApp Wrapper API",
-            "pages": [
-              "api-reference/whatsapp-wrapper-api"
-            ]
-          }
-        ]
+        "openapi": "cpaas-api-reference.yaml"
       }
     ]
   }
