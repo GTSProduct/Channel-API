@@ -1,7 +1,6 @@
 ---
 title: "Delete a WhatsApp Message Template"
 description: "Delete a WhatsApp message template."
-openapi: DELETE /api/whatsapp/{meta_hash}/message_templates
 ---
 
 # Delete a WhatsApp Message Template
@@ -36,4 +35,3 @@ Deletes a WhatsApp message template using its template ID and name.
 ```bash
 curl --location --request DELETE '{{base_url}}/api/whatsapp/{{meta_hash}}/message_templates?id={{template_id}}&name={{template_name}}' \
 --header 'Authorization: Bearer {{access_token}}'
-```
