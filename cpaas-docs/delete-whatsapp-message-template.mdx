@@ -1,0 +1,39 @@
+---
+title: "Delete a WhatsApp Message Template"
+description: "Delete a WhatsApp message template."
+openapi: DELETE /api/whatsapp/{meta_hash}/message_templates
+---
+
+# Delete a WhatsApp Message Template
+
+Deletes a WhatsApp message template using its template ID and name.
+
+## Endpoint
+
+`DELETE {{base_url}}/api/whatsapp/{{meta_hash}}/message_templates?id={{template_id}}&name={{template_name}}`
+
+## Path parameters
+
+| Parameter | Description |
+|---|---|
+| `meta_hash` | Meta account identifier used in the request URL. |
+
+## Query parameters
+
+| Parameter | Description |
+|---|---|
+| `id` | ID of the template to delete. |
+| `name` | Name of the template to delete. |
+
+## Request headers
+
+| Header | Value |
+|---|---|
+| `Authorization` | `Bearer {{access_token}}` |
+
+## Example request
+
+```bash
+curl --location --request DELETE '{{base_url}}/api/whatsapp/{{meta_hash}}/message_templates?id={{template_id}}&name={{template_name}}' \
+--header 'Authorization: Bearer {{access_token}}'
+```

@@ -1,0 +1,33 @@
+---
+title: "Delete a WhatsApp Flow"
+description: "Delete a WhatsApp Flow."
+openapi: DELETE /api/whatsapp/{meta_hash}/flows/{flow_id}
+---
+
+# Delete a WhatsApp Flow
+
+Deletes the specified WhatsApp Flow.
+
+## Endpoint
+
+`DELETE {{base_url}}/api/whatsapp/{{meta_hash}}/flows/{{flow_id}}`
+
+## Path parameters
+
+| Parameter | Description |
+|---|---|
+| `meta_hash` | Meta account identifier used in the request URL. |
+| `flow_id` | ID of the Flow to delete. |
+
+## Request headers
+
+| Header | Value |
+|---|---|
+| `Authorization` | `Bearer {{access_token}}` |
+
+## Example request
+
+```bash
+curl --location --request DELETE '{{base_url}}/api/whatsapp/{{meta_hash}}/flows/{{flow_id}}' \
+--header 'Authorization: Bearer {{access_token}}'
+```

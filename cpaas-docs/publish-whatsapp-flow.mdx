@@ -1,0 +1,38 @@
+---
+title: "Publish a WhatsApp Flow"
+description: "Publish a WhatsApp Flow."
+openapi: POST /api/whatsapp/{meta_hash}/flows/{flow_id}/publish
+---
+
+# Publish a WhatsApp Flow
+
+Publishes the specified WhatsApp Flow.
+
+## Endpoint
+
+`POST {{base_url}}/api/whatsapp/{{meta_hash}}/flows/{{flow_id}}/publish`
+
+## Path parameters
+
+| Parameter | Description |
+|---|---|
+| `meta_hash` | Meta account identifier used in the request URL. |
+| `flow_id` | ID of the Flow to publish. |
+
+## Request headers
+
+| Header | Value |
+|---|---|
+| `Content-Type` | `application/json` |
+| `Authorization` | `Bearer {{access_token}}` |
+
+## Example request
+
+```bash
+curl --location '{{base_url}}/api/whatsapp/{{meta_hash}}/flows/{{flow_id}}/publish' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer {{access_token}}' \
+--data '{}'
+```
+
+The supplied example sends an empty JSON object as the request body.

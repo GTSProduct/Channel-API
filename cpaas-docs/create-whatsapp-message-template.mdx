@@ -1,0 +1,91 @@
+---
+title: "Create a WhatsApp Message Template"
+description: "Create a WhatsApp message template."
+openapi: POST /api/whatsapp/{sender_hash}/message_templates
+---
+
+# Create a WhatsApp Message Template
+
+Creates a WhatsApp message template for the specified sender.
+
+## Endpoint
+
+`POST {{base_url}}/api/whatsapp/{{sender_hash}}/message_templates`
+
+## Path parameters
+
+| Parameter | Description |
+|---|---|
+| `sender_hash` | Sender identifier used in the request URL. |
+
+## Request headers
+
+| Header | Value |
+|---|---|
+| `Content-Type` | `application/json` |
+| `Authorization` | `Bearer {{access_token}}` |
+
+## Example request
+
+```bash
+curl --location '{{base_url}}/api/whatsapp/{{sender_hash}}/message_templates' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer {{access_token}}' \
+--data '{
+  "name": "api_custom_message121",
+  "language": "en",
+  "category": "MARKETING",
+  "components": [
+    {
+      "type": "HEADER",
+      "format": "TEXT",
+      "text": "Our {{1}} is on!",
+      "example": {
+        "header_text": [
+          "Summer Sale"
+        ]
+      }
+    },
+    {
+      "type": "BODY",
+      "text": "Shop now through {{1}} and use code {{2}} to get {{3}} off of all merchandise.",
+      "example": {
+        "body_text": [
+          [
+            "the end of August",
+            "25OFF",
+            "25%"
+          ]
+        ]
+      }
+    },
+    {
+      "type": "FOOTER",
+      "text": "Use the buttons below to manage your marketing subscriptions"
+    },
+    {
+      "type": "BUTTONS",
+      "buttons": [
+        {
+          "type": "QUICK_REPLY",
+          "text": "Unsubcribe from Promos"
+        },
+        {
+          "type": "QUICK_REPLY",
+          "text": "Unsubscribe from All"
+        },
+        {
+          "type": "QUICK_REPLY",
+          "text": "Reply button 3"
+        },
+        {
+          "type": "QUICK_REPLY",
+          "text": "Reply button 4"
+        }
+      ]
+    }
+  ]
+}'
+```
+
+The request body contains the template name, language, category and components. The example includes HEADER, BODY, FOOTER and BUTTONS components.
