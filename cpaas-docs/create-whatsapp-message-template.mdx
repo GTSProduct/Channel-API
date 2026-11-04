@@ -1,91 +1,124 @@
----
-title: "Create a WhatsApp Message Template"
-description: "Create a WhatsApp message template."
-openapi: POST /api/whatsapp/{sender_hash}/message_templates
----
 
-# Create a WhatsApp Message Template
-
-Creates a WhatsApp message template for the specified sender.
-
-## Endpoint
-
-`POST {{base_url}}/api/whatsapp/{{sender_hash}}/message_templates`
-
-## Path parameters
-
-| Parameter | Description |
-|---|---|
-| `sender_hash` | Sender identifier used in the request URL. |
-
-## Request headers
-
-| Header | Value |
-|---|---|
-| `Content-Type` | `application/json` |
-| `Authorization` | `Bearer {{access_token}}` |
-
-## Example request
-
-```bash
-curl --location '{{base_url}}/api/whatsapp/{{sender_hash}}/message_templates' \
---header 'Content-Type: application/json' \
---header 'Authorization: Bearer {{access_token}}' \
---data '{
-  "name": "api_custom_message121",
-  "language": "en",
-  "category": "MARKETING",
-  "components": [
-    {
-      "type": "HEADER",
-      "format": "TEXT",
-      "text": "Our {{1}} is on!",
-      "example": {
-        "header_text": [
-          "Summer Sale"
-        ]
-      }
+{
+  "theme": "mint",
+  "name": "CPaaS+ API Documentation",
+  "colors": {
+    "primary": "#0E7C66",
+    "light": "#2FBF9F",
+    "dark": "#0B5F4E"
+  },
+  "api": {
+    "playground": {
+      "display": "interactive"
     },
-    {
-      "type": "BODY",
-      "text": "Shop now through {{1}} and use code {{2}} to get {{3}} off of all merchandise.",
-      "example": {
-        "body_text": [
-          [
-            "the end of August",
-            "25OFF",
-            "25%"
-          ]
-        ]
-      }
-    },
-    {
-      "type": "FOOTER",
-      "text": "Use the buttons below to manage your marketing subscriptions"
-    },
-    {
-      "type": "BUTTONS",
-      "buttons": [
-        {
-          "type": "QUICK_REPLY",
-          "text": "Unsubcribe from Promos"
-        },
-        {
-          "type": "QUICK_REPLY",
-          "text": "Unsubscribe from All"
-        },
-        {
-          "type": "QUICK_REPLY",
-          "text": "Reply button 3"
-        },
-        {
-          "type": "QUICK_REPLY",
-          "text": "Reply button 4"
-        }
+    "examples": {
+      "languages": [
+        "curl",
+        "python",
+        "javascript"
       ]
     }
-  ]
-}'
-```
-
-The request body contains the template name, language, category and components. The example includes HEADER, BODY, FOOTER and BUTTONS components.
+  },
+  "$schema": "https://mintlify.com/docs.json",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "User Guide",
+        "groups": [
+          {
+            "group": "Get started",
+            "pages": [
+              "index",
+              "quickstart",
+              "authentication",
+              "errors"
+            ]
+          },
+          {
+            "group": "Channel guides",
+            "pages": [
+              "guides/sms",
+              {
+                "group": "WhatsApp",
+                "pages": [
+                  "guides/whatsapp",
+                  "guides/whatsapp-user-management",
+                  {
+                    "group": "Template Management",
+                    "pages": [
+                      "create-whatsapp-message-template",
+                      "fetch-whatsapp-message-templates",
+                      "delete-whatsapp-message-template"
+                    ]
+                  },
+                  {
+                    "group": "Wrapper API",
+                    "pages": [
+                      "whatsapp-wrapper-overview",
+                      "getting-started",
+                      {
+                        "group": "Message Types",
+                        "pages": [
+                          "text-message",
+                          "image-message",
+                          "audio-message",
+                          "video-message",
+                          "document-message",
+                          "sticker-message",
+                          "contact-message",
+                          "location-message",
+                          "location-request-message"
+                        ]
+                      },
+                      {
+                        "group": "Interactive Messages",
+                        "pages": [
+                          "interactive-reply-buttons",
+                          "interactive-list",
+                          "interactive-cta-url"
+                        ]
+                      },
+                      {
+                        "group": "Message Interactions",
+                        "pages": [
+                          "reaction-message",
+                          "contextual-reply-message",
+                          "typing-indicators-read-receipts"
+                        ]
+                      },
+                      {
+                        "group": "Integration and Troubleshooting",
+                        "pages": [
+                          "media-handling",
+                          "integration-notes",
+                          "status-codes"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              "guides/email",
+              "guides/rcs",
+              {
+                "group": "Flow Builder",
+                "pages": [
+                  "guides/flow-builder",
+                  "create-whatsapp-flow",
+                  "assign-assets-to-whatsapp-flow",
+                  "publish-whatsapp-flow",
+                  "deprecate-whatsapp-flow",
+                  "delete-whatsapp-flow"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "openapi": "cpaas-api-reference.yaml"
+      }
+    ]
+  }
+}
