@@ -99,7 +99,7 @@
       },
       {
         "tab": "API Reference",
-        "openapi": "openapi.yaml"
+        "openapi": "cpaas-api-reference.yaml"
       }
     ]
   }
