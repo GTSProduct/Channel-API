@@ -2,12 +2,17 @@ openapi: 3.1.0
 info:
   title: CPaaS+ Messaging API
   version: 1.0.0
-  description: |-
-    Unified REST API for sending and managing customer communications across **SMS**, **WhatsApp**, **Email (including OTP verification)**, **RCS** and **Flow Builder**. It also includes the **WhatsApp Wrapper API**, a simplified layer over Meta's WhatsApp Cloud API for sending free-form message types (text, media, interactive and more).
+  description: 'Unified REST API for sending and managing customer communications across **SMS**, **WhatsApp**, **Email (including
+    OTP verification)**, **RCS** and **Flow Builder**. It also includes the **WhatsApp Wrapper API**, a simplified layer over
+    Meta''s WhatsApp Cloud API for sending free-form message types (text, media, interactive and more).
 
-    All APIs are HTTP-based, use JSON and are secured with bearer-token authentication. Generate a token in the CPaaS+ portal (API tab, then **Add new Token**) and send it as `Authorization: Bearer <token>` on every request.
 
-    A `200` response means the request was **accepted**, not that the message was delivered. Use the status endpoints for delivery results.
+    All APIs are HTTP-based, use JSON and are secured with bearer-token authentication. Generate a token in the CPaaS+ portal
+    (API tab, then **Add new Token**) and send it as `Authorization: Bearer <token>` on every request.
+
+
+    A `200` response means the request was **accepted**, not that the message was delivered. Use the status endpoints for
+    delivery results.'
 servers:
 - url: '{baseUrl}'
   description: Your CPaaS+ API host (provided at onboarding)
@@ -23,7 +28,8 @@ tags:
 - name: WhatsApp Messaging
   description: Send WhatsApp template messages and manage order status and refunds.
 - name: WhatsApp Wrapper API
-  description: Send text, media, contact, location, interactive and other WhatsApp message types through the single Wrapper endpoint.
+  description: Send text, media, contact, location, interactive and other WhatsApp message types through the single Wrapper
+    endpoint.
 - name: WhatsApp User Management
   description: Block, unblock, bulk-import and sync blocked WhatsApp users for a WABA number.
 - name: Email
@@ -43,10 +49,11 @@ paths:
       - SMS
       operationId: sendSmsCampaign
       summary: Send SMS using a campaign
-      description: |-
-        Sends a single SMS using a campaign created in the web portal. Provide the destination number and the dynamic values. No request body is needed. Send `Content-Type: text/plain`.
+      description: 'Sends a single SMS using a campaign created in the web portal. Provide the destination number and the
+        dynamic values. No request body is needed. Send `Content-Type: text/plain`.
 
-        A `success` status means the message was submitted, not delivered.
+
+        A `success` status means the message was submitted, not delivered.'
       parameters:
       - name: campaign_id
         in: query
@@ -190,10 +197,12 @@ paths:
       - SMS
       operationId: sendSmsBulk
       summary: Send bulk SMS
-      description: |-
-        Sends the same message to many numbers, or personalised messages to different numbers, in one call using the `data` array (maximum 500 entries). Entries that omit `from`, `text` or `to` use the `root` values.
+      description: 'Sends the same message to many numbers, or personalised messages to different numbers, in one call using
+        the `data` array (maximum 500 entries). Entries that omit `from`, `text` or `to` use the `root` values.
 
-        The API supports **partial success**: some entries may succeed while others fail in the same call. Check each entry in `data`.
+
+        The API supports **partial success**: some entries may succeed while others fail in the same call. Check each entry
+        in `data`.'
       requestBody:
         required: true
         content:
@@ -344,10 +353,11 @@ paths:
       - WhatsApp Messaging
       operationId: sendWhatsAppMessage
       summary: Send a WhatsApp template message
-      description: |-
-        Sends an approved WhatsApp template message. Templates must be approved in Meta Business Manager before sending. Include `media_url` for templates with an image, video or document header.
+      description: 'Sends an approved WhatsApp template message. Templates must be approved in Meta Business Manager before
+        sending. Include `media_url` for templates with an image, video or document header.
 
-        If the template has dynamic variables, pass the required `template.params` even when sending with media.
+
+        If the template has dynamic variables, pass the required `template.params` even when sending with media.'
       requestBody:
         required: true
         content:
@@ -406,30 +416,44 @@ paths:
       servers:
       - url: https://testqa.cpaas.globeteleservices.com
         description: Sandbox environment
-      description: |
-        Sends a supported WhatsApp message using the specified Sender Hash.
+      description: 'Sends a supported WhatsApp message using the specified Sender Hash.
 
-        This single endpoint supports 15 request formats. Select the relevant named request example in the API playground to load a sample payload, then replace the sample recipient, media IDs and message details with your own values.
+
+        This single endpoint supports 15 request formats. Select the relevant named request example in the API playground
+        to load a sample payload, then replace the sample recipient, media IDs and message details with your own values.
+
 
         The recipient number must be in international format without
+
         the leading plus sign.
 
-        Free-form messages are subject to Meta's 24-hour customer-service
+
+        Free-form messages are subject to Meta''s 24-hour customer-service
+
         window. Outside this window, an approved template message is
+
         required to reopen the conversation.
 
+
         A successful response means the request was accepted for delivery.
+
         It does not guarantee that the recipient received the message.
 
+
         Media messages require a media ID obtained through the Media
+
         Upload API before the message is sent.
+
+        '
       parameters:
       - name: senderHash
         in: path
         required: true
-        description: |
-          Sender Hash from CPaaS+ Portal > Account > Numbers >
+        description: 'Sender Hash from CPaaS+ Portal > Account > Numbers >
+
           WhatsApp channel.
+
+          '
         schema:
           type: string
       requestBody:
@@ -438,21 +462,51 @@ paths:
           application/json:
             schema:
               anyOf:
-              - $ref: '#/components/schemas/TextMessage'
-              - $ref: '#/components/schemas/AudioMessage'
-              - $ref: '#/components/schemas/ImageMessage'
-              - $ref: '#/components/schemas/VideoMessage'
-              - $ref: '#/components/schemas/DocumentMessage'
-              - $ref: '#/components/schemas/StickerMessage'
-              - $ref: '#/components/schemas/ContactsMessage'
-              - $ref: '#/components/schemas/LocationMessage'
-              - $ref: '#/components/schemas/LocationRequestMessage'
-              - $ref: '#/components/schemas/InteractiveCTAURLMessage'
-              - $ref: '#/components/schemas/InteractiveListMessage'
-              - $ref: '#/components/schemas/InteractiveButtonsMessage'
-              - $ref: '#/components/schemas/ReactionMessage'
-              - $ref: '#/components/schemas/ContextualReplyMessage'
-              - $ref: '#/components/schemas/ReadReceiptMessage'
+              - title: Text Message
+                allOf:
+                - $ref: '#/components/schemas/TextMessage'
+              - title: Audio Message
+                allOf:
+                - $ref: '#/components/schemas/AudioMessage'
+              - title: Image Message
+                allOf:
+                - $ref: '#/components/schemas/ImageMessage'
+              - title: Video Message
+                allOf:
+                - $ref: '#/components/schemas/VideoMessage'
+              - title: Document Message
+                allOf:
+                - $ref: '#/components/schemas/DocumentMessage'
+              - title: Sticker Message
+                allOf:
+                - $ref: '#/components/schemas/StickerMessage'
+              - title: Contacts Message
+                allOf:
+                - $ref: '#/components/schemas/ContactsMessage'
+              - title: Location Message
+                allOf:
+                - $ref: '#/components/schemas/LocationMessage'
+              - title: Location Request
+                allOf:
+                - $ref: '#/components/schemas/LocationRequestMessage'
+              - title: Interactive CTA URL
+                allOf:
+                - $ref: '#/components/schemas/InteractiveCTAURLMessage'
+              - title: Interactive List
+                allOf:
+                - $ref: '#/components/schemas/InteractiveListMessage'
+              - title: Interactive Buttons
+                allOf:
+                - $ref: '#/components/schemas/InteractiveButtonsMessage'
+              - title: Reaction
+                allOf:
+                - $ref: '#/components/schemas/ReactionMessage'
+              - title: Contextual Reply
+                allOf:
+                - $ref: '#/components/schemas/ContextualReplyMessage'
+              - title: Typing Indicators & Read Receipts
+                allOf:
+                - $ref: '#/components/schemas/ReadReceiptMessage'
             examples:
               textMessage:
                 summary: Text message
@@ -503,7 +557,7 @@ paths:
                   document:
                     id: '1452039652685523'
                     filename: invoice.pdf
-                    caption: 'Your order confirmation (PDF)'
+                    caption: Your order confirmation (PDF)
               stickerMessage:
                 summary: Sticker message
                 value:
@@ -561,7 +615,7 @@ paths:
                     latitude: 19.07609
                     longitude: 72.877426
                     name: Mumbai
-                    address: 'Maharashtra, Mumbai'
+                    address: Maharashtra, Mumbai
               locationRequestMessage:
                 summary: Location request message
                 value:
@@ -593,7 +647,7 @@ paths:
                       name: cta_url
                       parameters:
                         display_text: See Dates
-                        url: 'https://www.example.com?clickID=kqDGWd24Q5TRwoEQTICY7W1J'
+                        url: https://www.example.com?clickID=kqDGWd24Q5TRwoEQTICY7W1J
                     footer:
                       text: Dates subject to change.
               interactiveListMessage:
@@ -666,7 +720,7 @@ paths:
                   to: '919373084880'
                   type: reaction
                   reaction:
-                    message_id: 'wamid.HBgMOTE5MzczMDg0ODgwFQIAERgSNThGNjk3RjVFOUQ2QzNCNDFGAA=='
+                    message_id: wamid.HBgMOTE5MzczMDg0ODgwFQIAERgSNThGNjk3RjVFOUQ2QzNCNDFGAA==
                     emoji: 😀
               contextualReplyMessage:
                 summary: Contextual reply message
@@ -675,31 +729,35 @@ paths:
                   recipient_type: individual
                   to: '919373084880'
                   context:
-                    message_id: 'wamid.HBgMOTE5MzczMDg0ODgwFQIAERgSN0RDMUZCMEVGRjQ3MDA2ODNDAA=='
+                    message_id: wamid.HBgMOTE5MzczMDg0ODgwFQIAERgSN0RDMUZCMEVGRjQ3MDA2ODNDAA==
                   type: text
                   text:
-                    body: "You're welcome!"
+                    body: You're welcome!
               readReceiptMessage:
                 summary: Mark an incoming message as read (optional typing indicator)
                 value:
                   messaging_product: whatsapp
                   status: read
-                  message_id: 'wamid.HBgMOTE5MzczMDg0ODgwFQIAERgSNzJFNDJBOUFFNjA4MUZGNUEyAA=='
+                  message_id: wamid.HBgMOTE5MzczMDg0ODgwFQIAERgSNzJFNDJBOUFFNjA4MUZGNUEyAA==
                   typing_indicator:
                     type: text
       responses:
         '200':
-          description: |
-            Request accepted for delivery. This does not guarantee
+          description: 'Request accepted for delivery. This does not guarantee
+
             receipt by the recipient.
+
+            '
         '400':
           description: Invalid JSON, missing fields, or malformed recipient.
         '401':
           description: Bearer token is missing, invalid, or expired.
         '403':
-          description: |
-            Sender account is not permitted to message the recipient.
+          description: 'Sender account is not permitted to message the recipient.
+
             This can include a re-engagement-window restriction.
+
+            '
         '404':
           description: Sender account ID in the URL was not found.
         '413':
@@ -1144,10 +1202,11 @@ paths:
       - Email
       operationId: getEmailStatus
       summary: Get email status
-      description: |-
-        Retrieves the delivery status and event timeline of an email using the message ID returned by the send API.
+      description: 'Retrieves the delivery status and event timeline of an email using the message ID returned by the send
+        API.
 
-        This endpoint is a `GET` that takes its `id` in a JSON request body.
+
+        This endpoint is a `GET` that takes its `id` in a JSON request body.'
       responses:
         '200':
           description: Request accepted.
@@ -1318,15 +1377,19 @@ paths:
       - RCS Templates
       operationId: createRcsTemplate
       summary: Create an RCS template
-      description: |-
-        Creates an RCS template. Set `type` to choose the format:
+      description: 'Creates an RCS template. Set `type` to choose the format:
+
 
         - `text_message`: text with up to 11 suggestion buttons
+
         - `rich_card`: a single card with media, title, description and up to 4 buttons
+
         - `carousel`: 2 to 10 cards, each with up to 4 buttons
 
 
-        Templates are reviewed before use. The response returns `approval_status` (`pending`, `approved` or `rejected`); send only after approval.
+
+        Templates are reviewed before use. The response returns `approval_status` (`pending`, `approved` or `rejected`); send
+        only after approval.'
       requestBody:
         required: true
         content:
@@ -1434,10 +1497,13 @@ paths:
       - RCS Messaging
       operationId: sendRcsMessage
       summary: Send an RCS message
-      description: |-
-        Sends an approved RCS message over the **Vi** (Vodafone Idea) or **Jio** network in India. Choose the format with `message_type` (`text_message`, `rich_card` or `carousel`); the `content` structure must match.
+      description: 'Sends an approved RCS message over the **Vi** (Vodafone Idea) or **Jio** network in India. Choose the
+        format with `message_type` (`text_message`, `rich_card` or `carousel`); the `content` structure must match.
 
-        Jio supports extra button types (`calendar_event`, `share_location`, `view_location_query`, `view_location_latlong`). Jio-only button types cannot be used on Vi. Templates must be approved, and media URLs must be direct, publicly accessible HTTPS links.
+
+        Jio supports extra button types (`calendar_event`, `share_location`, `view_location_query`, `view_location_latlong`).
+        Jio-only button types cannot be used on Vi. Templates must be approved, and media URLs must be direct, publicly accessible
+        HTTPS links.'
       requestBody:
         required: true
         content:
@@ -1612,10 +1678,13 @@ paths:
       - Flow Builder
       operationId: triggerFlow
       summary: Trigger a Flow Builder journey
-      description: |-
-        Triggers a published and active Flow Builder journey for a recipient. The flow then runs all configured steps (messages, conditions, delays).
+      description: 'Triggers a published and active Flow Builder journey for a recipient. The flow then runs all configured
+        steps (messages, conditions, delays).
 
-        The endpoint is the flow's webhook URL, shown in the portal under Flow Builder, then your flow, then Webhook URL. Send `phone` if the flow uses SMS or WhatsApp, `email` if it uses Email, plus the variables (`var1`, `var2`, ...) your flow expects.
+
+        The endpoint is the flow''s webhook URL, shown in the portal under Flow Builder, then your flow, then Webhook URL.
+        Send `phone` if the flow uses SMS or WhatsApp, `email` if it uses Email, plus the variables (`var1`, `var2`, ...)
+        your flow expects.'
       requestBody:
         required: true
         content:
@@ -2113,12 +2182,17 @@ components:
       required:
       - suggestionType
       - displayText
-      description: |
-        A button attached to a message. Which extra fields apply depends on `suggestionType`:
+      description: 'A button attached to a message. Which extra fields apply depends on `suggestionType`:
+
         `url_action` (url, application), `dialer_action` (phoneNumber), `calendar_event`
+
         (title, startTime, endTime, timeZone, description), `view_location_query` (query),
+
         `view_location_latlong` (label, latitude, longitude). `reply` and `share_location` need only
+
         `displayText` and `postback`.
+
+        '
       properties:
         suggestionType:
           type: string
@@ -2762,6 +2836,7 @@ components:
       - root
       - data
     TextMessage:
+      title: "Text message"
       type: object
       required:
       - messaging_product
@@ -2798,6 +2873,7 @@ components:
               type: boolean
               description: Controls URL preview in the text message.
     AudioMessage:
+      title: "Audio message"
       type: object
       required:
       - messaging_product
@@ -2828,6 +2904,7 @@ components:
               type: string
               description: Media ID obtained through media upload.
     ImageMessage:
+      title: "Image message"
       type: object
       required:
       - messaging_product
@@ -2861,6 +2938,7 @@ components:
               type: string
               description: Optional image caption.
     VideoMessage:
+      title: "Video message"
       type: object
       required:
       - messaging_product
@@ -2894,6 +2972,7 @@ components:
               type: string
               description: Optional video caption.
     DocumentMessage:
+      title: "Document message"
       type: object
       required:
       - messaging_product
@@ -2930,6 +3009,7 @@ components:
               type: string
               description: Optional document filename.
     StickerMessage:
+      title: "Sticker message"
       type: object
       required:
       - messaging_product
@@ -2960,6 +3040,7 @@ components:
               type: string
               description: Media ID for a WebP sticker.
     ContactsMessage:
+      title: "Contacts message"
       type: object
       required:
       - messaging_product
@@ -3063,6 +3144,7 @@ components:
                     type:
                       type: string
     LocationMessage:
+      title: "Location message"
       type: object
       required:
       - messaging_product
@@ -3099,6 +3181,7 @@ components:
             address:
               type: string
     LocationRequestMessage:
+      title: "Location request"
       type: object
       required:
       - messaging_product
@@ -3148,6 +3231,7 @@ components:
                   enum:
                   - send_location
     InteractiveCTAURLMessage:
+      title: "Interactive CTA URL"
       type: object
       required:
       - messaging_product
@@ -3216,6 +3300,7 @@ components:
                     url:
                       type: string
     InteractiveListMessage:
+      title: "Interactive list"
       type: object
       required:
       - messaging_product
@@ -3297,6 +3382,7 @@ components:
                             description:
                               type: string
     InteractiveButtonsMessage:
+      title: "Interactive buttons"
       type: object
       required:
       - messaging_product
@@ -3374,6 +3460,7 @@ components:
                           title:
                             type: string
     ReactionMessage:
+      title: "Reaction message"
       type: object
       required:
       - messaging_product
@@ -3408,6 +3495,7 @@ components:
               type: string
               description: A single emoji, or an empty string to remove a reaction.
     ContextualReplyMessage:
+      title: "Contextual reply"
       type: object
       required:
       - messaging_product
@@ -3447,6 +3535,7 @@ components:
               type: string
               maxLength: 4096
     ReadReceiptMessage:
+      title: "Typing indicators and read receipts"
       type: object
       required:
       - status
