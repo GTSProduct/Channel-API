@@ -1,7 +1,6 @@
 ---
 title: "Fetch WhatsApp Message Templates"
 description: "Fetch WhatsApp message templates, optionally filtered by template name."
-openapi: GET /api/whatsapp/{sender_hash}/message_templates
 ---
 
 # Fetch WhatsApp Message Templates
@@ -37,4 +36,3 @@ Retrieves WhatsApp message templates. The `name` query parameter is used to requ
 curl --location '{{base_url}}/api/whatsapp/{{sender_hash}}/message_templates?name={{template_name}}' \
 --header 'Accept: application/json' \
 --header 'Authorization: Bearer {{access_token}}'
-```
