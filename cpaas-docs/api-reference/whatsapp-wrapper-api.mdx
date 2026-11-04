@@ -1,0 +1,93 @@
+
+---
+title: "WhatsApp Wrapper API"
+description: "Explore WhatsApp message formats and test requests using the CPaaS+ API."
+openapi: "/cpaas-api-reference.yaml POST /api/whatsapp/{senderHash}/messages"
+---
+
+# WhatsApp Wrapper API
+
+Send WhatsApp messages through one endpoint using the message format that matches your use case.
+
+The API supports 15 request formats, including standard messages, interactive messages and message interactions. Select a format below to understand its purpose, then use the corresponding named example in the API playground.
+
+## Getting started
+
+Before sending a request, make sure you have:
+
+- A valid CPaaS+ Bearer token.
+- Your WhatsApp Sender Hash from **CPaaS+ Portal → Account → Numbers → WhatsApp channel**.
+- The recipient's mobile number in international format, without the leading `+`.
+- A media ID from the Media Upload API if you are sending an image, audio, video, document or sticker.
+
+## Explore message formats
+
+<Tabs>
+  <Tab title="Message Types">
+    Use these formats to send standard content to a WhatsApp recipient.
+
+    | Format | When to use it |
+    |---|---|
+    | Text Message | Send a text-based message, with optional URL preview. |
+    | Image Message | Send an image with an optional caption. |
+    | Audio Message | Send an audio file. |
+    | Video Message | Send a video with an optional caption. |
+    | Document Message | Send a document, such as a PDF, with an optional filename and caption. |
+    | Sticker Message | Send a WhatsApp sticker. |
+    | Contacts Message | Share contact information, including phone numbers and other contact details. |
+    | Location Message | Share a geographical location using latitude and longitude. |
+    | Location Request | Ask the recipient to share their current location. |
+  </Tab>
+
+  <Tab title="Interactive Messages">
+    Use these formats to let recipients interact with your message.
+
+    | Format | When to use it |
+    |---|---|
+    | Interactive CTA URL | Display a call-to-action button that opens a URL. |
+    | Interactive List | Present a list of selectable options grouped into sections. |
+    | Interactive Reply Buttons | Present reply buttons that recipients can select to respond. |
+  </Tab>
+
+  <Tab title="Message Interactions">
+    Use these formats to interact with an existing WhatsApp conversation or message.
+
+    | Format | When to use it |
+    |---|---|
+    | Reaction | React to an existing message using an emoji. |
+    | Contextual Reply | Reply to a specific message by referencing its message ID. |
+    | Typing Indicators & Read Receipts | Mark an incoming message as read, with an optional typing indicator. |
+  </Tab>
+
+  <Tab title="Integration and Troubleshooting">
+    Keep the following requirements in mind when integrating the API.
+
+    **Recipient number**
+
+    Provide the recipient number in international format without the leading `+`.
+
+    **Messaging window**
+
+    Free-form messages are subject to Meta's 24-hour customer-service window. Outside this window, an approved template message is required to reopen the conversation.
+
+    **Media messages**
+
+    Upload media first and use the resulting media ID in the message request.
+
+    **Request acceptance**
+
+    A successful response means the request was accepted for delivery. It does not guarantee that the recipient received the message.
+  </Tab>
+</Tabs>
+
+## Test a message
+
+Use the interactive API playground below to try the endpoint.
+
+1. Enter your Sender Hash.
+2. Select the relevant named request example from the request body example selector.
+3. Review and edit the sample JSON with your own recipient and message details.
+4. Add your Bearer token.
+5. Submit the request and inspect the response.
+
+**Important:** All 15 message formats use the same `POST` endpoint. The selected request example determines the message payload structure.
