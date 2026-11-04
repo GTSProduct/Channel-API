@@ -22,6 +22,8 @@ tags:
   description: Send SMS using portal campaigns, approved templates, or open text, and check delivery status.
 - name: WhatsApp Messaging
   description: Send WhatsApp template messages and manage order status and refunds.
+- name: WhatsApp Wrapper API
+  description: Send text, media, contact, location, interactive and other WhatsApp message types through the single Wrapper endpoint.
 - name: WhatsApp User Management
   description: Block, unblock, bulk-import and sync blocked WhatsApp users for a WABA number.
 - name: Email
@@ -398,7 +400,7 @@ paths:
   /api/whatsapp/{senderHash}/messages:
     post:
       tags:
-      - WhatsApp Messaging
+      - WhatsApp Wrapper API
       summary: Send a WhatsApp message
       operationId: sendWhatsAppCloudMessage
       servers:
@@ -406,6 +408,8 @@ paths:
         description: Sandbox environment
       description: |
         Sends a supported WhatsApp message using the specified Sender Hash.
+
+        This single endpoint supports 15 request formats. Select the relevant named request example in the API playground to load a sample payload, then replace the sample recipient, media IDs and message details with your own values.
 
         The recipient number must be in international format without
         the leading plus sign.
@@ -433,7 +437,7 @@ paths:
         content:
           application/json:
             schema:
-              oneOf:
+              anyOf:
               - $ref: '#/components/schemas/TextMessage'
               - $ref: '#/components/schemas/AudioMessage'
               - $ref: '#/components/schemas/ImageMessage'
@@ -455,40 +459,234 @@ paths:
                 value:
                   messaging_product: whatsapp
                   recipient_type: individual
-                  to: '919876543210'
+                  to: '919373084880'
                   type: text
                   text:
-                    body: Hello! How can we help you?
-                    preview_url: false
+                    preview_url: true
+                    body: 'As requested, here is the link to our latest product:'
+              audioMessage:
+                summary: Audio message
+                value:
+                  messaging_product: whatsapp
+                  recipient_type: individual
+                  to: '919373084880'
+                  type: audio
+                  audio:
+                    id: '766235952871902'
               imageMessage:
                 summary: Image message
                 value:
                   messaging_product: whatsapp
-                  to: '919876543210'
+                  recipient_type: individual
+                  to: '919373084880'
                   type: image
                   image:
-                    id: MEDIA_ID
-                    caption: Please see the attached image.
+                    id: '762449710003335'
+                    caption: Here's a look at our latest arrival
+              videoMessage:
+                summary: Video message
+                value:
+                  messaging_product: whatsapp
+                  recipient_type: individual
+                  to: '919373084880'
+                  type: video
+                  video:
+                    id: '1487009022497978'
+                    caption: A quick look at the product in action
+              documentMessage:
+                summary: Document message
+                value:
+                  messaging_product: whatsapp
+                  recipient_type: individual
+                  to: '919373084880'
+                  type: document
+                  document:
+                    id: '1452039652685523'
+                    filename: invoice.pdf
+                    caption: 'Your order confirmation (PDF)'
+              stickerMessage:
+                summary: Sticker message
+                value:
+                  messaging_product: whatsapp
+                  recipient_type: individual
+                  to: '919373084880'
+                  type: sticker
+                  sticker:
+                    id: '762449710003335'
+              contactsMessage:
+                summary: Contact message
+                value:
+                  messaging_product: whatsapp
+                  to: '919373084880'
+                  type: contacts
+                  contacts:
+                  - name:
+                      formatted_name: Barbara Johnson
+                      first_name: Barbara
+                      last_name: Johnson
+                      middle_name: Joana
+                      prefix: Dr.
+                      suffix: Esq.
+                    phones:
+                    - phone: '+16505559999'
+                      type: Landline
+                    - phone: '+19175559999'
+                      type: Mobile
+                      wa_id: '19175559999'
+                    emails:
+                    - email: bjohnson@luckyshrub.com
+                      type: Work
+                    addresses:
+                    - street: 1 Lucky Shrub Way
+                      city: Menlo Park
+                      state: CA
+                      zip: '94025'
+                      country: United States
+                      country_code: US
+                      type: Office
+                    org:
+                      company: Lucky Shrub
+                      department: Legal
+                      title: Lead Counsel
+                    urls:
+                    - url: https://www.luckyshrub.com
+                      type: Company
               locationMessage:
                 summary: Location message
                 value:
                   messaging_product: whatsapp
-                  to: '919876543210'
+                  to: '919373084880'
                   type: location
                   location:
-                    latitude: 19.076
-                    longitude: 72.8777
-                    name: Example location
-                    address: Mumbai, India
-              reactionMessage:
-                summary: React to a message
+                    latitude: 19.07609
+                    longitude: 72.877426
+                    name: Mumbai
+                    address: 'Maharashtra, Mumbai'
+              locationRequestMessage:
+                summary: Location request message
                 value:
                   messaging_product: whatsapp
-                  to: '919876543210'
+                  recipient_type: individual
+                  to: '919373084880'
+                  type: interactive
+                  interactive:
+                    type: location_request_message
+                    body:
+                      text: Let's start with your pickup point — please share your current location.
+                    action:
+                      name: send_location
+              interactiveCTAURLMessage:
+                summary: Interactive CTA URL message
+                value:
+                  messaging_product: whatsapp
+                  recipient_type: individual
+                  to: '919373084880'
+                  type: interactive
+                  interactive:
+                    type: cta_url
+                    header:
+                      type: text
+                      text: Available dates
+                    body:
+                      text: Tap the button below to see available dates.
+                    action:
+                      name: cta_url
+                      parameters:
+                        display_text: See Dates
+                        url: 'https://www.example.com?clickID=kqDGWd24Q5TRwoEQTICY7W1J'
+                    footer:
+                      text: Dates subject to change.
+              interactiveListMessage:
+                summary: Interactive list message
+                value:
+                  messaging_product: whatsapp
+                  recipient_type: individual
+                  to: '919373084880'
+                  type: interactive
+                  interactive:
+                    type: list
+                    header:
+                      type: text
+                      text: Choose Shipping Option
+                    body:
+                      text: Which shipping option do you prefer?
+                    footer:
+                      text: 'CPaaS+: reliable delivery, every time'
+                    action:
+                      button: Shipping Options
+                      sections:
+                      - title: I want it ASAP!
+                        rows:
+                        - id: priority_express
+                          title: Priority Mail Express
+                          description: Next Day to 2 Days
+                        - id: priority_mail
+                          title: Priority Mail
+                          description: 1-3 Days
+                      - title: I can wait a bit
+                        rows:
+                        - id: ground_advantage
+                          title: Ground Advantage
+                          description: 2-5 Days
+                        - id: media_mail
+                          title: Media Mail
+                          description: 2-8 Days
+              interactiveButtonsMessage:
+                summary: Interactive reply buttons message
+                value:
+                  messaging_product: whatsapp
+                  recipient_type: individual
+                  to: '919373084880'
+                  type: interactive
+                  interactive:
+                    type: button
+                    header:
+                      type: image
+                      image:
+                        id: '762449710003335'
+                    body:
+                      text: Your appointment is scheduled for 9am tomorrow. Use the buttons if you need to reschedule.
+                    footer:
+                      text: CPaaS+ Appointments
+                    action:
+                      buttons:
+                      - type: reply
+                        reply:
+                          id: change-button
+                          title: Change
+                      - type: reply
+                        reply:
+                          id: cancel-button
+                          title: Cancel
+              reactionMessage:
+                summary: Reaction message
+                value:
+                  messaging_product: whatsapp
+                  recipient_type: individual
+                  to: '919373084880'
                   type: reaction
                   reaction:
-                    message_id: wamid.example
-                    emoji: 👍
+                    message_id: 'wamid.HBgMOTE5MzczMDg0ODgwFQIAERgSNThGNjk3RjVFOUQ2QzNCNDFGAA=='
+                    emoji: 😀
+              contextualReplyMessage:
+                summary: Contextual reply message
+                value:
+                  messaging_product: whatsapp
+                  recipient_type: individual
+                  to: '919373084880'
+                  context:
+                    message_id: 'wamid.HBgMOTE5MzczMDg0ODgwFQIAERgSN0RDMUZCMEVGRjQ3MDA2ODNDAA=='
+                  type: text
+                  text:
+                    body: "You're welcome!"
+              readReceiptMessage:
+                summary: Mark an incoming message as read (optional typing indicator)
+                value:
+                  messaging_product: whatsapp
+                  status: read
+                  message_id: 'wamid.HBgMOTE5MzczMDg0ODgwFQIAERgSNzJFNDJBOUFFNjA4MUZGNUEyAA=='
+                  typing_indicator:
+                    type: text
       responses:
         '200':
           description: |
