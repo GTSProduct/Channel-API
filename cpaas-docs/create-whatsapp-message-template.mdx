@@ -1,9 +1,8 @@
-
 ---
 title: "Create a WhatsApp Message Template"
-description: "Create a WhatsApp message template."
+description: "Guide to creating a WhatsApp message template."
 ---
-Creates a WhatsApp message template for the specified sender.
+This guide explains how to create a WhatsApp message template for a specified sender using the CPaaS+ API.
 
 ## Endpoint
 
@@ -21,6 +20,17 @@ Creates a WhatsApp message template for the specified sender.
 |---|---|
 | `Content-Type` | `application/json` |
 | `Authorization` | `Bearer {{access_token}}` |
+
+## Request body
+
+The request body contains the template name, language, category and components.
+
+| Parameter | Description |
+|---|---|
+| `name` | Name of the WhatsApp message template. |
+| `language` | Language code for the template. |
+| `category` | Template category, such as `MARKETING`. |
+| `components` | Array containing the template components, such as HEADER, BODY, FOOTER and BUTTONS. |
 
 ## Example request
 
@@ -85,4 +95,11 @@ curl --location '{{base_url}}/api/whatsapp/{{sender_hash}}/message_templates' \
 }'
 ```
 
-The request body contains the template name, language, category and components. The example includes HEADER, BODY, FOOTER and BUTTONS components.
+## Template components
+
+The example request contains four component types:
+
+- **HEADER:** Displays the template header. This example uses a text header with a variable.
+- **BODY:** Contains the main message text and three example variables.
+- **FOOTER:** Displays additional text at the bottom of the message.
+- **BUTTONS:** Defines quick-reply buttons included in the template.
