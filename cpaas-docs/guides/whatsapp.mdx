@@ -87,22 +87,17 @@ Notify customers of fulfilment events in a WhatsApp Commerce flow. The `{source}
 | --- | --- | --- |
 | `order_id` | Yes | Unique order identifier from your system. |
 | `status` | Yes | `confirmed`, `shipped`, `delivered` or `cancelled`. |
-| `receiver` | Yes | Customer WhatsApp number. |
-| `tracking_url` | No | Public shipment tracking URL to share. |
-| `description` | No | Extra status notes for the customer. |
+| `status_notes` | No | Extra status notes for the customer. |
 
 ```bash
-curl --location 'https://api.yourcpaas.com/api/whatsapp/WABA_NUMBER/order-status/update' \
-  --header 'Accept: application/json' \
-  --header 'Content-Type: application/json' \
-  --header 'Authorization: Bearer YOUR_TOKEN' \
-  --data '{
-    "order_id": "ORD-9876",
+curl --location 'https://testqa.gtsstaging.com/api/whatsapp/919691926438/order-status/update' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer 01a08b1a-6d76-73a0-85a8-3f4674bc1ede|spuuSqW8hfgWcwWQeNYFRuqrEsbSjo7aC4tYL2fv02ed4fa7' \
+--data '{
+    "order_reference_id": "ORDER_1772450067_OUJCQjQA",
     "status": "shipped",
-    "tracking_url": "https://tracking.example.com/ORD-9876",
-    "description": "Your order has been dispatched via Blue Dart.",
-    "receiver": "91XXXXXXXXXX"
-  }'
+    "status_notes": "Your order will deliver soon"  }'
+
 ```
 
 ```json Success
