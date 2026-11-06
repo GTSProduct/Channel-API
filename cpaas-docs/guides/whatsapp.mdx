@@ -120,21 +120,19 @@ Starts the refund and notifies the customer on WhatsApp with the refund details.
 
 | Parameter | Required | Description |
 | --- | --- | --- |
-| `order_referece_id` | Yes | Order to refund. |
+| `order_reference_id` | Yes | Order to refund. |
 | `amount` | Yes | Amount in the order currency. |
 
 ```bash
-curl --location 'https://api.yourcpaas.com/api/whatsapp/source/payment/refund' \
-  --header 'Accept: application/json' \
-  --header 'Content-Type: application/json' \
-  --header 'Authorization: Bearer YOUR_TOKEN' \
-  --data '{
-    "order_id": "ORD-9876",
-    "refund_amount": "1499.00",
-    "currency": "INR",
-    "reason": "customer_request",
-    "receiver": "91XXXXXXXXXX"
-  }'
+curl --location 'https://testqa.gtsstaging.com/api/whatsapp/919691926438/payment/refund' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer 01a08b1a-6d76-73a0-85a8-3f4674bc1ede|spuuSqW8hfgWcwWQeNYFRuqrEsbSjo7aC4tYL2fv02ed4fa7' \
+--data '{
+    "order_reference_id": "ORDER_1763043873_NzNCQjUA",
+    "amount": 1.18,
+    "speed": "normal"
+}'
+
 ```
 
 ```json Success
