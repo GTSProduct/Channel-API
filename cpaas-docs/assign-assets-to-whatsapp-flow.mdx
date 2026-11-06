@@ -25,13 +25,14 @@ Assigns the supplied asset details to a WhatsApp Flow.
 ## Example request
 
 ```bash
-curl --location '{{base_url}}/api/whatsapp/{{sender_hash}}/flows/{{flow_id}}/assets' \
+curl --location 'https://testqa.gtsstaging.com/api/whatsapp/1ce8726a-2fe9-41e1-aa5f-1de62039d8c8/flows/4551273491813916/assets' \
 --header 'Content-Type: application/json' \
---header 'Authorization: Bearer {{access_token}}' \
+--header 'Authorization: Bearer 01a014f3-e2a6-7394-9517-faa82399c57c|HRPemWFL1N4Aa9plmgYcEgnm3aghwuA8w9c04b952c' \
 --data '{
   "name": "survey3",
   "categories": ["SURVEY"],
-  "languages": ["en"]
+  "languages": ["en"]  }'
+
 }'
 ```
 
