@@ -17,12 +17,13 @@ Creates a WhatsApp Flow using its name, category and language.
 ## Example request
 
 ```bash
-curl --location '{{base_url}}/api/whatsapp/{{sender_hash}}/flows' \
+curl --location 'https://testqa.gtsstaging.com/api/whatsapp/1ce8726a-2fe9-41e1-aa5f-1de62039d8c8/flows' \
 --data '{
   "name": "survey3",
   "categories": ["SURVEY"],
   "languages": ["en"]
 }'
+
 ```
 
 ## Request body
