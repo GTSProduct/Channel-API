@@ -4553,20 +4553,259 @@ components:
       properties:
         name:
           type: string
-          description: Name of the WhatsApp message template.
+          description: Lowercase template name using letters, numbers and underscores.
+          minLength: 1
+          maxLength: 512
         language:
           type: string
-          description: Language code for the template.
+          description: Meta language or locale code, for example en or en_US.
+          minLength: 2
+          maxLength: 20
         category:
           type: string
-          description: Template category.
+          description: WhatsApp template category.
+          enum:
+          - MARKETING
+          - UTILITY
+          - AUTHENTICATION
         components:
           type: array
-          description: Template components such as header, body, footer and 
-            buttons.
+          description: >
+            Template components. Add the component types required by the
+            template: HEADER, BODY, FOOTER, BUTTONS, LIMITED_TIME_OFFER or
+            CAROUSEL. BODY is required by standard templates; component
+            combinations and limits depend on the template category and type.
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/WhatsAppTemplateHeaderComponent'
+            - $ref: '#/components/schemas/WhatsAppTemplateBodyComponent'
+            - $ref: '#/components/schemas/WhatsAppTemplateFooterComponent'
+            - $ref: '#/components/schemas/WhatsAppTemplateButtonsComponent'
+            - $ref: '#/components/schemas/WhatsAppTemplateLimitedTimeOfferComponent'
+            - $ref: '#/components/schemas/WhatsAppTemplateCarouselComponent'
+    WhatsAppTemplateHeaderComponent:
+      type: object
+      title: Header component
+      description: Optional template header. Supports text, image, video, document or location format.
+      required:
+      - type
+      - format
+      properties:
+        type:
+          type: string
+          const: HEADER
+        format:
+          type: string
+          enum:
+          - TEXT
+          - IMAGE
+          - VIDEO
+          - DOCUMENT
+          - LOCATION
+        text:
+          type: string
+          description: Header text. Used when format is TEXT.
+          maxLength: 60
+        example:
+          type: object
+          description: Required when the header contains sample variables or sample media.
+          properties:
+            header_text:
+              type: array
+              description: Sample values for header text variables, in order.
+              items:
+                type: string
+            header_handle:
+              type: array
+              description: Meta media handle(s) for an image, video or document header sample.
+              items:
+                type: string
+    WhatsAppTemplateBodyComponent:
+      type: object
+      title: Body component
+      description: Main template message text. Required for standard templates; authentication templates have category-specific rules.
+      required:
+      - type
+      - text
+      properties:
+        type:
+          type: string
+          const: BODY
+        text:
+          type: string
+          description: Body text. Supports numbered variables such as {{1}}.
+          maxLength: 1024
+        example:
+          type: object
+          description: Sample values for each body variable, supplied as a nested array.
+          properties:
+            body_text:
+              type: array
+              items:
+                type: array
+                items:
+                  type: string
+    WhatsAppTemplateFooterComponent:
+      type: object
+      title: Footer component
+      description: Optional static footer displayed below the body.
+      required:
+      - type
+      - text
+      properties:
+        type:
+          type: string
+          const: FOOTER
+        text:
+          type: string
+          maxLength: 60
+          description: Footer text. Variables are not supported.
+    WhatsAppTemplateButtonsComponent:
+      type: object
+      title: Buttons component
+      description: Optional interactive buttons. Button types and combinations are subject to Meta's category-specific limits.
+      required:
+      - type
+      - buttons
+      properties:
+        type:
+          type: string
+          const: BUTTONS
+        buttons:
+          type: array
+          items:
+            $ref: '#/components/schemas/WhatsAppTemplateButton'
+    WhatsAppTemplateButton:
+      type: object
+      title: Template button
+      description: >
+        Button configuration. Supply the fields required for the selected type:
+        URL, PHONE_NUMBER, QUICK_REPLY, COPY_CODE, OTP, FLOW, CATALOG, MPM or VOICE_CALL.
+      required:
+      - type
+      properties:
+        type:
+          type: string
+          enum:
+          - QUICK_REPLY
+          - URL
+          - PHONE_NUMBER
+          - COPY_CODE
+          - OTP
+          - FLOW
+          - CATALOG
+          - MPM
+          - VOICE_CALL
+        text:
+          type: string
+          description: Button label where supported by the selected button type.
+          maxLength: 25
+        url:
+          type: string
+          description: Destination URL. Dynamic URL buttons may contain a numbered variable such as {{1}}.
+        phone_number:
+          type: string
+          description: Destination phone number in international format.
+        example:
+          type: array
+          description: Example value for a dynamic URL button.
+          items:
+            type: string
+        otp_type:
+          type: string
+          enum:
+          - COPY_CODE
+          - ONE_TAP
+          - ZERO_TAP
+        autofill_text:
+          type: string
+          description: Autofill button text for supported OTP button configurations.
+        package_name:
+          type: string
+          description: Android application package name for one-tap or zero-tap OTP.
+        signature_hash:
+          type: string
+          description: Android app signing hash for one-tap or zero-tap OTP.
+        supported_apps:
+          type: array
+          description: Android applications supported by the OTP button.
           items:
             type: object
-            additionalProperties: true
+            properties:
+              package_name:
+                type: string
+              signature_hash:
+                type: string
+        flow_id:
+          type: string
+          description: WhatsApp Flow ID for a FLOW button.
+        flow_name:
+          type: string
+          description: WhatsApp Flow name where required by the selected Flow configuration.
+        flow_action:
+          type: string
+          enum:
+          - NAVIGATE
+          - DATA_EXCHANGE
+        navigate_screen:
+          type: string
+          description: Initial screen ID when flow_action is NAVIGATE.
+        catalog_id:
+          type: string
+          description: Product catalog identifier for a CATALOG button, where required.
+        thumbnail_product_retailer_id:
+          type: string
+          description: Product retailer ID used as the catalog thumbnail, where required.
+    WhatsAppTemplateLimitedTimeOfferComponent:
+      type: object
+      title: Limited-time offer component
+      description: Limited-time offer component for supported MARKETING templates. Use with the required COPY_CODE button configuration.
+      required:
+      - type
+      - limited_time_offer
+      properties:
+        type:
+          type: string
+          const: LIMITED_TIME_OFFER
+        limited_time_offer:
+          type: object
+          required:
+          - text
+          properties:
+            text:
+              type: string
+              description: Offer heading shown in the limited-time offer section.
+              maxLength: 16
+            has_expiration:
+              type: boolean
+              description: Whether the offer displays an expiration countdown.
+    WhatsAppTemplateCarouselComponent:
+      type: object
+      title: Carousel component
+      description: Carousel component for supported MARKETING templates. Each card contains a header and may contain body and buttons.
+      required:
+      - type
+      - cards
+      properties:
+        type:
+          type: string
+          const: CAROUSEL
+        cards:
+          type: array
+          minItems: 2
+          maxItems: 10
+          items:
+            type: object
+            required:
+            - components
+            properties:
+              components:
+                type: array
+                items:
+                  oneOf:
+                  - $ref: '#/components/schemas/WhatsAppTemplateHeaderComponent'
+                  - $ref: '#/components/schemas/WhatsAppTemplateBodyComponent'
+                  - $ref: '#/components/schemas/WhatsAppTemplateButtonsComponent'
     WhatsAppFlowRequest:
       type: object
       required:
