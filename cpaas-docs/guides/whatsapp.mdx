@@ -120,14 +120,11 @@ Starts the refund and notifies the customer on WhatsApp with the refund details.
 
 | Parameter | Required | Description |
 | --- | --- | --- |
-| `order_id` | Yes | Order to refund. |
-| `refund_amount` | Yes | Amount in the order currency. |
-| `currency` | Yes | ISO 4217 code, for example `INR` or `USD`. |
-| `receiver` | Yes | Customer WhatsApp number to notify. |
-| `reason` | No | For example `customer_request` or `defective_product`. |
+| `order_referece_id` | Yes | Order to refund. |
+| `amount` | Yes | Amount in the order currency. |
 
 ```bash
-curl --location 'https://api.yourcpaas.com/api/whatsapp/ACCOUNT/payment/refund' \
+curl --location 'https://api.yourcpaas.com/api/whatsapp/source/payment/refund' \
   --header 'Accept: application/json' \
   --header 'Content-Type: application/json' \
   --header 'Authorization: Bearer YOUR_TOKEN' \
