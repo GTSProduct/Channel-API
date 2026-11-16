@@ -1,0 +1,485 @@
+---
+title: "RCS Webhook User Guide"
+description: "RCS webhook event types, payload fields, delivery reports, interactions, and sample callback payloads."
+---
+
+# RCS Webhook User Guide
+
+This guide documents the customer-facing JSON structure and values observed in the supplied GTS CPaaS RCS Status sample. It covers outbound message lifecycle notifications, delivery reports, RCS interactions, and incoming text messages.
+
+A field may appear only for particular event types. A `null` value means the field is null in that sample; it does not establish that the field is always required for every event. The examples below preserve the supplied field names, including the spelling `corelation_id`.
+
+## 1. Webhook event types
+
+| `event_type` | `status` / `rcs_event_type` | Description |
+| --- | --- | --- |
+| `message_dispatch` | `submit` | Message submitted for dispatch |
+| `message_dispatch` | `sent` | Message sent, as represented by the callback |
+| `message_delivery` | `delivered` | Message delivered to the recipient |
+| `message_delivery` | `Failed` | Failure value listed in the supplied event table; no failed-delivery sample was supplied |
+| `message_delivery` | `read` | Message read by the recipient |
+| `rcs_event` | `ACTION` | User selected an action/CTA |
+| `rcs_event` | `REPLY` | User selected a suggested reply/quick reply |
+| `incoming_message` | `received` | Incoming user message received |
+
+## 2. Top-level webhook fields
+
+| Field | Type | Observed value / format | Definition |
+| --- | --- | --- | --- |
+| `event_type` | String | `message_dispatch`, `message_delivery`, `rcs_event`, `incoming_message` | Webhook event category |
+| `status` | String / Null | `submit`, `sent`, `delivered`, `read`, `received` | Event status in the applicable samples |
+| `rcs_event_type` | String | `ACTION`, `REPLY` | Interaction type for `rcs_event` |
+| `message_id` | String / Null | UUID-like identifier or null | GTS message identifier; null in the incoming-message sample |
+| `external_message_id` | String / Null | String or null | External message identifier, when available |
+| `corelation_id` | String / Null | null in supplied examples | Correlation identifier; preserve this exact spelling |
+| `rcs_message_id` | String / Null | null in supplied examples | RCS message reference |
+| `timestamp` | String | ISO 8601 timestamp | Timestamp associated with the webhook event |
+| `message` | Object | Object | Message details and event-specific content or payload |
+| `agent` | Object | Object | RCS agent information |
+| `additional_data` | Object | Object | Additional metadata; fields vary by callback |
+| `event_data` | Object | Object | User interaction details |
+| `delivery_info` | Object | Object | Delivery lifecycle and status details |
+
+## 3. Message object
+
+| Field | Type | Observed value / format | Definition |
+| --- | --- | --- | --- |
+| `message.id` | String | UUID-like identifier | GTS CPaaS message identifier |
+| `message.type` | String | `carousel`, `text` | Message content type in the samples |
+| `message.direction` | String | `outbound`, `inbound` | Business-to-user or user-to-business direction |
+| `message.number` | String | Numeric phone-number string | Associated mobile number; keep it as a string |
+| `message.agent_id` | String | UUID-like identifier | RCS agent identifier |
+| `message.campaign_id` | String | UUID-like identifier | Campaign identifier, where present |
+| `message.campaign_name` | String | Text | Campaign name in the incoming-message sample |
+| `message.content` | Object | Object | Content in submit and sent dispatch samples |
+| `message.payload` | Object | Object | Payload in delivery and incoming-text samples |
+| `message.received_at` | String | ISO 8601 timestamp | Incoming-message receipt time |
+
+The supplied samples use `message.content` in dispatch callbacks and `message.payload` in delivery callbacks and incoming text. Preserve the field name received; the samples do not establish that these fields are interchangeable.
+
+### 3.1 Carousel content
+
+The carousel is under `message.content.content.richCardDetails.carousel` in dispatch callbacks and `message.payload.content.richCardDetails.carousel` in delivery callbacks.
+
+| Field | Type | Observed value / format | Definition |
+| --- | --- | --- | --- |
+| `message.content.ttl` / `message.payload.ttl` | String | `1200s` | Message-content time to live |
+| `content.content.richCardDetails` / `payload.content.richCardDetails` | Object | Object | Rich-card content container |
+| `richCardDetails.carousel` | Object | Object | Carousel container |
+| `carousel.contents` | Array of Objects | Four cards in supplied example | Carousel cards |
+| `carousel.cardWidth` | String | `MEDIUM_WIDTH` | Carousel card width |
+| `contents[].cardMedia` | Object | Object | Card media information |
+| `cardMedia.contentInfo.fileUrl` | String | URL | Card media URL |
+| `cardMedia.contentInfo.thumbnailUrl` | String / Null | null in supplied example | Thumbnail URL, when provided |
+| `cardMedia.mediaHeight` | String | `MEDIUM` | Media height |
+| `contents[].cardTitle` | String | Text | Card title |
+| `contents[].cardDescription` | String | Text | Card description |
+| `contents[].suggestions` | Array of Objects | Array | Suggested card actions |
+| `suggestions[].action.openUrl` | Object | Object | URL-opening action |
+| `openUrl.url` | String | URL | Destination URL |
+| `openUrl.application` | String | `WEBVIEW` | Application used to open the URL |
+| `openUrl.description` | String | `Link from suggestion` | URL-action description |
+| `openUrl.webviewViewMode` | String | `TALL` | Webview display mode |
+| `action.postBack.data` | String | Text | Application-defined postback value |
+| `action.plainText` | String | Text | Action label |
+
+## 4. Delivery reports
+
+Delivery callbacks use `event_type: message_delivery`. The supplied samples show `delivered` and `read`.
+
+| Field | Type | Observed value / format | Definition |
+| --- | --- | --- | --- |
+| `delivery_info` | Object | Object | Delivery lifecycle container |
+| `delivery_info.attempts` | Integer | `0` in supplied examples | Number of delivery attempts reported |
+| `delivery_info.sent_at` | String | ISO 8601 timestamp | Time message was sent |
+| `delivery_info.delivered_at` | String / Null | Timestamp or null | Delivery time |
+| `delivery_info.read_at` | String / Null | Timestamp or null | Read time |
+| `delivery_info.failed_at` | String / Null | null in supplied examples | Failure timestamp, if supplied |
+| `delivery_info.error_message` | String / Null | null in supplied examples | Error description, if supplied |
+| `delivery_info.failure_reason` | String / Null | null in supplied examples | Failure reason, if supplied |
+| `delivery_info.delivery_status` | Object | Object | Additional delivery-status information |
+
+### 4.1 Nested delivery-status fields
+
+| Field | Type | Observed value / format | Definition |
+| --- | --- | --- | --- |
+| `delivery_info.delivery_status.provider` | String | Provider Name | Provider identifier |
+| `delivery_info.delivery_status.updated_at` | String | ISO 8601 timestamp | Status-object update time |
+| `delivery_info.delivery_status.webhook_data` | Object | Object | Nested provider event data |
+| `webhook_data.botId` | String | Identifier | Bot identifier |
+| `webhook_data.entityType` | String | `STATUS_EVENT`, `USER_EVENT` | Nested event entity type |
+| `webhook_data.userPhoneNumber` | String | Phone number with + prefix | User phone number |
+| `webhook_data.entity` | Object | Object | Nested event entity |
+| `entity.eventId` | String | Identifier | Event identifier |
+| `entity.sendTime` | String | ISO 8601 timestamp | Nested event timestamp |
+| `entity.eventType` | String | `SEND_MESSAGE_SUCCESS`, `MESSAGE_READ` | Nested event type |
+| `entity.messageId` | String | External message identifier | Message identifier |
+| `entity.senderPhoneNumber` | String | Phone number with + prefix | Sender phone number |
+| `delivery_info.delivery_status.webhook_status` | String | `SEND_MESSAGE_SUCCESS`, `MESSAGE_READ` | Nested event status |
+
+## 5. Additional event metadata
+
+The `additional_data` object differs across the supplied samples.
+
+| Field | Type | Observed value / format | Definition |
+| --- | --- | --- | --- |
+| `additional_data.provider` | String | Provider Name | Provider identifier |
+| `additional_data.provider_name` | String | Provider Name | Provider display name |
+| `additional_data.provider_type` | String | `jio` | Provider type |
+| `additional_data.provider_response` | Object | Object | Submit-response metadata |
+| `provider_response.expireTime` | String | ISO 8601 timestamp | Expiry time |
+| `provider_response.messageId` | String | String | Provider message identifier |
+| `provider_response.success` | Boolean | `true` | Success indicator in supplied submit sample |
+| `additional_data.event_type` | String | `SEND_MESSAGE_SUCCESS`, `MESSAGE_READ` | Event type in delivery metadata |
+| `additional_data.webhook_data` | Object | Object | Nested delivery event payload |
+| `webhook_data.userPhoneNumber` | String | Phone number with + prefix | User phone number |
+| `webhook_data.botId` | String | Identifier | Bot identifier |
+| `webhook_data.entityType` | String | `STATUS_EVENT`, `USER_EVENT` | Entity type |
+| `webhook_data.entity` | Object | Object | Nested event entity |
+| `entity.eventType` | String | `SEND_MESSAGE_SUCCESS`, `MESSAGE_READ` | Nested event type |
+| `entity.messageId` | String | String | Message identifier |
+| `entity.sendTime` | String | ISO 8601 timestamp | Event time |
+| `entity.senderPhoneNumber` | String | Phone number with + prefix | Sender phone number |
+| `entity.eventId` | String | Identifier | Event identifier |
+| `additional_data.timestamp` | Null in sample | null | Null in supplied delivery examples |
+| `additional_data.provider_code` | Null in sample | null | Null in supplied delivery examples |
+| `additional_data.err_code` | Null in sample | null | Null in supplied delivery examples |
+
+## 6. RCS interaction callbacks
+
+Interaction callbacks use `event_type: rcs_event`; `rcs_event_type` identifies the interaction.
+
+### 6.1 CTA / action click
+
+The supplied CTA sample uses `rcs_event_type: ACTION`.
+
+| Field | Type | Observed value / format | Definition |
+| --- | --- | --- | --- |
+| `event_data` | Object | Object | Interaction details |
+| `event_data.postBack` | Object | Object | Postback information |
+| `event_data.postBack.data` | String | Text | Application-defined action value |
+| `event_data.plainText` | String | Text | Selected action label |
+| `event_data.type` | String | `ACTION` | Interaction type |
+| `event_data.sendTime` | String | ISO 8601 timestamp | Interaction time |
+| `event_data.clicked_url` | String | URL | Selected action URL, when present |
+
+### 6.2 Quick reply
+
+The supplied quick-reply sample uses `rcs_event_type: REPLY`.
+
+| Field | Type | Observed value / format | Definition |
+| --- | --- | --- | --- |
+| `event_data.postBack` | Object | Object | Reply postback information |
+| `event_data.postBack.data` | String | Text | Application-defined reply value |
+| `event_data.plainText` | String | Text | Selected suggested-reply text |
+| `event_data.type` | String | `REPLY` | Interaction type |
+| `event_data.sendTime` | String | ISO 8601 timestamp | Interaction time |
+
+### 6.3 CTA and quick-reply comparison
+
+| Field | CTA / action | Quick reply |
+| --- | --- | --- |
+| `rcs_event_type` | `ACTION` | `REPLY` |
+| `event_data.type` | `ACTION` | `REPLY` |
+| `event_data.plainText` | Action label | Selected reply text |
+| `event_data.postBack.data` | Action-specific value | Reply-specific value |
+| `event_data.clicked_url` | Included in supplied CTA sample | Not included in supplied quick-reply sample |
+
+## 7. Incoming text message
+
+The supplied incoming-text callback uses `event_type: incoming_message` and `status: received`.
+
+| Field | Type | Observed value / format | Definition |
+| --- | --- | --- | --- |
+| `message.payload` | Object | Object | Incoming message content |
+| `message.payload.text` | String | Text | Text entered by the RCS user |
+| `message.campaign_name` | String | Text | Campaign name in supplied example |
+| `message.received_at` | String | ISO 8601 timestamp | Receipt time |
+| `message.direction` | String | `inbound` | Message originated from the user |
+| `message.type` | String | `text` | Incoming message content type |
+
+## 8. Agent object
+
+| Field | Type | Observed value / format | Definition |
+| --- | --- | --- | --- |
+| `agent.id` | String | UUID-like identifier | RCS agent identifier |
+| `agent.name` | String | Text | Agent display name |
+| `agent.provider` | String | Text | Provider display name |
+| `agent.provider_type` | String | `jio` | Provider type in interaction and incoming-message samples |
+
+## 9. Field types and value conventions
+
+- **String:** Text, identifiers, phone numbers, URLs, timestamps, and enumerated values are represented as JSON strings in the supplied examples.
+- **Integer:** `delivery_info.attempts` is an integer.
+- **Boolean:** `additional_data.provider_response.success` is a Boolean (`true` in the supplied submit sample).
+- **Object:** A nested JSON object containing related fields.
+- **Array of Objects:** `carousel.contents` and `suggestions` contain arrays of objects.
+- **Null:** Examples include `message_id`, `corelation_id`, `rcs_message_id`, `thumbnailUrl`, delivery timestamps, and error fields.
+- **Timestamp:** Timestamp strings use ISO 8601 format with a UTC `Z` suffix.
+- **Phone number:** Phone numbers are strings, not numeric JSON values. The samples show values both with and without a leading `+`, depending on the field.
+
+## 10. Notes on the supplied payload contract
+
+1. Use JSON field names exactly as documented, including the spelling `corelation_id`.
+2. The supplied samples show `message.content` in dispatch callbacks and `message.payload` in delivery callbacks and incoming text. Preserve the field name received.
+3. Fields and nested objects vary by event type. Do not expect every field in every callback.
+4. Provider-related metadata is documented because it appears in the supplied JSON; it is not required to process the primary event category and status.
+5. The supplied sample does not include a failed-delivery callback. A failure event type, status value, and failure payload cannot be defined from the available sample.
+6. This guide documents only fields and values evidenced in the supplied RCS Status sample; it does not infer additional callback fields or enum values.
+
+## Appendix A. Sample webhook payloads
+
+The source guide contains full examples for message dispatch (submit and sent), delivery (delivered and read), CTA/action, incoming text, and quick reply. The following compact examples show the event-specific structure; fields not shown here may be present in the full callbacks.
+
+### A.1 Message dispatch – submit
+
+```json
+{
+  "event_type": "message_dispatch",
+  "message_id": "42b03fc1-f071-5144-8829-2bce7b036cfe",
+  "external_message_id": null,
+  "corelation_id": null,
+  "rcs_message_id": null,
+  "status": "submit",
+  "timestamp": "2026-11-12T09:38:06.685774Z",
+  "message": {
+    "id": "42b03fc1-f071-5144-8829-2bce7b036cfe",
+    "type": "carousel",
+    "direction": "outbound",
+    "number": "919202511257",
+    "content": {
+      "ttl": "1200s",
+      "content": {
+        "richCardDetails": {
+          "carousel": {
+            "contents": [
+              {
+                "cardMedia": {
+                  "contentInfo": {
+                    "fileUrl": "https://d38yya2zvywnqz.cloudfront.net/rcs_files/67f56289-e413-4df7-97bd-2714e40d819e.jpg",
+                    "thumbnailUrl": null
+                  },
+                  "mediaHeight": "MEDIUM"
+                },
+                "cardTitle": "Loan Application Approved",
+                "suggestions": [
+                  {
+                    "action": {
+                      "openUrl": {
+                        "url": "https://pingpro.toofanloan.com/phone-verification?utm_source=pingpro&utm_medium=affiliate&utm_campaign=pingpro-aff&click_id=%7Bclickid%7D",
+                        "application": "WEBVIEW",
+                        "description": "Link from suggestion",
+                        "webviewViewMode": "TALL"
+                      },
+                      "postBack": { "data": "check_now_card_1_url_1" },
+                      "plainText": "Check Now"
+                    }
+                  }
+                ],
+                "cardDescription": "Dear User, your loan application has been approved with an outstanding payment. Tap below to view your loan details."
+              }
+            ],
+            "cardWidth": "MEDIUM_WIDTH"
+          }
+        }
+      }
+    },
+    "agent_id": "a010585d-61d1-4533-87a5-901b01882218",
+    "campaign_id": "01a1cf1f-1a5f-7270-99a1-2292f4767b2c"
+  },
+  "agent": {
+    "id": "a010585d-61d1-4533-87a5-901b01882218",
+    "name": "Jio Assistant",
+    "provider": "Provider Name"
+  },
+  "additional_data": {
+    "provider": "Provider Name",
+    "provider_response": {
+      "expireTime": "2026-11-12T09:58:06.677878548Z",
+      "messageId": "jio_6af588fe9dd7b_1794476286",
+      "success": true
+    }
+  }
+}
+```
+
+### A.2 Message dispatch – sent
+
+```json
+{
+  "event_type": "message_dispatch",
+  "external_message_id": "jio_6af588fe9dd7b_1794476286",
+  "status": "sent",
+  "timestamp": "2026-11-12T09:38:07.161491Z",
+  "message": {
+    "type": "carousel",
+    "direction": "outbound",
+    "number": "919202511257",
+    "content": {
+      "ttl": "1200s",
+      "content": {
+        "richCardDetails": {
+          "carousel": {
+            "cardWidth": "MEDIUM_WIDTH",
+            "contents": ["Carousel card objects as shown in the submit callback"]
+          }
+        }
+      }
+    }
+  },
+  "additional_data": {
+    "provider_name": "Provider Name",
+    "provider_type": "jio"
+  }
+}
+```
+
+### A.3 Message delivery – delivered
+
+```json
+{
+  "event_type": "message_delivery",
+  "status": "delivered",
+  "timestamp": "2026-11-12T09:38:10.716637Z",
+  "delivery_info": {
+    "attempts": 0,
+    "sent_at": "2026-11-12T09:38:07.000000Z",
+    "delivered_at": "2026-11-12T09:38:10.000000Z",
+    "read_at": null,
+    "failed_at": null,
+    "error_message": null,
+    "failure_reason": null,
+    "delivery_status": {
+      "provider": "Provider Name",
+      "updated_at": "2026-11-12T09:38:10.697305Z",
+      "webhook_data": {
+        "botId": "68ac0ec1ec220d7409d8670c",
+        "entity": {
+          "eventId": "afa233c4-410f-4cd6-950d-c1e47e59d808",
+          "sendTime": "2026-11-12T09:38:06.678227309Z",
+          "eventType": "SEND_MESSAGE_SUCCESS",
+          "messageId": "jio_6af588fe9dd7b_1794476286",
+          "senderPhoneNumber": "+919202511257"
+        },
+        "entityType": "STATUS_EVENT",
+        "userPhoneNumber": "+919202511257"
+      },
+      "webhook_status": "SEND_MESSAGE_SUCCESS"
+    }
+  }
+}
+```
+
+### A.4 Message delivery – read
+
+```json
+{
+  "event_type": "message_delivery",
+  "status": "read",
+  "timestamp": "2026-11-12T09:39:27.455501Z",
+  "delivery_info": {
+    "sent_at": "2026-11-12T09:38:07.000000Z",
+    "delivered_at": "2026-11-12T09:38:11.000000Z",
+    "read_at": "2026-11-12T09:39:27.000000Z",
+    "delivery_status": {
+      "webhook_data": {
+        "entity": {
+          "eventId": "MxrCnOtvPsRO-AejYvP2IZDg",
+          "sendTime": "2026-11-12T09:39:24.270861Z",
+          "eventType": "MESSAGE_READ",
+          "messageId": "jio_6af588fe9dd7b_1794476286",
+          "senderPhoneNumber": "+919202511257"
+        },
+        "entityType": "USER_EVENT"
+      },
+      "webhook_status": "MESSAGE_READ"
+    }
+  }
+}
+```
+
+### A.5 RCS interaction – CTA/action
+
+```json
+{
+  "event_type": "rcs_event",
+  "rcs_event_type": "ACTION",
+  "message_id": "42b03fc1-f071-5144-8829-2bce7b036cfe",
+  "external_message_id": "jio_6af588fe9dd7b_1794476286",
+  "corelation_id": null,
+  "rcs_message_id": null,
+  "timestamp": "2026-11-12T09:39:44.082029Z",
+  "event_data": {
+    "postBack": { "data": "check_now_card_1_url_1" },
+    "plainText": "Check Now",
+    "type": "ACTION",
+    "sendTime": "2026-11-12T09:39:40.154798Z",
+    "clicked_url": "https://pingpro.toofanloan.com/phone-verification?utm_source=pingpro&utm_medium=affiliate&utm_campaign=pingpro-aff&click_id=%7Bclickid%7D"
+  }
+}
+```
+
+### A.6 Incoming text message
+
+```json
+{
+  "event_type": "incoming_message",
+  "status": "received",
+  "message_id": null,
+  "external_message_id": "Mx0vYrGQHTSTSiWwlg9-BPaw",
+  "corelation_id": null,
+  "rcs_message_id": null,
+  "timestamp": "2026-11-12T09:44:48.765813Z",
+  "message": {
+    "id": "01a1cf25-4575-734a-9658-1a192a4dc840",
+    "type": "text",
+    "direction": "inbound",
+    "number": "919202511257",
+    "agent_id": "a010585d-61d1-4533-87a5-901b01882218",
+    "payload": { "text": "Gggf" },
+    "campaign_name": "November 12 2026 3:11 PM - Campaign ",
+    "received_at": "2026-11-12T09:43:41.000000Z"
+  },
+  "agent": {
+    "id": "a010585d-61d1-4533-87a5-901b01882218",
+    "name": "Jio Assistant",
+    "provider": "Provider Name",
+    "provider_type": "jio"
+  }
+}
+```
+
+### A.7 RCS interaction – quick reply
+
+```json
+{
+  "event_type": "rcs_event",
+  "rcs_event_type": "REPLY",
+  "message_id": "b1e092e6-b7f7-5c00-aa7a-b542312082b3",
+  "external_message_id": "jio_6af58ba14e3e6_1794476961",
+  "corelation_id": null,
+  "rcs_message_id": null,
+  "timestamp": "2026-11-12T09:49:32.107047Z",
+  "event_data": {
+    "postBack": { "data": "reply" },
+    "plainText": "reply",
+    "type": "REPLY",
+    "sendTime": "2026-11-12T09:49:30.076153Z"
+  },
+  "message": {
+    "id": "b1e092e6-b7f7-5c00-aa7a-b542312082b3",
+    "type": "text",
+    "direction": "outbound",
+    "number": "919202511257",
+    "agent_id": "a010585d-61d1-4533-87a5-901b01882218",
+    "campaign_id": "01a1cf29-6528-7335-8c7d-8356af64a600"
+  },
+  "agent": {
+    "id": "a010585d-61d1-4533-87a5-901b01882218",
+    "name": "Jio Assistant",
+    "provider": "Provider Name",
+    "provider_type": "jio"
+  }
+}
+```
+
