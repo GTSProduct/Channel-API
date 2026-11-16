@@ -38,6 +38,7 @@
             "group": "Channel guides",
             "pages": [
               "guides/sms",
+              "guides/sms-dlr-webhook",
               {
                 "group": "WhatsApp",
                 "pages": [
