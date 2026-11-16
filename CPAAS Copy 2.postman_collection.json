@@ -100,7 +100,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"alias\": \"{{Template ID}}\",   //CPaas+ Template ID from Webportal\n    \"to\": [\n        \"{{Mobile Number}}\"      //Multiple Mobile Numbers upto 50 can be passed\n    ],\n    \"params\": {\n        \"1\": \"{{Var}}\"          //Dynamic values can be passed in variables as defined in template\n    }\n}",
+              "raw": "{\n    \"alias\": \"{{Template ID}}\",   //CPaas+ Template ID from Webportal\n    \"to\": [\n        \"{{Mobile Number}}\"      //Multiple Mobile Numbers upto 50 can be passed\n    ],\n    \"params\": {\n        \"1\": \"{{Var}}\"          //Dynamic values can be passed in variables as defined in template\n    },\n    \"correlation_id\": \"\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -119,7 +119,7 @@
                 "send"
               ]
             },
-            "description": "| Field | Description |\n| --- | --- |\n| API Name | Template Send |\n| Purpose | Sends SMS using a CPaaS+ template with dynamic variables. |\n| Method | `POST` |\n| Endpoint | `{{BaseURL}}/api/sms/template/send` |\n| Template ID | Obtain the CPaaS+ Template ID from Web Portal → SMS Channel → Template tab → select the specific template. |\n| Variable sequence | Pass dynamic variable values in the same sequence as defined in the template. |\n| Request format | JSON body |\n| Successful response | Returns `status`, `message`, and a `data` array containing message submission details. |\n| Response interpretation | `submitted` means the message has been submitted to the provider for delivery; it does not confirm final delivery. |"
+            "description": "| Field | Description |\n| --- | --- |\n| API Name | Template Send |\n| Purpose | Sends SMS using a CPaaS+ template with dynamic variables. |\n| Method | `POST` |\n| Endpoint | `{{BaseURL}}/api/sms/template/send` |\n| Template ID | Obtain the CPaaS+ Template ID from Web Portal → SMS Channel → Template tab → select the specific template. |\n| Variable sequence | Pass dynamic variable values in the same sequence as defined in the template. |\n| Request format | JSON body |\n| Successful response | Returns `status`, `message`, and a `data` array containing message submission details. |\n| Response interpretation | `submitted` means the message has been submitted to the provider for delivery; it does not confirm final delivery. |\n| `correlation_id` | Correlation identifier supplied with the request. |"
           },
           "response": []
         },
@@ -153,7 +153,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"from\": \"{{Source/Sender/Header}}\",\r\n    \"to\": [\r\n        \"{{Mobile Number}}\"\r\n    ],\r\n    \"text\": \"{{Message Text}}\",\r\n    \"type\": \"{{'N' for plain text (default), 'U' for Unicode, 'A' for auto}}\",\r\n    \"product\": \"{{Transactional,Promotional,OTP,Other}}\",\r\n    \"template_id\": \"{{Template ID,Mandatory in India}}\",\r\n    \"entity_id\": \"{{Entity ID, Mandatory in India}}\"\r\n}",
+              "raw": "{\r\n    \"from\": \"{{Source/Sender/Header}}\",\r\n    \"to\": [\r\n        \"{{Mobile Number}}\"\r\n    ],\r\n    \"text\": \"{{Message Text}}\",\r\n    \"type\": \"{{'N' for plain text (default), 'U' for Unicode, 'A' for auto}}\",\r\n    \"product\": \"{{Transactional,Promotional,OTP,Other}}\",\r\n    \"template_id\": \"{{Template ID,Mandatory in India}}\",\r\n    \"entity_id\": \"{{Entity ID, Mandatory in India}}\",\n    \"correlation_id\": \"\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -171,7 +171,7 @@
                 "send"
               ]
             },
-            "description": "StartFragment\n\n| Field | Description |\n| --- | --- |\n| API Name | Open Text |\n| Purpose | Sends freeform SMS text programmatically without relying on a pre-built portal campaign or template. |\n| Method | `POST` |\n| Endpoint | `{{BaseURL}}/api/sms/send` |\n| Request format | JSON body |\n| Sender ID (`from`) | Sender ID, source address, or header configured on the platform. |\n| Recipients (`to`) | Destination mobile number(s); the guide says up to 100 numbers can be passed. |\n| Message (`text`) | The SMS content to be delivered. |\n| Encoding (`type`) | Optional: `N` = plain text (default), `U` = Unicode, `A` = auto-detect. |\n| Message category (`product`) | Optional: `Transactional`, `Promotional`, `OTP`, or `Other`. |\n| India-specific fields | `template_id` (DLT-registered Template ID) and `entity_id` (DLT-registered Entity ID) are mandatory for messages sent in India. |"
+            "description": "StartFragment\n\n| Field | Description |\n| --- | --- |\n| API Name | Open Text |\n| Purpose | Sends freeform SMS text programmatically without relying on a pre-built portal campaign or template. |\n| Method | `POST` |\n| Endpoint | `{{BaseURL}}/api/sms/send` |\n| Request format | JSON body |\n| Sender ID (`from`) | Sender ID, source address, or header configured on the platform. |\n| Recipients (`to`) | Destination mobile number(s); the guide says up to 100 numbers can be passed. |\n| Message (`text`) | The SMS content to be delivered. |\n| Encoding (`type`) | Optional: `N` = plain text (default), `U` = Unicode, `A` = auto-detect. |\n| Message category (`product`) | Optional: `Transactional`, `Promotional`, `OTP`, or `Other`. |\n| India-specific fields | `template_id` (DLT-registered Template ID) and `entity_id` (DLT-registered Entity ID) are mandatory for messages sent in India. |\n| `correlation_id` | Correlation identifier supplied with the request. |"
           },
           "response": []
         },
@@ -559,7 +559,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"source\": \"{{WA_SenderID}}\",\n    \"destination\": \"{{phone}}\",\n    \"template\": {\n        \"id\": \"{{Tempalte ID}}\"\n    },\n    \"media_url\": \"{{Doc/PDF/Image URL}}\"\n}",
+                  "raw": "{\n    \"source\": \"{{WA_SenderID}}\",\n    \"destination\": \"{{phone}}\",\n    \"template\": {\n        \"id\": \"{{Tempalte ID}}\"\n    },\n    \"media_url\": \"{{Doc/PDF/Image URL}}\",\n    \"correlation_id\": \"\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -577,7 +577,7 @@
                     "msg"
                   ]
                 },
-                "description": "| Field | Description |\n| --- | --- |\n| API Name | Template Send – With Media |\n| HTTP Method | POST |\n| Endpoint | `/api/whatsapp/msg` |\n| Base URL | `https://api.yourcpaas.com` |\n| Full URL | `{{Base URL}}/api/whatsapp/msg` |\n| Purpose | Sends an approved WhatsApp Business message template to a recipient. Supports text-only templates and templates with media headers (image, video, or document). |\n| Authentication | Bearer Token |\n| Content-Type | `application/json` |\n| Accept | `application/json` |\n| Authorization Header | `Bearer {{Bearer Token}}` |\n| Required Parameter – `source` | WABA number |\n| Required Parameter – `destination` | Destination mobile number |\n| Required Parameter – `template.id` | Approved WhatsApp template ID |\n| Optional Parameter – `media_url` | Publicly hosted media URL |\n| Optional Parameter – `params` | Template variables |"
+                "description": "| Field | Description |\n| --- | --- |\n| API Name | Template Send – With Media |\n| HTTP Method | POST |\n| Endpoint | `/api/whatsapp/msg` |\n| Base URL | `https://api.yourcpaas.com` |\n| Full URL | `{{Base URL}}/api/whatsapp/msg` |\n| Purpose | Sends an approved WhatsApp Business message template to a recipient. Supports text-only templates and templates with media headers (image, video, or document). |\n| Authentication | Bearer Token |\n| Content-Type | `application/json` |\n| Accept | `application/json` |\n| Authorization Header | `Bearer {{Bearer Token}}` |\n| Required Parameter – `source` | WABA number |\n| Required Parameter – `destination` | Destination mobile number |\n| Required Parameter – `template.id` | Approved WhatsApp template ID |\n| Optional Parameter – `media_url` | Publicly hosted media URL |\n| Optional Parameter – `params` | Template variables |\n| `correlation_id` | Correlation identifier supplied with the request. |"
               },
               "response": []
             },
@@ -607,7 +607,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"source\": \"{{WA_SenderID}}\",\n    \"destination\": \"{{phone}}\",\n    \"template\": {\n        \"id\": \"{{Template ID}}\",\n        \"params\": [\n            \"{{Var1}}\",\n            \"{{Var2}}\"\n        ]\n    }\n}",
+                  "raw": "{\n    \"source\": \"{{WA_SenderID}}\",\n    \"destination\": \"{{phone}}\",\n    \"template\": {\n        \"id\": \"{{Template ID}}\",\n        \"params\": [\n            \"{{Var1}}\",\n            \"{{Var2}}\"\n        ]\n    },\n    \"correlation_id\": \"\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -625,7 +625,7 @@
                     "msg"
                   ]
                 },
-                "description": "| Field | Description |\n| --- | --- |\n| API Name | Template Send – Without Media |\n| HTTP Method | POST |\n| Endpoint | `/api/whatsapp/msg` |\n| Base URL | `https://api.yourcpaas.com` |\n| Full URL | `{{Base URL}}/api/whatsapp/msg` |\n| Purpose | Sends an approved WhatsApp Business message template to a recipient. |\n| Authentication | Bearer Token |\n| Content-Type | `application/json` |\n| Accept | `application/json` |\n| Authorization Header | `Bearer {{Bearer Token}}` |\n| Request Body Format | JSON |\n| Required Parameter – `source` | WhatsApp Business Account number. |\n| Required Parameter – `destination` | Destination mobile number. |\n| Required Parameter – `template.id` | Approved WhatsApp template ID. |\n| Conditional Parameter – `template.params` | Dynamic variable values defined in the template. The required number of values must be passed when the template contains dynamic variables. |"
+                "description": "| Field | Description |\n| --- | --- |\n| API Name | Template Send – Without Media |\n| HTTP Method | POST |\n| Endpoint | `/api/whatsapp/msg` |\n| Base URL | `https://api.yourcpaas.com` |\n| Full URL | `{{Base URL}}/api/whatsapp/msg` |\n| Purpose | Sends an approved WhatsApp Business message template to a recipient. |\n| Authentication | Bearer Token |\n| Content-Type | `application/json` |\n| Accept | `application/json` |\n| Authorization Header | `Bearer {{Bearer Token}}` |\n| Request Body Format | JSON |\n| Required Parameter – `source` | WhatsApp Business Account number. |\n| Required Parameter – `destination` | Destination mobile number. |\n| Required Parameter – `template.id` | Approved WhatsApp template ID. |\n| Conditional Parameter – `template.params` | Dynamic variable values defined in the template. The required number of values must be passed when the template contains dynamic variables. |\n| `correlation_id` | Correlation identifier supplied with the request. |"
               },
               "response": []
             },
