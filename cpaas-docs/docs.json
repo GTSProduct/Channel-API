@@ -119,7 +119,7 @@
             ]
           },
           {
-            "group": "Webhooks & Callbacks",
+            "group": "SMS & RCS Webhooks",
             "pages": [
               "guides/sms-dlr-webhook",
               "guides/rcs-webhook"
