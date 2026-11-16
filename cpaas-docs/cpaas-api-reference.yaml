@@ -48,6 +48,8 @@ tags:
   description: Create RCS templates (text with buttons, rich card, carousel).
 - name: RCS Messaging
   description: Send RCS messages and check message status.
+- name: RCS Webhooks
+  description: Customer-facing RCS webhook callback payloads and event schemas.
 - name: Flow Builder
   description: Create, manage, publish and trigger Flow Builder journeys.
 paths:
@@ -2715,6 +2717,103 @@ paths:
         default:
           description: Response status and body were not included in the 
             supplied API details.
+webhooks:
+  rcsWebhookEvent:
+    post:
+      tags:
+      - RCS Webhooks
+      summary: RCS webhook event
+      description: >
+        Callback payload sent by GTS CPaaS to the customer-configured receiver.
+        The event_type identifies the callback category. Callback URL setup,
+        authentication, retry policy and receiver response requirements are
+        not specified in this API reference.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - $ref: '#/components/schemas/RcsMessageDispatchWebhook'
+              - $ref: '#/components/schemas/RcsMessageDeliveryWebhook'
+              - $ref: '#/components/schemas/RcsInteractionWebhook'
+              - $ref: '#/components/schemas/RcsIncomingMessageWebhook'
+            examples:
+              messageDispatch:
+                summary: Message dispatch submit
+                value:
+                  event_type: message_dispatch
+                  status: submit
+                  message_id: 42b03fc1-f071-5144-8829-2bce7b036cfe
+                  external_message_id: null
+                  corelation_id: null
+                  rcs_message_id: null
+                  timestamp: '2026-11-12T09:38:06.685774Z'
+                  message:
+                    id: 42b03fc1-f071-5144-8829-2bce7b036cfe
+                    type: carousel
+                    direction: outbound
+                    number: '919202511257'
+                    content:
+                      ttl: 1200s
+                      content:
+                        richCardDetails:
+                          carousel:
+                            cardWidth: MEDIUM_WIDTH
+                            contents: []
+              messageDelivery:
+                summary: Message delivered
+                value:
+                  event_type: message_delivery
+                  status: delivered
+                  timestamp: '2026-11-12T09:38:10.716637Z'
+                  delivery_info:
+                    attempts: 0
+                    sent_at: '2026-11-12T09:38:07.000000Z'
+                    delivered_at: '2026-11-12T09:38:10.000000Z'
+                    read_at: null
+                    failed_at: null
+                    error_message: null
+                    failure_reason: null
+              action:
+                summary: RCS CTA/action interaction
+                value:
+                  event_type: rcs_event
+                  rcs_event_type: ACTION
+                  message_id: 42b03fc1-f071-5144-8829-2bce7b036cfe
+                  external_message_id: jio_6af588fe9dd7b_1794476286
+                  corelation_id: null
+                  rcs_message_id: null
+                  timestamp: '2026-11-12T09:39:44.082029Z'
+                  event_data:
+                    postBack:
+                      data: check_now_card_1_url_1
+                    plainText: Check Now
+                    type: ACTION
+                    sendTime: '2026-11-12T09:39:40.154798Z'
+                    clicked_url: https://example.com/action
+              incomingText:
+                summary: Incoming text message
+                value:
+                  event_type: incoming_message
+                  status: received
+                  message_id: null
+                  external_message_id: Mx0vYrGQHTSTSiWwlg9-BPaw
+                  corelation_id: null
+                  rcs_message_id: null
+                  timestamp: '2026-11-12T09:44:48.765813Z'
+                  message:
+                    id: 01a1cf25-4575-734a-9658-1a192a4dc840
+                    type: text
+                    direction: inbound
+                    number: '919202511257'
+                    payload:
+                      text: Hello
+                    received_at: '2026-11-12T09:43:41.000000Z'
+      responses:
+        '200':
+          description: Acknowledgement from the customer-configured webhook receiver. Response body is implementation-specific.
+
 components:
   securitySchemes:
     bearerAuth:
@@ -2757,6 +2856,199 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
   schemas:
+    RcsWebhookBase:
+      type: object
+      description: Common callback fields. Presence varies by event.
+      properties:
+        event_type:
+          type: string
+          description: message_dispatch, message_delivery, rcs_event or incoming_message.
+        status:
+          type: [string, 'null']
+          description: Event status where applicable, for example submit, sent, delivered, read or received.
+        message_id:
+          type: [string, 'null']
+        external_message_id:
+          type: [string, 'null']
+        corelation_id:
+          type: [string, 'null']
+          description: Correlation identifier; field spelling follows the callback.
+        rcs_message_id:
+          type: [string, 'null']
+        timestamp:
+          type: string
+          format: date-time
+      additionalProperties: true
+    RcsMessageDispatchWebhook:
+      allOf:
+      - $ref: '#/components/schemas/RcsWebhookBase'
+      - type: object
+        required: [event_type]
+        properties:
+          event_type:
+            const: message_dispatch
+          status:
+            type: string
+            description: Dispatch status such as submit or sent.
+          message:
+            $ref: '#/components/schemas/RcsWebhookMessage'
+          agent:
+            $ref: '#/components/schemas/RcsWebhookAgent'
+          additional_data:
+            type: object
+            additionalProperties: true
+    RcsMessageDeliveryWebhook:
+      allOf:
+      - $ref: '#/components/schemas/RcsWebhookBase'
+      - type: object
+        required: [event_type]
+        properties:
+          event_type:
+            const: message_delivery
+          status:
+            type: string
+            description: Delivery status such as delivered or read. Failure status is listed in the User Guide, but no failure callback example is available.
+          delivery_info:
+            type: object
+            properties:
+              attempts:
+                type: integer
+              sent_at:
+                type: [string, 'null']
+                format: date-time
+              delivered_at:
+                type: [string, 'null']
+                format: date-time
+              read_at:
+                type: [string, 'null']
+                format: date-time
+              failed_at:
+                type: [string, 'null']
+                format: date-time
+              error_message:
+                type: [string, 'null']
+              failure_reason:
+                type: [string, 'null']
+              delivery_status:
+                type: object
+                properties:
+                  provider:
+                    type: string
+                  updated_at:
+                    type: string
+                    format: date-time
+                  webhook_data:
+                    type: object
+                    additionalProperties: true
+                  webhook_status:
+                    type: string
+                additionalProperties: true
+            additionalProperties: true
+          additional_data:
+            type: object
+            additionalProperties: true
+    RcsInteractionWebhook:
+      allOf:
+      - $ref: '#/components/schemas/RcsWebhookBase'
+      - type: object
+        required: [event_type, rcs_event_type, event_data]
+        properties:
+          event_type:
+            const: rcs_event
+          rcs_event_type:
+            type: string
+            enum: [ACTION, REPLY]
+          event_data:
+            type: object
+            properties:
+              postBack:
+                type: object
+                properties:
+                  data:
+                    type: string
+                additionalProperties: true
+              plainText:
+                type: string
+              type:
+                type: string
+                enum: [ACTION, REPLY]
+              sendTime:
+                type: string
+                format: date-time
+              clicked_url:
+                type: string
+                format: uri
+            additionalProperties: true
+          message:
+            $ref: '#/components/schemas/RcsWebhookMessage'
+          agent:
+            $ref: '#/components/schemas/RcsWebhookAgent'
+    RcsIncomingMessageWebhook:
+      allOf:
+      - $ref: '#/components/schemas/RcsWebhookBase'
+      - type: object
+        required: [event_type, message]
+        properties:
+          event_type:
+            const: incoming_message
+          status:
+            const: received
+          message:
+            allOf:
+            - $ref: '#/components/schemas/RcsWebhookMessage'
+            - type: object
+              properties:
+                payload:
+                  type: object
+                  properties:
+                    text:
+                      type: string
+                  additionalProperties: true
+                received_at:
+                  type: string
+                  format: date-time
+                campaign_name:
+                  type: string
+    RcsWebhookMessage:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        direction:
+          type: string
+          enum: [outbound, inbound]
+        number:
+          type: string
+        agent_id:
+          type: string
+        campaign_id:
+          type: string
+        campaign_name:
+          type: string
+        content:
+          type: object
+          additionalProperties: true
+        payload:
+          type: object
+          additionalProperties: true
+        received_at:
+          type: string
+          format: date-time
+      additionalProperties: true
+    RcsWebhookAgent:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        provider:
+          type: string
+        provider_type:
+          type: string
+      additionalProperties: true
     SmsTemplateSendRequest:
       type: object
       required:
