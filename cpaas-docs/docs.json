@@ -100,7 +100,13 @@
                 ]
               },
               "guides/email",
-              "guides/rcs",
+              {
+                "group": "RCS",
+                "pages": [
+                  "guides/rcs",
+                  "guides/rcs-webhook"
+                ]
+              },
               {
                 "group": "Flow Builder",
                 "pages": [
