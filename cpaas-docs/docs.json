@@ -38,7 +38,6 @@
             "group": "Channel guides",
             "pages": [
               "guides/sms",
-              "guides/sms-dlr-webhook",
               {
                 "group": "WhatsApp",
                 "pages": [
@@ -103,8 +102,7 @@
               {
                 "group": "RCS",
                 "pages": [
-                  "guides/rcs",
-                  "guides/rcs-webhook"
+                  "guides/rcs"
                 ]
               },
               {
@@ -118,6 +116,13 @@
                   "delete-whatsapp-flow"
                 ]
               }
+            ]
+          },
+          {
+            "group": "Webhooks & Callbacks",
+            "pages": [
+              "guides/sms-dlr-webhook",
+              "guides/rcs-webhook"
             ]
           }
         ]
