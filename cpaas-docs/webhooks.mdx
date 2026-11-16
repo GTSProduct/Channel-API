@@ -1,13 +1,15 @@
 ---
-title: "Webhooks & Callbacks"
-description: "Understand CPaaS+ webhook notifications and find channel-specific callback guides."
+title: "SMS & RCS Webhooks"
+description: "Overview of SMS delivery report and RCS event callbacks in CPaaS+."
 ---
 
-Webhooks let CPaaS+ send event notifications to an application endpoint when supported messaging events occur. They provide an event-driven alternative to repeatedly polling an API for updates.
+This section covers the webhook capabilities currently documented for **SMS and RCS** in GTS CPaaS+.
 
-Use this section to identify the relevant channel guide, review its payload structure, and prepare your application to receive callbacks.
+Webhooks let CPaaS+ send event notifications to an application endpoint when supported events occur. They provide an event-driven alternative to repeatedly polling an API for updates.
 
-## Choose a channel
+Choose the relevant channel guide below for its configuration details, event types, payload fields, and callback-handling guidance. SMS and RCS have different documented setup details and payload structures.
+
+## Choose a webhook guide
 
 <CardGroup cols={2}>
   <Card title="SMS DLR Webhook" icon="message-square" href="/guides/sms-dlr-webhook">
@@ -35,7 +37,7 @@ The exact configuration options, event names, payload fields, and callback behav
 - **Design for repeated notifications.** Where retries may occur, make event processing safe to repeat. Use the identifiers available in the payload to help detect events your application has already processed.
 - **Keep an operational record.** Log callback receipt time, event type, relevant message identifiers, processing outcome, and errors without unnecessarily storing sensitive message content.
 
-## Channel-specific documentation
+## SMS and RCS documentation
 
 | Channel | What the guide covers |
 | --- | --- |
