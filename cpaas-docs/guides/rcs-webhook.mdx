@@ -5,7 +5,7 @@ description: "RCS webhook event types, payload fields, delivery reports, interac
 
 # RCS Webhook User Guide
 
-This guide documents the customer-facing JSON structure and values observed in the supplied GTS CPaaS RCS Status sample. It covers outbound message lifecycle notifications, delivery reports, RCS interactions, and incoming text messages.
+This guide documents the customer-facing JSON structure and values for GTS CPaaS RCS Status webhooks. It covers outbound message lifecycle notifications, delivery reports, RCS interactions, and incoming text messages.
 
 A field may appear only for particular event types. A `null` value means the field is null in that sample; it does not establish that the field is always required for every event.
 
@@ -16,7 +16,7 @@ A field may appear only for particular event types. A `null` value means the fie
 | `message_dispatch` | `submit` | Message submitted for dispatch |
 | `message_dispatch` | `sent` | Message sent, as represented by the callback |
 | `message_delivery` | `delivered` | Message delivered to the recipient |
-| `message_delivery` | `Failed` | Failure value listed in the supplied event table; no failed-delivery sample was supplied |
+| `message_delivery` | `Failed` | Failure value listed in the event table; no failed-delivery sample was supplied |
 | `message_delivery` | `read` | Message read by the recipient |
 | `rcs_event` | `ACTION` | User selected an action/CTA |
 | `rcs_event` | `REPLY` | User selected a suggested reply/quick reply |
@@ -31,8 +31,8 @@ A field may appear only for particular event types. A `null` value means the fie
 | `rcs_event_type` | String | `ACTION`, `REPLY` | Interaction type for `rcs_event` |
 | `message_id` | String / Null | UUID-like identifier or null | GTS message identifier; null in the incoming-message sample |
 | `external_message_id` | String / Null | String or null | External message identifier, when available |
-| `corelation_id` | String / Null | null in supplied examples | Correlation identifier; preserve this exact spelling |
-| `rcs_message_id` | String / Null | null in supplied examples | RCS message reference |
+| `corelation_id` | String / Null | null in examples | Correlation identifier; preserve this exact spelling |
+| `rcs_message_id` | String / Null | null in examples | RCS message reference |
 | `timestamp` | String | ISO 8601 timestamp | Timestamp associated with the webhook event |
 | `message` | Object | Object | Message details and event-specific content or payload |
 | `agent` | Object | Object | RCS agent information |
@@ -55,7 +55,7 @@ A field may appear only for particular event types. A `null` value means the fie
 | `message.payload` | Object | Object | Payload in delivery and incoming-text samples |
 | `message.received_at` | String | ISO 8601 timestamp | Incoming-message receipt time |
 
-The supplied samples use `message.content` in dispatch callbacks and `message.payload` in delivery callbacks and incoming text. Preserve the field name received; the samples do not establish that these fields are interchangeable.
+The examples use `message.content` in dispatch callbacks and `message.payload` in delivery callbacks and incoming text. Preserve the field name received; the samples do not establish that these fields are interchangeable.
 
 ### 3.1 Carousel content
 
@@ -66,11 +66,11 @@ The carousel is under `message.content.content.richCardDetails.carousel` in disp
 | `message.content.ttl` / `message.payload.ttl` | String | `1200s` | Message-content time to live |
 | `content.content.richCardDetails` / `payload.content.richCardDetails` | Object | Object | Rich-card content container |
 | `richCardDetails.carousel` | Object | Object | Carousel container |
-| `carousel.contents` | Array of Objects | Four cards in supplied example | Carousel cards |
+| `carousel.contents` | Array of Objects | Four cards in example | Carousel cards |
 | `carousel.cardWidth` | String | `MEDIUM_WIDTH` | Carousel card width |
 | `contents[].cardMedia` | Object | Object | Card media information |
 | `cardMedia.contentInfo.fileUrl` | String | URL | Card media URL |
-| `cardMedia.contentInfo.thumbnailUrl` | String / Null | null in supplied example | Thumbnail URL, when provided |
+| `cardMedia.contentInfo.thumbnailUrl` | String / Null | null in example | Thumbnail URL, when provided |
 | `cardMedia.mediaHeight` | String | `MEDIUM` | Media height |
 | `contents[].cardTitle` | String | Text | Card title |
 | `contents[].cardDescription` | String | Text | Card description |
@@ -85,18 +85,18 @@ The carousel is under `message.content.content.richCardDetails.carousel` in disp
 
 ## 4. Delivery reports
 
-Delivery callbacks use `event_type: message_delivery`. The supplied samples show `delivered` and `read`.
+Delivery callbacks use `event_type: message_delivery`. The examples show `delivered` and `read`.
 
 | Field | Type | Observed value / format | Definition |
 | --- | --- | --- | --- |
 | `delivery_info` | Object | Object | Delivery lifecycle container |
-| `delivery_info.attempts` | Integer | `0` in supplied examples | Number of delivery attempts reported |
+| `delivery_info.attempts` | Integer | `0` in examples | Number of delivery attempts reported |
 | `delivery_info.sent_at` | String | ISO 8601 timestamp | Time message was sent |
 | `delivery_info.delivered_at` | String / Null | Timestamp or null | Delivery time |
 | `delivery_info.read_at` | String / Null | Timestamp or null | Read time |
-| `delivery_info.failed_at` | String / Null | null in supplied examples | Failure timestamp, if supplied |
-| `delivery_info.error_message` | String / Null | null in supplied examples | Error description, if supplied |
-| `delivery_info.failure_reason` | String / Null | null in supplied examples | Failure reason, if supplied |
+| `delivery_info.failed_at` | String / Null | null in examples | Failure timestamp, if supplied |
+| `delivery_info.error_message` | String / Null | null in examples | Error description, if supplied |
+| `delivery_info.failure_reason` | String / Null | null in examples | Failure reason, if supplied |
 | `delivery_info.delivery_status` | Object | Object | Additional delivery-status information |
 
 ### 4.1 Nested delivery-status fields
@@ -119,7 +119,7 @@ Delivery callbacks use `event_type: message_delivery`. The supplied samples show
 
 ## 5. Additional event metadata
 
-The `additional_data` object differs across the supplied samples.
+The `additional_data` object differs across the examples.
 
 | Field | Type | Observed value / format | Definition |
 | --- | --- | --- | --- |
@@ -193,7 +193,7 @@ The supplied incoming-text callback uses `event_type: incoming_message` and `sta
 | --- | --- | --- | --- |
 | `message.payload` | Object | Object | Incoming message content |
 | `message.payload.text` | String | Text | Text entered by the RCS user |
-| `message.campaign_name` | String | Text | Campaign name in supplied example |
+| `message.campaign_name` | String | Text | Campaign name in example |
 | `message.received_at` | String | ISO 8601 timestamp | Receipt time |
 | `message.direction` | String | `inbound` | Message originated from the user |
 | `message.type` | String | `text` | Incoming message content type |
@@ -209,7 +209,7 @@ The supplied incoming-text callback uses `event_type: incoming_message` and `sta
 
 ## 9. Field types and value conventions
 
-- **String:** Text, identifiers, phone numbers, URLs, timestamps, and enumerated values are represented as JSON strings in the supplied examples.
+- **String:** Text, identifiers, phone numbers, URLs, timestamps, and enumerated values are represented as JSON strings in the examples.
 - **Integer:** `delivery_info.attempts` is an integer.
 - **Boolean:** `additional_data.provider_response.success` is a Boolean (`true` in the supplied submit sample).
 - **Object:** A nested JSON object containing related fields.
@@ -218,14 +218,14 @@ The supplied incoming-text callback uses `event_type: incoming_message` and `sta
 - **Timestamp:** Timestamp strings use ISO 8601 format with a UTC `Z` suffix.
 - **Phone number:** Phone numbers are strings, not numeric JSON values. The samples show values both with and without a leading `+`, depending on the field.
 
-## 10. Notes on the supplied payload contract
+## 10. Notes on the payload contract
 
 1. Use JSON field names exactly as documented, including the spelling `corelation_id`.
-2. The supplied samples show `message.content` in dispatch callbacks and `message.payload` in delivery callbacks and incoming text. Preserve the field name received.
+2. The examples show `message.content` in dispatch callbacks and `message.payload` in delivery callbacks and incoming text. Preserve the field name received.
 3. Fields and nested objects vary by event type. Do not expect every field in every callback.
-4. Provider-related metadata is documented because it appears in the supplied JSON; it is not required to process the primary event category and status.
-5. The supplied sample does not include a failed-delivery callback. A failure event type, status value, and failure payload cannot be defined from the available sample.
-6. This guide documents only fields and values evidenced in the supplied RCS Status sample; it does not infer additional callback fields or enum values.
+4. Provider-related metadata is documented because it appears in the JSON; it is not required to process the primary event category and status.
+5. The example does not include a failed-delivery callback. A failure event type, status value, and failure payload cannot be defined from the available sample.
+6. This guide documents only fields and values evidenced in the GTS CPaaS RCS Status webhook structure; it does not infer additional callback fields or enum values.
 
 ## Appendix A. Sample webhook payloads
 
