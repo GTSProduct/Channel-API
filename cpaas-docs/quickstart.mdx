@@ -66,6 +66,13 @@ description: "Send your first message in four steps."
   <Step title="Check delivery status">
     Use the status endpoint for the channel (for example `GET /api/sms/status`) with the message ID from the send response.
   </Step>
+  <Step title="Optional: Receive delivery updates with webhooks">
+    If you want CPaaS+ to push status updates to your application instead of polling, configure a webhook.
+
+    For SMS, open **Settings → Client Webhook** in the CPaaS+ portal, create a webhook for **SMS Channel**, enter your callback URL, and activate the **Default DLR** subscription. You can optionally enable **Bulk push**. See the [SMS DLR Webhook guide](/guides/sms-dlr-webhook) for the full setup, payload fields and callback-handling notes.
+
+    For RCS, see the [RCS Webhook guide](/guides/rcs-webhook) for the documented dispatch, delivery, interaction and incoming-message event payloads.
+  </Step>
 </Steps>
 
 <Tip>
