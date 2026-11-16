@@ -127,6 +127,7 @@ paths:
               - 91XXXXXXXXXX
               params:
                 '1': ORD-1001
+              correlation_id: ''
       responses:
         '200':
           description: Request accepted.
@@ -176,6 +177,7 @@ paths:
               product: Transactional
               template_id: '1107160000000000000'
               entity_id: '1101160000000000000'
+              correlation_id: ''
       responses:
         '200':
           description: Request accepted.
@@ -391,6 +393,7 @@ paths:
                     params:
                     - Asha
                     - ORD-1001
+                  correlation_id: ''
               withMedia:
                 summary: Template with a media header
                 value:
@@ -399,6 +402,7 @@ paths:
                   template:
                     id: invoice_share
                   media_url: https://example.com/files/invoice.pdf
+                  correlation_id: ''
       responses:
         '200':
           description: Request accepted.
@@ -2774,6 +2778,9 @@ components:
             type: string
           description: 'Dynamic values keyed by variable position, as defined in the
             template (for example `{"1": "value"}`).'
+        correlation_id:
+          type: string
+          description: Optional client-supplied identifier used to correlate the request.
     SmsOpenTextRequest:
       type: object
       required:
@@ -2816,6 +2823,9 @@ components:
         entity_id:
           type: string
           description: Registered entity ID. Mandatory in India.
+        correlation_id:
+          type: string
+          description: Optional client-supplied identifier used to correlate the request.
     WhatsAppMessageRequest:
       type: object
       required:
@@ -2847,6 +2857,9 @@ components:
           format: uri
           description: Public URL of a document, PDF or image for templates with
             a media header.
+        correlation_id:
+          type: string
+          description: Optional client-supplied identifier used to correlate the request.
     OrderStatusRequest:
       type: object
       properties:
