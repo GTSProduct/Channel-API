@@ -1,0 +1,52 @@
+---
+title: "Webhooks & Callbacks"
+description: "Understand CPaaS+ webhook notifications and find channel-specific callback guides."
+---
+
+Webhooks let CPaaS+ send event notifications to an application endpoint when supported messaging events occur. They provide an event-driven alternative to repeatedly polling an API for updates.
+
+Use this section to identify the relevant channel guide, review its payload structure, and prepare your application to receive callbacks.
+
+## Choose a channel
+
+<CardGroup cols={2}>
+  <Card title="SMS DLR Webhook" icon="message-square" href="/guides/sms-dlr-webhook">
+    Configure SMS delivery report callbacks, review delivery statuses and error codes, and inspect the DLR payload fields.
+  </Card>
+  <Card title="RCS Webhooks" icon="message-circle" href="/guides/rcs-webhook">
+    Review RCS dispatch and delivery events, read notifications, user interactions, incoming messages, and their payload structures.
+  </Card>
+</CardGroup>
+
+## How the callback flow works
+
+1. **Configure a callback destination.** Provide the application endpoint that should receive notifications, following the setup instructions for the channel.
+2. **Subscribe to supported events.** Enable the event subscription relevant to the notifications your application needs.
+3. **Receive the callback.** CPaaS+ sends an HTTP request containing the event data to the configured endpoint.
+4. **Process the event.** Read the channel-specific payload and update your application using the identifiers and status fields provided.
+
+The exact configuration options, event names, payload fields, and callback behavior are channel-specific. Refer to the channel guide rather than assuming that SMS and RCS use identical settings or payloads.
+
+## Implementation considerations
+
+- **Use a reachable endpoint.** Make sure your application endpoint is available to receive inbound HTTP callbacks.
+- **Handle requests promptly.** For SMS DLR callbacks, the documented guidance is to return **HTTP 200 OK** promptly. A non-200 response or timeout may result in retries.
+- **Validate and protect the endpoint.** Apply the authentication and network controls documented for the channel. The SMS DLR guide specifies Bearer Token authentication and lists the GTS callback source IP for firewall allowlisting. Do not assume those details apply to other channels unless their documentation confirms it.
+- **Design for repeated notifications.** Where retries may occur, make event processing safe to repeat. Use the identifiers available in the payload to help detect events your application has already processed.
+- **Keep an operational record.** Log callback receipt time, event type, relevant message identifiers, processing outcome, and errors without unnecessarily storing sensitive message content.
+
+## Channel-specific documentation
+
+| Channel | What the guide covers |
+| --- | --- |
+| [SMS DLR Webhook](/guides/sms-dlr-webhook) | Portal configuration, callback source IP, Bearer Token authentication, DLR payload fields, status/error codes, and callback handling notes. |
+| [RCS Webhooks](/guides/rcs-webhook) | Dispatch, delivery, read, action/CTA, quick-reply, and incoming-message event structures and sample payloads. |
+
+<Note>
+  The RCS guide documents event names and payload structures. It does not currently define the portal setup flow, endpoint authentication requirements, retry policy, or acknowledgement behavior for RCS callbacks. Confirm those details with your GTS CPaaS contact before implementing them.
+</Note>
+
+## Related
+
+- [Quickstart](/quickstart) — make your first CPaaS+ API request.
+- [API Reference](/cpaas-api-reference) — explore endpoint-level request and response documentation.
