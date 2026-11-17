@@ -43,9 +43,6 @@ tags:
     WABA number.
 - name: Email
   description: Send template-based or open-text email and check delivery status.
-- name: Email Verification
-  description: Generate and validate one-time passwords (OTP) delivered by 
-    email.
 - name: RCS Templates
   description: Create RCS templates (text with buttons, rich card, carousel).
 - name: RCS Messaging
@@ -1856,124 +1853,6 @@ paths:
               - id
             example:
               id: 3d778746-c991-44bc-ae46-c15af500673d
-  /api/verify/send-otp:
-    post:
-      tags:
-      - Email Verification
-      operationId: sendEmailOtp
-      summary: Generate and send an OTP
-      description: 'Generates a time-limited OTP and delivers it using the verification
-        template configured in the portal (Templates, then OTP Templates). Store the
-        `unique_id` from the response: it is required to validate the OTP.'
-      parameters:
-      - name: verification_id
-        in: query
-        required: true
-        description: Verification ID fetched from the verification template in 
-          the CPaaS+ portal.
-        schema:
-          type: string
-      - name: type
-        in: query
-        required: true
-        description: Delivery channel for the OTP.
-        schema:
-          type: string
-          enum:
-          - email
-      - name: email
-        in: query
-        required: true
-        description: Destination email address.
-        schema:
-          type: string
-          format: email
-      responses:
-        '200':
-          description: Request accepted.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OtpSendResponse'
-              example:
-                status: success
-                message: OTP sent successfully.
-                data:
-                  unique_id: otp-sess-hpzv07gryhdr
-                  expires_in: 300
-                  channel: email
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-        '500':
-          $ref: '#/components/responses/ServerError'
-  /api/verify/validate-otp:
-    post:
-      tags:
-      - Email Verification
-      operationId: validateEmailOtp
-      summary: Validate an OTP
-      description: 'Validates the OTP entered by the user against the `unique_id`
-        returned by the send call. Returns `verified: true` on success. A wrong or
-        expired OTP returns `status: error` with `verified: false`.'
-      parameters:
-      - name: unique_id
-        in: query
-        required: true
-        description: Unique ID returned in the response of the send-OTP request.
-        schema:
-          type: string
-      - name: otp
-        in: query
-        required: true
-        description: OTP value entered by the user.
-        schema:
-          type: string
-      responses:
-        '200':
-          description: Request accepted.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OtpValidateResponse'
-              examples:
-                verified:
-                  summary: OTP verified
-                  value:
-                    status: success
-                    message: OTP verified successfully.
-                    data:
-                      verified: true
-                      unique_id: otp-sess-hpzv07gryhdr
-                wrongOtp:
-                  summary: Wrong OTP
-                  value:
-                    status: error
-                    message: Invalid OTP.
-                    data:
-                      verified: false
-                expired:
-                  summary: Expired OTP
-                  value:
-                    status: error
-                    message: OTP has expired. Please request a new OTP.
-                    data:
-                      verified: false
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-        '500':
-          $ref: '#/components/responses/ServerError'
   /api/rcs/template/create:
     post:
       tags:
@@ -4025,8 +3904,7 @@ components:
               type: integer
             click_count:
               type: integer
-    OtpSendResponse:
-      type: object
+
       properties:
         status:
           type: string
@@ -4044,8 +3922,7 @@ components:
               description: OTP validity in seconds (default 300).
             channel:
               type: string
-    OtpValidateResponse:
-      type: object
+
       properties:
         status:
           type: string
