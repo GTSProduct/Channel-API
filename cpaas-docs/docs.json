@@ -34,11 +34,36 @@
             ]
           },
           {
-            "group": "Channel guides",
+            "group": "WhatsApp",
             "pages": [
-              "guides/sms",
               "guides/whatsapp",
               "guides/whatsapp-user-management",
+              "whatsapp-wrapper-overview",
+              "getting-started",
+              "text-message",
+              "image-message",
+              "audio-message",
+              "video-message",
+              "document-message",
+              "sticker-message",
+              "contact-message",
+              "location-message",
+              "location-request-message",
+              "interactive-reply-buttons",
+              "interactive-list",
+              "interactive-cta-url",
+              "reaction-message",
+              "contextual-reply-message",
+              "typing-indicators-read-receipts",
+              "media-handling",
+              "integration-notes",
+              "status-codes"
+            ]
+          },
+          {
+            "group": "Other channel guides",
+            "pages": [
+              "guides/sms",
               "guides/email",
               "guides/rcs",
               "guides/flow-builder"
@@ -49,56 +74,6 @@
       {
         "tab": "API Reference",
         "openapi": "cpaas-api-reference.yaml"
-      },
-      {
-        "tab": "WhatsApp Wrapper API",
-        "groups": [
-          {
-            "group": "Overview",
-            "pages": [
-              "whatsapp-wrapper-overview",
-              "getting-started"
-            ]
-          },
-          {
-            "group": "Message Types",
-            "pages": [
-              "text-message",
-              "image-message",
-              "audio-message",
-              "video-message",
-              "document-message",
-              "sticker-message",
-              "contact-message",
-              "location-message",
-              "location-request-message"
-            ]
-          },
-          {
-            "group": "Interactive Messages",
-            "pages": [
-              "interactive-reply-buttons",
-              "interactive-list",
-              "interactive-cta-url"
-            ]
-          },
-          {
-            "group": "Message Interactions",
-            "pages": [
-              "reaction-message",
-              "contextual-reply-message",
-              "typing-indicators-read-receipts"
-            ]
-          },
-          {
-            "group": "Integration and Troubleshooting",
-            "pages": [
-              "media-handling",
-              "integration-notes",
-              "status-codes"
-            ]
-          }
-        ]
       }
     ]
   }
