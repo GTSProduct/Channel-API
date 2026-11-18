@@ -3904,39 +3904,6 @@ components:
               type: integer
             click_count:
               type: integer
-
-      properties:
-        status:
-          type: string
-        message:
-          type: string
-        data:
-          type: object
-          properties:
-            unique_id:
-              type: string
-              description: 'OTP session ID. Store it: it is required to validate the
-                OTP.'
-            expires_in:
-              type: integer
-              description: OTP validity in seconds (default 300).
-            channel:
-              type: string
-
-      properties:
-        status:
-          type: string
-        message:
-          type: string
-        data:
-          type: object
-          properties:
-            verified:
-              type: boolean
-              description: '`true` if the OTP matched and is valid; `false` if incorrect
-                or expired.'
-            unique_id:
-              type: string
     RcsTemplateCreateResponse:
       type: object
       properties:
