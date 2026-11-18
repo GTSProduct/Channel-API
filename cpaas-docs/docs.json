@@ -37,102 +37,68 @@
             "group": "Channel guides",
             "pages": [
               "guides/sms",
-              {
-                "group": "WhatsApp",
-                "pages": [
-                  "guides/whatsapp",
-                  "guides/whatsapp-user-management",
-                  {
-                    "group": "Template Management",
-                    "pages": [
-                      "create-whatsapp-message-template",
-                      "fetch-whatsapp-message-templates",
-                      "delete-whatsapp-message-template"
-                    ]
-                  },
-                  {
-                    "group": "Wrapper API",
-                    "pages": [
-                      "whatsapp-wrapper-overview",
-                      "getting-started",
-                      {
-                        "group": "Message Types",
-                        "pages": [
-                          "text-message",
-                          "image-message",
-                          "audio-message",
-                          "video-message",
-                          "document-message",
-                          "sticker-message",
-                          "contact-message",
-                          "location-message",
-                          "location-request-message"
-                        ]
-                      },
-                      {
-                        "group": "Interactive Messages",
-                        "pages": [
-                          "interactive-reply-buttons",
-                          "interactive-list",
-                          "interactive-cta-url"
-                        ]
-                      },
-                      {
-                        "group": "Message Interactions",
-                        "pages": [
-                          "reaction-message",
-                          "contextual-reply-message",
-                          "typing-indicators-read-receipts"
-                        ]
-                      },
-                      {
-                        "group": "Integration and Troubleshooting",
-                        "pages": [
-                          "media-handling",
-                          "integration-notes",
-                          "status-codes"
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              },
+              "guides/whatsapp",
+              "guides/whatsapp-user-management",
               "guides/email",
-              {
-                "group": "RCS",
-                "pages": [
-                  "guides/rcs"
-                ]
-              },
-              {
-                "group": "Flow Builder",
-                "pages": [
-                  "guides/flow-builder",
-                  "create-whatsapp-flow",
-                  "assign-assets-to-whatsapp-flow",
-                  "publish-whatsapp-flow",
-                  "deprecate-whatsapp-flow",
-                  "delete-whatsapp-flow"
-                ]
-              }
-            ]
-          },
-          {
-            "group": "SMS & RCS Webhooks",
-            "pages": [
-              "guides/sms-dlr-webhook",
-              "guides/rcs-webhook"
+              "guides/rcs",
+              "guides/flow-builder"
             ]
           }
         ]
       },
       {
         "tab": "API Reference",
-        "openapi": "cpaas-api-reference.yaml"
+        "openapi": "openapi.yaml"
       },
       {
         "tab": "WhatsApp Wrapper API",
-        "openapi": "wrapper-openapi.yaml"
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "whatsapp-wrapper-overview",
+              "getting-started"
+            ]
+          },
+          {
+            "group": "Message Types",
+            "pages": [
+              "text-message",
+              "image-message",
+              "audio-message",
+              "video-message",
+              "document-message",
+              "sticker-message",
+              "contact-message",
+              "location-message",
+              "location-request-message"
+            ]
+          },
+          {
+            "group": "Interactive Messages",
+            "pages": [
+              "interactive-reply-buttons",
+              "interactive-list",
+              "interactive-cta-url"
+            ]
+          },
+          {
+            "group": "Message Interactions",
+            "pages": [
+              "reaction-message",
+              "contextual-reply-message",
+              "typing-indicators-read-receipts"
+            ]
+          },
+          {
+            "group": "Integration and Troubleshooting",
+            "pages": [
+              "media-handling",
+              "integration-notes",
+              "status-codes"
+            ]
+          }
+        ]
       }
     ]
   }
