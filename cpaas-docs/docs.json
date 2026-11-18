@@ -34,36 +34,41 @@
             ]
           },
           {
-            "group": "WhatsApp",
-            "pages": [
-              "guides/whatsapp",
-              "guides/whatsapp-user-management",
-              "whatsapp-wrapper-overview",
-              "getting-started",
-              "text-message",
-              "image-message",
-              "audio-message",
-              "video-message",
-              "document-message",
-              "sticker-message",
-              "contact-message",
-              "location-message",
-              "location-request-message",
-              "interactive-reply-buttons",
-              "interactive-list",
-              "interactive-cta-url",
-              "reaction-message",
-              "contextual-reply-message",
-              "typing-indicators-read-receipts",
-              "media-handling",
-              "integration-notes",
-              "status-codes"
-            ]
-          },
-          {
-            "group": "Other channel guides",
+            "group": "Channel guides",
             "pages": [
               "guides/sms",
+              {
+                "group": "WhatsApp",
+                "pages": [
+                  "guides/whatsapp",
+                  "guides/whatsapp-user-management",
+                  {
+                    "group": "WhatsApp Wrapper APIs",
+                    "pages": [
+                      "whatsapp-wrapper-overview",
+                      "getting-started",
+                      "text-message",
+                      "image-message",
+                      "audio-message",
+                      "video-message",
+                      "document-message",
+                      "sticker-message",
+                      "contact-message",
+                      "location-message",
+                      "location-request-message",
+                      "interactive-reply-buttons",
+                      "interactive-list",
+                      "interactive-cta-url",
+                      "reaction-message",
+                      "contextual-reply-message",
+                      "typing-indicators-read-receipts",
+                      "media-handling",
+                      "integration-notes",
+                      "status-codes"
+                    ]
+                  }
+                ]
+              },
               "guides/email",
               "guides/rcs",
               "guides/flow-builder"
