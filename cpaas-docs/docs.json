@@ -73,6 +73,14 @@
               "guides/rcs",
               "guides/flow-builder"
             ]
+          },
+          {
+            "group": "Webhooks",
+            "pages": [
+              "webhooks",
+              "guides/sms-dlr-webhook",
+              "guides/rcs-webhook"
+            ]
           }
         ]
       },
