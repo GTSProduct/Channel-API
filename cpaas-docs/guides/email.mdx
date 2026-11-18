@@ -1,17 +1,15 @@
 ---
-title: "Email and OTP verification"
-description: "Send template or open-text email, track status, and verify users with an email OTP."
+title: "Email"
+description: "Send template or open-text email and track delivery status."
 ---
 
-Send transactional, promotional and OTP emails with dynamic variables, HTML content and attachments.
+Send transactional and promotional emails with dynamic variables, HTML content and attachments.
 
 | API | Endpoint | Best for |
 | --- | --- | --- |
 | Template send | `POST /api/email/template/send` | Pre-built templates with dynamic variables. |
 | Open text | `POST /api/email/send` | Custom HTML or text without a template. |
 | Status | `GET /api/email/status` | Delivery status and event timeline. |
-| OTP send | `POST /api/verify/send-otp` | Generating and emailing an OTP. |
-| OTP verification | `POST /api/verify/validate-otp` | Validating the code the user enters. |
 
 <Note>
   `service_name` and `account` must exactly match the active configuration under **Email Settings** in the portal. Attachments must be Base64 encoded with the correct MIME type.
@@ -143,58 +141,3 @@ curl --location --request GET 'https://api.yourcpaas.com/api/email/status' \
 ```
 
 Timeline fields are `null` until the event happens. Errors: `The id field is required.` and `Message ID not found`.
-
-## Verify users with an email OTP
-
-<Steps>
-  <Step title="Send the OTP">
-    Get the Verification ID from the portal under **Templates, then OTP Templates**.
-
-    ```bash
-    curl --location --request POST \
-      'https://api.yourcpaas.com/api/verify/send-otp?verification_id=VT-001&type=email&email=user@example.com' \
-      --header 'Accept: application/json' \
-      --header 'Authorization: Bearer YOUR_TOKEN'
-    ```
-
-    ```json Success
-    {
-      "status": "success",
-      "message": "OTP sent successfully.",
-      "data": { "unique_id": "otp-sess-hpzv07gryhdr", "expires_in": 300, "channel": "email" }
-    }
-    ```
-
-    Store `unique_id` immediately. The OTP is valid for `expires_in` seconds (default 300, or 5 minutes).
-  </Step>
-  <Step title="Validate the OTP">
-    ```bash
-    curl --location --request POST \
-      'https://api.yourcpaas.com/api/verify/validate-otp?unique_id=otp-sess-hpzv07gryhdr&otp=485923' \
-      --header 'Accept: application/json' \
-      --header 'Authorization: Bearer YOUR_TOKEN'
-    ```
-
-    <Tabs>
-      <Tab title="Verified">
-        ```json
-        { "status": "success", "message": "OTP verified successfully.", "data": { "verified": true, "unique_id": "otp-sess-hpzv07gryhdr" } }
-        ```
-      </Tab>
-      <Tab title="Wrong OTP">
-        ```json
-        { "status": "error", "message": "Invalid OTP.", "data": { "verified": false } }
-        ```
-      </Tab>
-      <Tab title="Expired OTP">
-        ```json
-        { "status": "error", "message": "OTP has expired. Please request a new OTP.", "data": { "verified": false } }
-        ```
-      </Tab>
-    </Tabs>
-
-    If the OTP expired, call the send API again to generate a new one.
-  </Step>
-</Steps>
-
-OTP send errors: `Verification template not found or inactive` (check the template ID), `The type field is required.` (add `type=email`), and `Invalid email address format`. Validation errors: `The unique_id field is required.` and `The otp field is required.`
