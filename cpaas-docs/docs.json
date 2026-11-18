@@ -128,7 +128,7 @@
       },
       {
         "tab": "API Reference",
-        "openapi": "cpaas-api-reference.yaml"
+        "openapi": "openapi.yaml"
       },
       {
         "tab": "WhatsApp Wrapper API",

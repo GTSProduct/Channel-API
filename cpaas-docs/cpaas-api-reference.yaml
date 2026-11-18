@@ -3,7 +3,7 @@ info:
   title: CPaaS+ Messaging API
   version: 1.0.0
   description: 'Unified REST API for sending and managing customer communications
-    across **SMS**, **WhatsApp**, **Email**, **RCS**
+    across **SMS**, **WhatsApp**, **Email (including OTP verification)**, **RCS**
     and **Flow Builder**. It also includes the **WhatsApp Wrapper API**, a simplified
     layer over Meta''s WhatsApp Cloud API for sending free-form message types (text,
     media, interactive and more).
