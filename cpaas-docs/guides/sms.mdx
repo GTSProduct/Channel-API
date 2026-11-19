@@ -60,7 +60,8 @@ curl --location 'https://api.yourcpaas.com/api/sms/template/send' \
   --data '{
     "alias": "TEMPLATE_ID",
     "to": ["91XXXXXXXXXX"],
-    "params": { "1": "Var1" }
+    "params": { "1": "Var1" },
+    "correlation_id": ""
   }'
 ```
 
@@ -114,7 +115,8 @@ curl --location 'https://api.yourcpaas.com/api/sms/send' \
     "type": "A",
     "product": "Transactional",
     "template_id": "TEMPLATE_ID",
-    "entity_id": "ENTITY_ID"
+    "entity_id": "ENTITY_ID",
+    "correlation_id": ""
   }'
 ```
 
