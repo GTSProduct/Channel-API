@@ -36,7 +36,8 @@ All templates must be approved in Meta Business Manager before sending. The temp
         "source": "WHATSAPP_NUMBER",
         "destination": "91XXXXXXXXXX",
         "template": { "id": "TEMPLATE_ID" },
-        "media_url": "https://example.com/file.pdf"
+        "media_url": "https://example.com/file.pdf",
+        "correlation_id": ""
       }'
     ```
   </Tab>
@@ -49,7 +50,8 @@ All templates must be approved in Meta Business Manager before sending. The temp
       --data '{
         "source": "WHATSAPP_NUMBER",
         "destination": "91XXXXXXXXXX",
-        "template": { "id": "TEMPLATE_ID", "params": ["Var1", "Var2"] }
+        "template": { "id": "TEMPLATE_ID", "params": ["Var1", "Var2"] },
+        "correlation_id": ""
       }'
     ```
   </Tab>
